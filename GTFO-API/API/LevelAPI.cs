@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GameData;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
+using LevelGeneration;
 using SNetwork;
 
 namespace GTFO.API
@@ -83,6 +80,16 @@ namespace GTFO.API
         /// </summary>
         public static event Action OnLevelCleanup;
 
+        /// <summary>
+        /// Invoked when LevelGeneration Job Batch has Started
+        /// </summary>
+        public static event Action<LG_Factory.BatchName> OnBeforeBuildBatch;
+
+        /// <summary>
+        /// Invoked when LevelGeneration Job Batch has Finished
+        /// </summary>
+        public static event Action<LG_Factory.BatchName> OnAfterBuildBatch;
+
         internal static void ExpeditionUpdated(pActiveExpedition activeExp, ExpeditionInTierData expData)
         {
             OnLevelDataUpdated?.Invoke(ActiveExpedition.CreateFrom(activeExp), expData);
@@ -101,6 +108,8 @@ namespace GTFO.API
         internal static void BuildDone() => OnBuildDone?.Invoke();
         internal static void EnterLevel() => OnEnterLevel?.Invoke();
         internal static void LevelCleanup() => OnLevelCleanup?.Invoke();
+        internal static void BeforeBuildBatch(LG_Factory.BatchName batchName) => OnBeforeBuildBatch?.Invoke(batchName);
+        internal static void AfterBuildBatch(LG_Factory.BatchName batchName) => OnAfterBuildBatch?.Invoke(batchName);
     }
 
     /// <summary>
