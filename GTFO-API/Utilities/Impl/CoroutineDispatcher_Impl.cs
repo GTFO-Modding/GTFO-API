@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BepInEx.Unity.IL2CPP.Utils;
 using Il2CppInterop.Runtime.Attributes;
 using UnityEngine;
@@ -48,6 +44,7 @@ namespace GTFO.API.Utilities.Impl
             if (m_HasInLevelCoroutines && !GameStateManager.IsInExpedition)
             {
                 m_InLevelCoroutines.ForEach((coroutine) => { StopCoroutine(coroutine); });
+                m_InLevelCoroutines.Clear();
                 m_HasInLevelCoroutines = false;
             }
         }
@@ -74,7 +71,7 @@ namespace GTFO.API.Utilities.Impl
         }
 
         private bool m_HasInLevelCoroutines = false;
-        private readonly List<Coroutine> m_InLevelCoroutines = null;
+        private readonly List<Coroutine> m_InLevelCoroutines = [];
         private static CoroutineDispatcher_Impl s_Instance = null;
     }
 }
