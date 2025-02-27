@@ -69,6 +69,11 @@ namespace GTFO.API.Resources
         /// </summary>
         public static ApiStatusInfo SoundBank { get; internal set; } = new();
 
+        /// <summary>
+        /// Status info for the <see cref="InteropAPI"/>
+        /// </summary>
+        public static ApiStatusInfo Interop { get; internal set; } = new();
+
         internal static GameObject ScriptHolder
         {
             get
