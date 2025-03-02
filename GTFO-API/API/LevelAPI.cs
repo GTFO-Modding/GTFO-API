@@ -93,14 +93,15 @@ namespace GTFO.API
 
         internal static void ExpeditionUpdated(pActiveExpedition activeExp, ExpeditionInTierData expData)
         {
-            OnLevelDataUpdated?.Invoke(ActiveExpedition.CreateFrom(activeExp), expData);
+            var activeExpData = ActiveExpedition.CreateFrom(activeExp);
+            SafeInvoke.InvokeDelegate<LevelDataUpdateEvent>(OnLevelDataUpdated, (del) => { del(activeExpData, expData); });
 
             var tier = activeExp.tier;
             var index = activeExp.expeditionIndex;
 
             if (tier != s_LatestExpTier || index != s_LatestExpIndex)
             {
-                OnLevelSelected?.Invoke(tier, index, expData);
+                SafeInvoke.InvokeDelegate<LevelSelectedEvent>(OnLevelSelected, (del) => { del(tier, index, expData); });
                 s_LatestExpTier = tier;
                 s_LatestExpIndex = index;
             }
