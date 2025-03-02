@@ -7,6 +7,7 @@ using BepInEx;
 using GTFO.API.Attributes;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
+using GTFO.API.Utilities;
 using UnityEngine;
 
 namespace GTFO.API
@@ -194,10 +195,10 @@ namespace GTFO.API
             {
                 APIStatus.CreateApi<AssetAPI_Impl>(nameof(APIStatus.Asset));
             }
-            OnStartupAssetsLoaded?.Invoke();
+            SafeInvoke.Invoke(OnStartupAssetsLoaded);
         }
 
-        internal static void InvokeImplReady() => OnImplReady?.Invoke();
+        internal static void InvokeImplReady() => SafeInvoke.Invoke(OnImplReady);
 
         internal static void Setup()
         {
@@ -212,7 +213,7 @@ namespace GTFO.API
             bool anyLoaded = LoadAssetBundles(assetBundleDir);
             anyLoaded |= LoadAssetBundles(assetBundlesDirOld, outdated: true);
             if (anyLoaded)
-                OnAssetBundlesLoaded?.Invoke();
+                SafeInvoke.Invoke(OnAssetBundlesLoaded);
         }
 
         private static bool LoadAssetBundles(string assetBundlesDir, bool outdated = false)

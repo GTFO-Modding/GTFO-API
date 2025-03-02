@@ -2,6 +2,7 @@
 using GameData;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
+using GTFO.API.Utilities;
 using LevelGeneration;
 using SNetwork;
 
@@ -104,12 +105,12 @@ namespace GTFO.API
                 s_LatestExpIndex = index;
             }
         }
-        internal static void BuildStart() => OnBuildStart?.Invoke();
-        internal static void BuildDone() => OnBuildDone?.Invoke();
-        internal static void EnterLevel() => OnEnterLevel?.Invoke();
-        internal static void LevelCleanup() => OnLevelCleanup?.Invoke();
-        internal static void BeforeBuildBatch(LG_Factory.BatchName batchName) => OnBeforeBuildBatch?.Invoke(batchName);
-        internal static void AfterBuildBatch(LG_Factory.BatchName batchName) => OnAfterBuildBatch?.Invoke(batchName);
+        internal static void BuildStart() => SafeInvoke.Invoke(OnBuildStart);
+        internal static void BuildDone() => SafeInvoke.Invoke(OnBuildDone);
+        internal static void EnterLevel() => SafeInvoke.Invoke(OnEnterLevel);
+        internal static void LevelCleanup() => SafeInvoke.Invoke(OnLevelCleanup);
+        internal static void BeforeBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnBeforeBuildBatch, batchName);
+        internal static void AfterBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnAfterBuildBatch, batchName);
     }
 
     /// <summary>

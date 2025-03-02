@@ -1,6 +1,7 @@
 ﻿using System;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
+using GTFO.API.Utilities;
 
 namespace GTFO.API
 {
@@ -23,6 +24,6 @@ namespace GTFO.API
         /// </summary>
         public static event Action OnGameDataInitialized;
 
-        internal static void InvokeGameDataInit() => OnGameDataInitialized?.Invoke();
+        internal static void InvokeGameDataInit() => SafeInvoke.Invoke(OnGameDataInitialized);
     }
 }
