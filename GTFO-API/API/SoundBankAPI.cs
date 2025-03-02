@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using BepInEx;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
+using GTFO.API.Utilities;
 using HarmonyLib;
 
 namespace GTFO.API
@@ -39,7 +40,7 @@ namespace GTFO.API
             soundbanksToLoad.Do(LoadBank);
 
             if (soundbanksToLoad.Any())
-                OnSoundBanksLoaded?.Invoke();
+                SafeInvoke.Invoke(OnSoundBanksLoaded);
         }
 
         private static unsafe void LoadBank(FileInfo file)

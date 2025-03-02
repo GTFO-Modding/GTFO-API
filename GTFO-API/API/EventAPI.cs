@@ -3,6 +3,7 @@ using AssetShards;
 using Globals;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
+using GTFO.API.Utilities;
 
 namespace GTFO.API
 {
@@ -36,8 +37,8 @@ namespace GTFO.API
             RundownManager.add_OnExpeditionGameplayStarted((Action)ExpeditionStarted);
         }
 
-        private static void ManagersSetup() => OnManagersSetup?.Invoke();
-        private static void ExpeditionStarted() => OnExpeditionStarted?.Invoke();
-        private static void AssetsLoaded() => OnAssetsLoaded?.Invoke();
+        private static void ManagersSetup() => SafeInvoke.Invoke(OnManagersSetup);
+        private static void ExpeditionStarted() => SafeInvoke.Invoke(OnExpeditionStarted);
+        private static void AssetsLoaded() => SafeInvoke.Invoke(OnAssetsLoaded);
     }
 }

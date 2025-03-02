@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Resources;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Globalization;
+using System.Reflection;
+using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using GameData;
 using GTFO.API.Attributes;
-using Localization;
 using GTFO.API.Resources;
-using System.Runtime.CompilerServices;
+using GTFO.API.Utilities;
+using Localization;
 
 #nullable enable
 namespace GTFO.API;
@@ -61,7 +62,7 @@ public static partial class LocalizationAPI
 
     internal static void LanguageChanged()
     {
-        OnLanguageChange?.Invoke();
+        SafeInvoke.Invoke(OnLanguageChange);
     }
 
     /// <summary>
