@@ -49,7 +49,7 @@ namespace GTFO.API
             OnEnterLevel += () => APILogger.Debug(nameof(LevelAPI), "OnEnterLevel Invoked");
             OnLevelCleanup += () => APILogger.Debug(nameof(LevelAPI), "OnLevelCleanup Invoked");
             OnFactoryStart += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryStart)} Invoked");
-            OnFactoryFinished += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryFinished)} Invoked");
+            OnFactoryDone += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryDone)} Invoked");
 #endif
         }
 
@@ -91,7 +91,7 @@ namespace GTFO.API
         /// <summary>
         /// Invoked when LevelFactory has finished. This is called after Every other <see cref="LG_Factory.OnFactoryBuildDone"/> event has invoked.
         /// </summary>
-        public static event Action OnFactoryFinished;
+        public static event Action OnFactoryDone;
 
         /// <summary>
         /// Invoked when LevelGeneration Job Batch has Started
@@ -123,7 +123,7 @@ namespace GTFO.API
         internal static void EnterLevel() => SafeInvoke.Invoke(OnEnterLevel);
         internal static void LevelCleanup() => SafeInvoke.Invoke(OnLevelCleanup);
         internal static void FactoryStart() => SafeInvoke.Invoke(OnFactoryStart);
-        internal static void FactoryFinished() => SafeInvoke.Invoke(OnFactoryFinished);
+        internal static void FactoryFinished() => SafeInvoke.Invoke(OnFactoryDone);
         internal static void BeforeBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnBeforeBuildBatch, batchName);
         internal static void AfterBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnAfterBuildBatch, batchName);
     }
