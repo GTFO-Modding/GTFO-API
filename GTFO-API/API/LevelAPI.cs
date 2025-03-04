@@ -42,12 +42,14 @@ namespace GTFO.API
             EventAPI.OnExpeditionStarted += EnterLevel;
 
 #if DEBUG
-            OnLevelDataUpdated += (activeExp, expData) => APILogger.Debug(nameof(LevelAPI), $"OnLevelDataUpdated Invoked");
-            OnLevelSelected += (tier, index, data) => APILogger.Debug(nameof(LevelAPI), $"OnLevelSelected(tier: {tier}, index: {index}, publicName: {data.Descriptive.PublicName}) Invoked");
-            OnBuildStart += () => APILogger.Debug(nameof(LevelAPI), "OnBuildStart Invoked");
-            OnBuildDone += () => APILogger.Debug(nameof(LevelAPI), "OnBuildDone Invoked");
-            OnEnterLevel += () => APILogger.Debug(nameof(LevelAPI), "OnEnterLevel Invoked");
-            OnLevelCleanup += () => APILogger.Debug(nameof(LevelAPI), "OnLevelCleanup Invoked");
+            OnLevelDataUpdated += (activeExp, expData) => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnLevelDataUpdated)} Invoked");
+            OnLevelSelected += (tier, index, data) => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnLevelSelected)} (tier: {tier}, index: {index}, publicName: {data.Descriptive.PublicName}) Invoked");
+            OnBuildStart += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnBuildStart)} Invoked");
+            OnBuildDone += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnBuildDone)} Invoked");
+            OnEnterLevel += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnEnterLevel)} Invoked");
+            OnLevelCleanup += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnLevelCleanup)} Invoked");
+            OnBeforeBuildBatch += (batchName) => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnBeforeBuildBatch)} (batch: {batchName}) Invoked");
+            OnAfterBuildBatch += (batchName) => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnAfterBuildBatch)} (batch: {batchName}) Invoked");
             OnFactoryStart += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryStart)} Invoked");
             OnFactoryDone += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryDone)} Invoked");
 #endif
