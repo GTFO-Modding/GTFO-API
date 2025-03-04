@@ -48,6 +48,8 @@ namespace GTFO.API
             OnBuildDone += () => APILogger.Debug(nameof(LevelAPI), "OnBuildDone Invoked");
             OnEnterLevel += () => APILogger.Debug(nameof(LevelAPI), "OnEnterLevel Invoked");
             OnLevelCleanup += () => APILogger.Debug(nameof(LevelAPI), "OnLevelCleanup Invoked");
+            OnFactoryStart += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryStart)} Invoked");
+            OnFactoryFinished += () => APILogger.Debug(nameof(LevelAPI), $"{nameof(OnFactoryFinished)} Invoked");
 #endif
         }
 
@@ -82,6 +84,16 @@ namespace GTFO.API
         public static event Action OnLevelCleanup;
 
         /// <summary>
+        /// Invoked when LevelFactory has started. This is called after Every other <see cref="LG_Factory.OnFactoryBuildStart"/> event has invoked.
+        /// </summary>
+        public static event Action OnFactoryStart;
+
+        /// <summary>
+        /// Invoked when LevelFactory has finished. This is called after Every other <see cref="LG_Factory.OnFactoryBuildDone"/> event has invoked.
+        /// </summary>
+        public static event Action OnFactoryFinished;
+
+        /// <summary>
         /// Invoked when LevelGeneration Job Batch has Started
         /// </summary>
         public static event Action<LG_Factory.BatchName> OnBeforeBuildBatch;
@@ -110,6 +122,8 @@ namespace GTFO.API
         internal static void BuildDone() => SafeInvoke.Invoke(OnBuildDone);
         internal static void EnterLevel() => SafeInvoke.Invoke(OnEnterLevel);
         internal static void LevelCleanup() => SafeInvoke.Invoke(OnLevelCleanup);
+        internal static void FactoryStart() => SafeInvoke.Invoke(OnFactoryStart);
+        internal static void FactoryFinished() => SafeInvoke.Invoke(OnFactoryFinished);
         internal static void BeforeBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnBeforeBuildBatch, batchName);
         internal static void AfterBuildBatch(LG_Factory.BatchName batchName) => SafeInvoke.Invoke(OnAfterBuildBatch, batchName);
     }
