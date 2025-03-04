@@ -6,6 +6,14 @@ namespace GTFO.API.Patches
     [HarmonyPatch(typeof(LG_Factory))]
     internal static class LevelGen_Patches
     {
+        [HarmonyPostfix]
+        [HarmonyWrapSafe]
+        [HarmonyPatch(nameof(LG_Factory.OnStart))]
+        private static void Post_Start()
+        {
+            LevelAPI.FactoryStart();
+        }
+
         [HarmonyPrefix]
         [HarmonyWrapSafe]
         [HarmonyPatch(nameof(LG_Factory.NextBatch))]
@@ -23,6 +31,14 @@ namespace GTFO.API.Patches
         private static void Post_Batch(LG_Factory __instance)
         {
             LevelAPI.BeforeBuildBatch(__instance.m_currentBatchName);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyWrapSafe]
+        [HarmonyPatch(nameof(LG_Factory.FactoryDone))]
+        private static void Post_Finished()
+        {
+            LevelAPI.FactoryFinished();
         }
     }
 }
