@@ -61,6 +61,7 @@ namespace GTFO.API
             else
             {
                 APILogger.Error(nameof(SoundBankAPI), $"Error while loading sound bank '{file.Name}' ({loadResult})");
+                NativeMemory.AlignedFree(nativeBank);
             }
         }
     }
