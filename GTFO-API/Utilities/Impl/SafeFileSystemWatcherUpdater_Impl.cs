@@ -48,10 +48,10 @@ internal sealed class SafeFileSystemWatcherUpdater_Impl : MonoBehaviour
 
     static SafeFileSystemWatcherUpdater_Impl()
     {
-        AssetAPI.OnStartupAssetsLoaded += OnAssetsLoaded;
+        EventAPI.OnManagersSetup += OnSetup;
     }
 
-    private static void OnAssetsLoaded()
+    private static void OnSetup()
     {
         if (s_Instance != null) return;
 
