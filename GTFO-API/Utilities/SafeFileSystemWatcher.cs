@@ -108,7 +108,12 @@ namespace GTFO.API.Utilities
     }
 
     /// <summary>
-    /// Wrapper of FileSystemWatcher; Handle threading issue and debouncing of FSW's multiple invokes
+    /// Wrapper of FileSystemWatcher Which Features:
+    /// <list>
+    /// - Ensuring Events Invocation Thread to be Unity's Main Thread<br/>
+    /// - Debounces Multiple Invocation for Single Action<br/>
+    /// - Ensure the File Lock Safety
+    /// </list>
     /// </summary>
     public sealed class SafeFileSystemWatcher : IDisposable
     {
@@ -132,7 +137,7 @@ namespace GTFO.API.Utilities
         /// <summary>
         /// Gets or sets the type of changes to watch for.
         /// <br/>
-        /// - Default: NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime
+        /// - Default: <see cref="NotifyFilters.FileName"/> | <see cref="NotifyFilters.LastWrite"/> | <see cref="NotifyFilters.CreationTime"/>
         /// </summary>
         public NotifyFilters NotifyFilter
         {
@@ -157,27 +162,28 @@ namespace GTFO.API.Utilities
         }
 
         /// <summary>
-        /// Should Event be Re-Queued when file is locked?
+        /// Should Event be Re-Queued when file is locked?<br/>
+        /// - Default: <see langword="true"/>
         /// </summary>
         public bool RetryOnLocked { get; set; } = true;
 
         /// <summary>
-        /// Event when File has Changed, Thread-safe
+        /// Event when File has Changed
         /// </summary>
         public event Action<FileEventArgs> OnChanged;
 
         /// <summary>
-        /// Event when File has Created, Thread-safe
+        /// Event when File has Created
         /// </summary>
         public event Action<FileEventArgs> OnCreated;
 
         /// <summary>
-        /// Event when File has Deleted, Thread-safe
+        /// Event when File has Deleted
         /// </summary>
         public event Action<FileEventArgs> OnDeleted;
 
         /// <summary>
-        /// Event when File has Renamed, Thread-safe
+        /// Event when File has Renamed
         /// </summary>
         public event Action<FileRenamedEventArgs> OnRenamed;
 
