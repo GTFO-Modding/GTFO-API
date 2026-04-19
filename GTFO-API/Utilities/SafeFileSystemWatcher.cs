@@ -285,7 +285,7 @@ namespace GTFO.API.Utilities
         {
             lock (_QueuedEvents)
             {
-                if (_QueuedEvents.Count <= 0)
+                if (_QueuedEvents.IsEmpty)
                     return;
 
                 _HandledEventInFrame.Clear();
