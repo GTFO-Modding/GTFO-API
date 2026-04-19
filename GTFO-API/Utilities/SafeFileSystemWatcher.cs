@@ -283,40 +283,37 @@ namespace GTFO.API.Utilities
 
         internal void HandleEvents()
         {
-            lock (_QueuedEvents)
+            if (_QueuedEvents.IsEmpty)
+                return;
+
+            _HandledEventInFrame.Clear();
+            while (_QueuedEvents.TryDequeue(out var arg))
             {
-                if (_QueuedEvents.IsEmpty)
-                    return;
-
-                _HandledEventInFrame.Clear();
-                while (_QueuedEvents.TryDequeue(out var arg))
+                if (_HandledEventInFrame.Contains(arg))
                 {
-                    if (_HandledEventInFrame.Contains(arg))
-                    {
-                        continue;
-                    }
-
-                    if (RetryOnLocked && (arg.Type != FileEventType.Deleted && arg.IsFileLocked()))
-                    {
-                        _RetryQueue.Enqueue(arg);
-                        continue;
-                    }
-
-                    switch (arg.Type)
-                    {
-                        case FileEventType.Created: OnCreated?.Invoke(arg); break;
-                        case FileEventType.Deleted: OnDeleted?.Invoke(arg); break;
-                        case FileEventType.Renamed: OnRenamed?.Invoke((FileRenamedEventArgs)arg); break;
-                        case FileEventType.Changed: OnChanged?.Invoke(arg); break;
-                    }
-
-                    _HandledEventInFrame.Add(arg);
+                    continue;
                 }
 
-                while (_RetryQueue.TryDequeue(out var arg))
+                if (RetryOnLocked && (arg.Type != FileEventType.Deleted && arg.IsFileLocked()))
                 {
-                    _QueuedEvents.Enqueue(arg);
+                    _RetryQueue.Enqueue(arg);
+                    continue;
                 }
+
+                switch (arg.Type)
+                {
+                    case FileEventType.Created: OnCreated?.Invoke(arg); break;
+                    case FileEventType.Deleted: OnDeleted?.Invoke(arg); break;
+                    case FileEventType.Renamed: OnRenamed?.Invoke((FileRenamedEventArgs)arg); break;
+                    case FileEventType.Changed: OnChanged?.Invoke(arg); break;
+                }
+
+                _HandledEventInFrame.Add(arg);
+            }
+
+            while (_RetryQueue.TryDequeue(out var arg))
+            {
+                _QueuedEvents.Enqueue(arg);
             }
         }
 
