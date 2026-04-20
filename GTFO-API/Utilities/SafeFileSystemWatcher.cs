@@ -239,6 +239,7 @@ public sealed class SafeFileSystemWatcher : IDisposable
         }
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         Dispose(disposing: true);
