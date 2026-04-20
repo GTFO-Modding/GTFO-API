@@ -4,6 +4,8 @@ using Globals;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
 using GTFO.API.Utilities;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace GTFO.API
 {
@@ -14,6 +16,14 @@ namespace GTFO.API
         /// Status info for the <see cref="EventAPI"/>
         /// </summary>
         public static ApiStatusInfo Status => APIStatus.Event;
+
+        /// <summary>
+        /// Invoked when very first scene got loaded into game (First Game Load)
+        /// <list>
+        /// - Useful for Initializing a Singleton Object that Independent from Vanilla codebase.
+        /// </list>
+        /// </summary>
+        public static event Action OnInitialSceneLoaded;
 
         /// <summary>
         /// Invoked when all native managers are set up
@@ -30,11 +40,22 @@ namespace GTFO.API
         /// </summary>
         public static event Action OnAssetsLoaded;
 
+
+        private static bool _InitialSceneLoaded = false;
+
         internal static void Setup()
         {
             Global.add_OnAllManagersSetup((Action)ManagersSetup);
             AssetShardManager.add_OnStartupAssetsLoaded((Action)AssetsLoaded);
             RundownManager.add_OnExpeditionGameplayStarted((Action)ExpeditionStarted);
+            SceneManager.add_sceneLoaded((UnityAction<Scene, LoadSceneMode>)((scene, mode) =>
+            {
+                if (!_InitialSceneLoaded)
+                {
+                    SafeInvoke.Invoke(OnInitialSceneLoaded);
+                    _InitialSceneLoaded = true;
+                }
+            }));
         }
 
         private static void ManagersSetup() => SafeInvoke.Invoke(OnManagersSetup);
