@@ -1,4 +1,5 @@
-﻿using BepInEx.Logging;
+﻿using System.Diagnostics;
+using BepInEx.Logging;
 
 namespace GTFO.API
 {
@@ -14,6 +15,8 @@ namespace GTFO.API
         private static string Format(string module, object msg) => $"[{module}]: {msg}";
 
         public static void Info(string module, object data) => _logger.LogMessage(Format(module, data));
+
+        [Conditional("DEBUG")]
         public static void Verbose(string module, object data)
         {
 #if DEBUG
