@@ -23,10 +23,10 @@ namespace GTFO.API.Utilities.Impl
 
         static CoroutineDispatcher_Impl()
         {
-            AssetAPI.OnStartupAssetsLoaded += OnAssetsLoaded;
+            EventAPI.OnInitialSceneLoaded += OnGameLoaded;
         }
 
-        private static void OnAssetsLoaded()
+        private static void OnGameLoaded()
         {
             if (s_Instance != null) return;
 

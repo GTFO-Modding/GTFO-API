@@ -48,10 +48,10 @@ internal sealed class SafeFileSystemWatcherUpdater_Impl : MonoBehaviour
 
     static SafeFileSystemWatcherUpdater_Impl()
     {
-        EventAPI.OnManagersSetup += OnSetup;
+        EventAPI.OnInitialSceneLoaded += OnGameStarted;
     }
 
-    private static void OnSetup()
+    private static void OnGameStarted()
     {
         if (s_Instance != null) return;
 

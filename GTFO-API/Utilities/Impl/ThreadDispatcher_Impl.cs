@@ -24,10 +24,10 @@ namespace GTFO.API.Utilities.Impl
 
         static ThreadDispatcher_Impl()
         {
-            AssetAPI.OnStartupAssetsLoaded += OnAssetsLoaded;
+            EventAPI.OnInitialSceneLoaded += OnGameStarted;
         }
 
-        private static void OnAssetsLoaded()
+        private static void OnGameStarted()
         {
             if (s_Instance != null) return;
 
