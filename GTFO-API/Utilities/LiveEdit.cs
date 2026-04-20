@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GTFO.API.Utilities
@@ -63,6 +61,7 @@ namespace GTFO.API.Utilities
     /// <summary>
     /// Utility class to make support of LiveEdit config file for plugins
     /// </summary>
+    [Obsolete($"{nameof(SafeFileSystemWatcher)} Can Cover a Usage of LiveEdit")]
     public static class LiveEdit
     {
         internal const int RETRY_COUNT = 5;
@@ -107,7 +106,7 @@ namespace GTFO.API.Utilities
             retryInterval = Math.Max(retryInterval, 0.0f);
 
             var wait = new WaitForSecondsRealtime(retryInterval);
-            for(int i = 0; i < retryCount; i++)
+            for (int i = 0; i < retryCount; i++)
             {
                 try
                 {
@@ -126,6 +125,7 @@ namespace GTFO.API.Utilities
     /// <summary>
     /// 
     /// </summary>
+    [Obsolete($"{nameof(SafeFileSystemWatcher)} Can Cover a Usage of LiveEdit")]
     [SuppressMessage("Interoperability", "CA1416:Platform Compatible on FileSystemWatcher", Justification = "GTFO is Windows only game")]
     public sealed class LiveEditListener : IDisposable
     {
@@ -159,7 +159,7 @@ namespace GTFO.API.Utilities
 
         internal LiveEditListener(string path, string filter, bool includeSubDir)
         {
-            m_Watcher = new ()
+            m_Watcher = new()
             {
                 Path = path,
                 Filter = filter,
@@ -167,7 +167,7 @@ namespace GTFO.API.Utilities
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime
             };
 
-            
+
             m_Watcher.Deleted += (sender, e) => { ThreadDispatcher.Dispatch(() => { FileDeleted?.Invoke(CreateArgs(e, LiveEditEventType.Deleted)); }); };
             m_Watcher.Created += (sender, e) => { ThreadDispatcher.Dispatch(() => { FileCreated?.Invoke(CreateArgs(e, LiveEditEventType.Created)); }); };
             m_Watcher.Renamed += (sender, e) => { ThreadDispatcher.Dispatch(() => { FileRenamed?.Invoke(CreateArgs(e, LiveEditEventType.Renamed)); }); };
@@ -212,7 +212,7 @@ namespace GTFO.API.Utilities
                 LiveEdit.s_Listeners.Remove(this);
                 m_Allocated = false;
             }
-            
+
             if (m_Watcher != null)
             {
                 StopListen();
