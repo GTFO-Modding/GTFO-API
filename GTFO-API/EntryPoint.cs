@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
+using GTFO.API.Components;
 using GTFO.API.Impl;
 using GTFO.API.Utilities.Impl;
 using GTFO.API.Wrappers;
@@ -24,6 +25,9 @@ namespace GTFO.API
             ClassInjector.RegisterTypeInIl2Cpp<ThreadDispatcher_Impl>();
             ClassInjector.RegisterTypeInIl2Cpp<CoroutineDispatcher_Impl>();
             ClassInjector.RegisterTypeInIl2Cpp<SafeFileSystemWatcherUpdater_Impl>();
+
+            APILogger.Verbose("Core", "Registering Utilities Components");
+            ClassInjector.RegisterTypeInIl2Cpp<LG_LightInfo>();
 
             APILogger.Verbose("Core", "Applying Patches");
             m_Harmony = new Harmony("dev.gtfomodding.gtfo-api");
