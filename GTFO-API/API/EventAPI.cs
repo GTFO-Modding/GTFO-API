@@ -9,6 +9,20 @@ using UnityEngine.SceneManagement;
 
 namespace GTFO.API
 {
+    /// <summary>
+    /// Delegate for <see cref="EventAPI.OnGameStateChanged"/> Event
+    /// </summary>
+    /// <param name="oldState">Previous State</param>
+    /// <param name="newState">Current State</param>
+    public delegate void GameStateChangedDelegate(eGameStateName oldState, eGameStateName newState);
+
+    /// <summary>
+    /// Delegate for <see cref="EventAPI.OnFocusStateChanged"/> Event
+    /// </summary>
+    /// <param name="oldState">Previous State</param>
+    /// <param name="newState">Current State</param>
+    public delegate void FocusStateChangedDelegate(eFocusState oldState, eFocusState newState);
+
     [API("Event")]
     public static class EventAPI
     {
@@ -40,6 +54,16 @@ namespace GTFO.API
         /// </summary>
         public static event Action OnAssetsLoaded;
 
+        /// <summary>
+        /// Invoked when <see cref="GameStateManager.CurrentStateName"/> has changed
+        /// </summary>
+        public static event GameStateChangedDelegate OnGameStateChanged;
+
+        /// <summary>
+        /// Invoked when <see cref="FocusStateManager.CurrentState"/> has changed
+        /// </summary>
+        public static event FocusStateChangedDelegate OnFocusStateChanged;
+
 
         private static bool _InitialSceneLoaded = false;
 
@@ -61,5 +85,17 @@ namespace GTFO.API
         private static void ManagersSetup() => SafeInvoke.Invoke(OnManagersSetup);
         private static void ExpeditionStarted() => SafeInvoke.Invoke(OnExpeditionStarted);
         private static void AssetsLoaded() => SafeInvoke.Invoke(OnAssetsLoaded);
+
+        internal static void GameStateChanged(eGameStateName oldState, eGameStateName newState)
+        {
+            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnGameStateChanged)} Invoked ({oldState} -> {newState})");
+            SafeInvoke.InvokeDelegate<GameStateChangedDelegate>(OnGameStateChanged, (del) => { del(oldState, newState); });
+        }
+
+        internal static void FocusChanged(eFocusState oldState, eFocusState newState)
+        {
+            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnFocusStateChanged)} Invoked ({oldState} -> {newState})");
+            SafeInvoke.InvokeDelegate<FocusStateChangedDelegate>(OnFocusStateChanged, (del) => { del(oldState, newState); });
+        }
     }
 }
