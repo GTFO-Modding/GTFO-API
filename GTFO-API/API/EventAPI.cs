@@ -9,7 +9,18 @@ using UnityEngine.SceneManagement;
 
 namespace GTFO.API
 {
+    /// <summary>
+    /// Delegate for <see cref="EventAPI.OnGameStateChanged"/> Event
+    /// </summary>
+    /// <param name="oldState">Previous State</param>
+    /// <param name="newState">Current State</param>
     public delegate void GameStateChangedDelegate(eGameStateName oldState, eGameStateName newState);
+
+    /// <summary>
+    /// Delegate for <see cref="EventAPI.OnFocusStateChanged"/> Event
+    /// </summary>
+    /// <param name="oldState">Previous State</param>
+    /// <param name="newState">Current State</param>
     public delegate void FocusStateChangedDelegate(eFocusState oldState, eFocusState newState);
 
     [API("Event")]
@@ -77,13 +88,13 @@ namespace GTFO.API
 
         internal static void GameStateChanged(eGameStateName oldState, eGameStateName newState)
         {
-            APILogger.Verbose(nameof(EventAPI), $"GameState Changed: '{oldState}' -> '{newState}'");
+            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnGameStateChanged)} Invoked ({oldState} -> {newState})");
             SafeInvoke.InvokeDelegate<GameStateChangedDelegate>(OnGameStateChanged, (del) => { del(oldState, newState); });
         }
 
         internal static void FocusChanged(eFocusState oldState, eFocusState newState)
         {
-            APILogger.Verbose(nameof(EventAPI), $"FocusState Changed: '{oldState}' -> '{newState}'");
+            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnFocusStateChanged)} Invoked ({oldState} -> {newState})");
             SafeInvoke.InvokeDelegate<FocusStateChangedDelegate>(OnFocusStateChanged, (del) => { del(oldState, newState); });
         }
     }
