@@ -64,6 +64,15 @@ namespace GTFO.API
         /// </summary>
         public static event FocusStateChangedDelegate OnFocusStateChanged;
 
+        /// <summary>
+        /// Invoked when a checkpoint is reached
+        /// </summary>
+        public static event Action OnCheckpointReached;
+
+        /// <summary>
+        /// Invoked when a checkpoint is reloaded
+        /// </summary>
+        public static event Action OnCheckpointReloaded;
 
         private static bool _InitialSceneLoaded = false;
 
@@ -97,5 +106,9 @@ namespace GTFO.API
             APILogger.Verbose(nameof(EventAPI), $"{nameof(OnFocusStateChanged)} Invoked ({oldState} -> {newState})");
             SafeInvoke.InvokeDelegate<FocusStateChangedDelegate>(OnFocusStateChanged, (del) => { del(oldState, newState); });
         }
+
+        internal static void CheckpointReached() => SafeInvoke.Invoke(OnCheckpointReached);
+
+        internal static void CheckpointReloaded() => SafeInvoke.Invoke(OnCheckpointReloaded);
     }
 }
