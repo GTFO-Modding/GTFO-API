@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CullingSystem;
 using GameData;
 using GTFO.API.Utilities;
 using LevelGeneration;
@@ -28,11 +27,6 @@ public sealed class LG_LightInfo : MonoBehaviour
     public LightSnapshot StartSnapshot { get; internal set; }
 
     /// <summary>
-    /// Light Updator Instance that LG_Light for the Start State (After the <see cref="LightSettingsDataBlock"/> applied)
-    /// </summary>
-    public iC_LightUpdator StartLightUpdator { get; internal set; }
-
-    /// <summary>
     /// Apply <see cref="PrefabSnapshot"/> to the Light
     /// </summary>
     public void ApplyPrefabSettings()
@@ -48,14 +42,6 @@ public sealed class LG_LightInfo : MonoBehaviour
         StartSnapshot.Apply(OwnerLight);
     }
 
-    /// <summary>
-    /// Apply <see cref="StartLightUpdator"/> to the Light
-    /// </summary>
-    public void ApplyStartLightUpdator()
-    {
-        OwnerLight.GetC_Light().LightUpdator = StartLightUpdator;
-    }
-
     static LG_LightInfo()
     {
         LevelAPI.OnBeforeBuildBatch += (LG_Factory.BatchName batch) =>
@@ -69,6 +55,7 @@ public sealed class LG_LightInfo : MonoBehaviour
                 if (lightInfo == null)
                 {
                     lightInfo = light.gameObject.AddComponent<LG_LightInfo>();
+                    lightInfo.OwnerLight = light;
                     lightInfo.PrefabSnapshot = LightSnapshot.Capture(light);
                 }
             }
