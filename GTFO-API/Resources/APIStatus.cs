@@ -74,6 +74,11 @@ namespace GTFO.API.Resources
         /// </summary>
         public static ApiStatusInfo Interop { get; internal set; } = new();
 
+        /// <summary>
+        /// Status info for the <see cref="LoadingAPI"/>
+        /// </summary>
+        public static ApiStatusInfo Loading { get; internal set; } = new();
+
         internal static GameObject ScriptHolder
         {
             get
