@@ -13,7 +13,7 @@ public static class LoadingAPI
 
     public static IReadOnlyDictionary<string, LoadingJob> Jobs => _Jobs;
 
-    public static bool AllJobsCompleted => !_Jobs.Values.Any(job => !job.IsCompleted);
+    public static bool AllJobsCompleted => _Jobs.Values.All(job => job.IsCompleted);
 
     internal static void Setup()
     {

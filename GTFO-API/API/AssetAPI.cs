@@ -203,53 +203,54 @@ namespace GTFO.API
         internal static void Setup()
         {
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
-            OnImplReady += LoadAssetBundles;
+            EventAPI.OnInitialSceneLoaded += LoadAssetBundles;
         }
 
         private static void LoadAssetBundles()
         {
             string assetBundleDir = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles");
             string assetBundlesDirOld = Path.Combine(Paths.ConfigPath, "Assets", "AssetBundles");
-            bool anyLoaded = LoadAssetBundles(assetBundleDir);
-            anyLoaded |= LoadAssetBundles(assetBundlesDirOld, outdated: true);
-            if (anyLoaded)
-                SafeInvoke.Invoke(OnAssetBundlesLoaded);
+
+            var loadJob = new AssetBundlesLoadJob();
+            PopulateBundleList(assetBundleDir, loadJob);
+            PopulateBundleList(assetBundlesDirOld, loadJob, outdated: true);
+            if (loadJob.BundlePathsToLoad.Count > 0)
+            {
+                LoadingAPI.RegisterJob(loadJob);
+                loadJob.OnCompleted += () =>
+                {
+                    SafeInvoke.Invoke(OnAssetBundlesLoaded);
+                };
+            }
         }
 
-        private static bool LoadAssetBundles(string assetBundlesDir, bool outdated = false)
+        private static void PopulateBundleList(string assetBundlesDir, AssetBundlesLoadJob job, bool outdated = false)
         {
             if (outdated)
             {
                 if (Directory.Exists(assetBundlesDir))
                     APILogger.Warn(nameof(AssetAPI), "Storing asset bundles in the config path is deprecated and will be removed in a future version of GTFO-API. The path has been moved to 'BepInEx\\Assets\\AssetBundles'.");
-                else return false;
+                else
+                    return;
             }
 
             if (!Directory.Exists(assetBundlesDir))
             {
                 Directory.CreateDirectory(assetBundlesDir);
-                return false;
+                return;
             }
 
             string[] bundlePaths = Directory.GetFiles(assetBundlesDir, "*", SearchOption.AllDirectories)
                 .Where(x => !x.EndsWith(".manifest", StringComparison.InvariantCultureIgnoreCase))
                 .ToArray();
 
-            if (bundlePaths.Length == 0) return false;
+            if (bundlePaths.Length == 0)
+                return;
 
             for (int i = 0; i < bundlePaths.Length; i++)
             {
-                try
-                {
-                    LoadAndRegisterAssetBundle(bundlePaths[i]);
-                }
-                catch (Exception ex)
-                {
-                    APILogger.Warn(nameof(AssetAPI), $"Failed to load asset bundle '{bundlePaths[i]}' ({ex.Message})");
-                }
+                job.BundlePathsToLoad.Add(bundlePaths[i]);
             }
-
-            return true;
         }
 
         internal static ConcurrentDictionary<string, UnityEngine.Object> s_RegistryCache = new();

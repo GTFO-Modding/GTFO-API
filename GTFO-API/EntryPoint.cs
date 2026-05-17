@@ -34,6 +34,7 @@ namespace GTFO.API
             SoundBankAPI.Setup();
             LevelAPI.Setup();
             LocalizationAPI.Setup();
+            LoadingAPI.Setup();
 
             APILogger.Verbose("Core", "Plugin Load Complete");
 

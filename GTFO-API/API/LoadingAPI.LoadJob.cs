@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using GTFO.API.Utilities;
 using UnityEngine;
 
 namespace GTFO.API;
@@ -13,12 +14,17 @@ public abstract class LoadingJob
     public abstract string DisplayName { get; }
 
     public string DisplayText { get; private set; }
+    public bool IsRunning { get; private set; } = false;
     public bool IsCompleted { get; private set; } = false;
+
+    public event Action OnCompleted;
 
     public virtual bool ExitApplicationOnException => false;
 
     internal IEnumerator DoJob()
     {
+        IsRunning = true;
+
         var enumerator = Job();
         while (true)
         {
@@ -48,46 +54,69 @@ public abstract class LoadingJob
             yield return ret;
         }
 
+        IsRunning = false;
         IsCompleted = true;
-
-        var readTask = File.ReadAllTextAsync("");
-        yield return WaitForTask(readTask);
-        var text = readTask.Result;
+        SafeInvoke.Invoke(OnCompleted);
     }
 
     internal void DoUpdateTexts()
     {
+        _Builder.Clear();
+        _AppendBuilder.Clear();
+
         string name = DisplayName;
-        string status = "";
+        string status = IsCompleted ? "Done" : "Loading";
         string rawOverride = null;
-        UpdateText(ref name, ref status, ref rawOverride);
+
+        UpdateText(ref name, ref status, ref rawOverride, _AppendBuilder);
+        string append = _AppendBuilder.ToString();
 
         if (rawOverride == null)
         {
-            DisplayText = $"{name.PadRight(16, '.')}{status}";
+            _Builder.Append(name.PadRight(48, '.'));
+            _Builder.Append(status);
         }
         else
         {
-            DisplayText = rawOverride;
+            _Builder.Append(rawOverride);
         }
+
+        if (!string.IsNullOrWhiteSpace(append))
+        {
+            _Builder.AppendLine();
+            _Builder.Append(append);
+        }
+
+        DisplayText = _Builder.ToString();
     }
 
     protected abstract IEnumerator Job();
 
-    protected virtual void UpdateText(ref string name, ref string status, ref string overrideText)
+    /// <summary>
+    /// Update a Loading text with given parameters
+    /// </summary>
+    /// <param name="name">Default: <see cref="DisplayName"/>; PadRight with 48 '.' will be added</param>
+    /// <param name="status">Default: "Loading" or "Done"; Depends on if it's completed</param>
+    /// <param name="overrideText">Default: <see langword="null"/>; If it's not null, This string will fully override the Loading Text</param>
+    /// <param name="append">Default: <see langword="null"/>; If it's not null, This string will be appended as newline to final result</param>
+    protected virtual void UpdateText(ref string name, ref string status, ref string overrideText, StringBuilder append)
     {
-        name = DisplayName;
-        status = IsCompleted ? "Loading..." : "Done";
+
+    }
+
+    public static WaitUntil WaitUntil(Func<bool> predicate)
+    {
+        return new WaitUntil((Il2CppSystem.Func<bool>)predicate);
     }
 
     public static WaitUntil WaitForTask(Task task)
     {
-        return new WaitUntil((Il2CppSystem.Func<bool>)(() => task.IsCompleted));
+        return WaitUntil(() => task.IsCompleted);
     }
 
     public static WaitUntil WaitForOtherJob(LoadingJob job)
     {
-        return new WaitUntil((Il2CppSystem.Func<bool>)(() => job.IsCompleted));
+        return WaitUntil(() => job.IsCompleted);
     }
 
     public static WaitUntil WaitForOtherJob(string jobName, bool exceptionOnMissing = false)
@@ -105,4 +134,7 @@ public abstract class LoadingJob
             throw new KeyNotFoundException($"Can't find a dependency job with a name: '{jobName}'");
         }
     }
+
+    private static readonly StringBuilder _Builder = new();
+    private static readonly StringBuilder _AppendBuilder = new();
 }

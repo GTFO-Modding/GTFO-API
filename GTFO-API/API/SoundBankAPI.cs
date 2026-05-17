@@ -7,7 +7,6 @@ using BepInEx;
 using GTFO.API.Attributes;
 using GTFO.API.Resources;
 using GTFO.API.Utilities;
-using HarmonyLib;
 
 namespace GTFO.API
 {
@@ -26,7 +25,7 @@ namespace GTFO.API
 
         internal static void Setup()
         {
-            EventAPI.OnManagersSetup += OnLoadSoundBanks;
+            EventAPI.OnInitialSceneLoaded += OnLoadSoundBanks;
         }
 
         private static void OnLoadSoundBanks()
@@ -37,10 +36,22 @@ namespace GTFO.API
                 .Where(file => file.Extension.Contains(".bnk"))
                 .ToArray();
 
-            soundbanksToLoad.Do(LoadBank);
+            if (soundbanksToLoad.Length > 0)
+            {
+                var job = new SoundBanksLoadJob();
 
-            if (soundbanksToLoad.Any())
-                SafeInvoke.Invoke(OnSoundBanksLoaded);
+                foreach (var bankPath in soundbanksToLoad.Select(p => p.FullName))
+                {
+                    job.BankPathsToLoad.Add(bankPath);
+                }
+
+                job.OnCompleted += () =>
+                {
+                    SafeInvoke.Invoke(OnSoundBanksLoaded);
+                };
+
+                LoadingAPI.RegisterJob(job);
+            }
         }
 
         private static unsafe void LoadBank(FileInfo file)
