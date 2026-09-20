@@ -57,10 +57,8 @@ namespace GTFO.API.Attributes
     public sealed class AcceptableValueRange01Attribute : AcceptableValueAttribute
     {
         /// <summary>
-        /// Create Attribute Instance
+        /// Create Attribute Instance, Same as using: <code>[AcceptableValueRange&lt;float&gt;(0.0f, 1.0f)]</code>
         /// </summary>
-        /// <param name="min">Allowed Minimum Value</param>
-        /// <param name="max">Allowed Maximum Value</param>
         public AcceptableValueRange01Attribute()
         {
             Value = new AcceptableValueRange<float>(0.0f, 1.0f);
