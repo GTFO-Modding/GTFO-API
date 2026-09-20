@@ -9,6 +9,17 @@ namespace GTFO.API.Attributes
         public string HexValue { get; private set; }
         public Color RGBColor { get; private set; }
 
+        public DefaultRGBColorValueAttribute(string htmlString)
+        {
+            if (!ColorUtility.TryParseHtmlString(htmlString, out var color))
+            {
+                throw new ArgumentException($"'{htmlString}' is not a valid HTML Color String", nameof(htmlString));
+            }
+
+            RGBColor = color;
+            HexValue = ColorUtility.ToHtmlStringRGB(RGBColor);
+        }
+
         public DefaultRGBColorValueAttribute(float r, float g, float b)
         {
             RGBColor = new Color(r, g, b);
