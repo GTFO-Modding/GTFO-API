@@ -106,19 +106,36 @@ namespace GTFO.API.Utilities
             return desc ?? string.Empty;
         }
 
-        private static T GetDefaultValue<T>(PropertyInfo prop, ConfigEntryAttribute configEntryAttribute)
+        private static T GetDefaultValue<T>(PropertyInfo prop, ConfigEntryAttribute configEntryAttr)
         {
+            const string ConfigEntry_DefaultValue = $"{nameof(ConfigEntryAttribute)}.{nameof(ConfigEntryAttribute.DefaultValue)}";
+
             T value = default;
-            if (configEntryAttribute != null && configEntryAttribute.HasDefaultValue && configEntryAttribute.DefaultValue is T v1)
-                value = v1;
+            if (configEntryAttr != null && configEntryAttr.HasDefaultValue)
+            {
+                if (TryCastTo<T>(configEntryAttr.DefaultValue, out var v))
+                    value = v;
+                else
+                    LogError($"{FormatProp(prop)} have {ConfigEntry_DefaultValue} annotated but mismatch with Config Type!");
+            }
 
-            var attr = prop.GetCustomAttribute<DefaultValueAttribute>();
-            if (attr != null && attr.Value is T v2)
-                value = v2;
+            var defaultValueAttr = prop.GetCustomAttribute<DefaultValueAttribute>();
+            if (defaultValueAttr != null)
+            {
+                if (TryCastTo<T>(defaultValueAttr.Value, out var v))
+                    value = v;
+                else
+                    LogError($"{FormatProp(prop)} have {nameof(DefaultValueAttribute)} annotated but mismatch with Config Type!");
+            }
 
-            var attr2 = prop.GetCustomAttribute<DefaultRGBColorValueAttribute>();
-            if (attr2 != null && attr2.HexValue is T v3)
-                value = v3;
+            var defaultRGBAttr = prop.GetCustomAttribute<DefaultRGBColorValueAttribute>();
+            if (defaultRGBAttr != null)
+            {
+                if (defaultRGBAttr.HexValue is T v)
+                    value = v;
+                else
+                    LogError($"{FormatProp(prop)} have {nameof(DefaultRGBColorValueAttribute)} annotated but not String Config!");
+            }
 
             return value;
         }
@@ -167,6 +184,31 @@ namespace GTFO.API.Utilities
                 return false;
 
             return true;
+        }
+
+        private static void LogError(string message)
+        {
+            APILogger.Error(nameof(ConfigBinder), message);
+        }
+
+        private static bool TryCastTo<T>(object obj, out T converted)
+        {
+            try
+            {
+                dynamic conv = obj;
+                converted = conv;
+                return true;
+            }
+            catch
+            {
+                converted = default;
+                return false;
+            }
+        }
+
+        private static string FormatProp(PropertyInfo prop)
+        {
+            return $"{prop.DeclaringType.FullName}::{prop.Name}";
         }
     }
 }
