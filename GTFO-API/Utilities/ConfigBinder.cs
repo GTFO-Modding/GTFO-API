@@ -121,6 +121,10 @@ namespace GTFO.API.Utilities
             if (attr != null && attr.Value is T v2)
                 value = v2;
 
+            var attr2 = prop.GetCustomAttribute<DefaultRGBColorValueAttribute>();
+            if (attr2 != null && attr2.HexValue is T v3)
+                value = v3;
+
             return value;
         }
 
