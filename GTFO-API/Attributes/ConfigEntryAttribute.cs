@@ -4,10 +4,9 @@ using System.ComponentModel;
 namespace GTFO.API.Attributes
 {
     /// <summary>
-    /// Compounded Attribute for <see cref="DisplayNameAttribute"/>, <see cref="DescriptionAttribute"/> and <see cref="DefaultValueAttribute"/><br/>
-    /// - Key is <see cref="DisplayNameAttribute"/><br/>
-    /// - Description is <see cref="DescriptionAttribute"/><br/>
-    /// - DefaultValue is <see cref="DefaultValueAttribute"/><br/>
+    /// Compounded Attribute for setting all Key, Description and DefaultValue<br/>
+    /// - Description is same as using <see cref="DescriptionAttribute"/><br/>
+    /// - DefaultValue is same as using <see cref="DefaultValueAttribute"/><br/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public sealed class ConfigEntryAttribute : Attribute
@@ -28,6 +27,11 @@ namespace GTFO.API.Attributes
         public object DefaultValue { get; private set; }
 
         /// <summary>
+        /// Has DefaultValue set?
+        /// </summary>
+        public bool HasDefaultValue { get; private set; } = false;
+
+        /// <summary>
         /// Create Attribute Instance
         /// </summary>
         /// <param name="key">Key Value</param>
@@ -38,6 +42,7 @@ namespace GTFO.API.Attributes
             Key = key;
             Description = description;
             DefaultValue = defaultValue;
+            HasDefaultValue = true;
         }
 
         /// <summary>
@@ -50,6 +55,19 @@ namespace GTFO.API.Attributes
             Key = key;
             Description = null;
             DefaultValue = defaultValue;
+            HasDefaultValue = true;
+        }
+
+        /// <summary>
+        /// Create Attribute Instance
+        /// </summary>
+        /// <param name="key">Key Value</param>
+        public ConfigEntryAttribute(string key)
+        {
+            Key = key;
+            Description = null;
+            DefaultValue = null;
+            HasDefaultValue = false;
         }
     }
 }

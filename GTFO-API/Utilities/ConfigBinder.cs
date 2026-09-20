@@ -92,11 +92,6 @@ namespace GTFO.API.Utilities
         private static string GetKey(PropertyInfo prop, ConfigEntryAttribute configEntryAttribute)
         {
             var key = configEntryAttribute?.Key ?? null;
-
-            var attr = prop.GetCustomAttribute<DisplayNameAttribute>();
-            if (attr != null && !string.IsNullOrWhiteSpace(attr.DisplayName))
-                key = attr.DisplayName;
-
             return string.IsNullOrWhiteSpace(key) ? prop.Name : key;
         }
 
@@ -114,7 +109,7 @@ namespace GTFO.API.Utilities
         private static T GetDefaultValue<T>(PropertyInfo prop, ConfigEntryAttribute configEntryAttribute)
         {
             T value = default;
-            if (configEntryAttribute != null && configEntryAttribute.DefaultValue is T v1)
+            if (configEntryAttribute != null && configEntryAttribute.HasDefaultValue && configEntryAttribute.DefaultValue is T v1)
                 value = v1;
 
             var attr = prop.GetCustomAttribute<DefaultValueAttribute>();
