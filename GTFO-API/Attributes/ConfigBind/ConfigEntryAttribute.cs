@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace GTFO.API.Attributes
+namespace GTFO.API.Attributes.ConfigBind
 {
     /// <summary>
     /// Compounded Attribute for setting all Key, Description and DefaultValue<br/>

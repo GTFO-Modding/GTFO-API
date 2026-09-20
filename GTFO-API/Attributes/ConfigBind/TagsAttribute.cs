@@ -1,7 +1,7 @@
 ﻿using System;
 using BepInEx.Configuration;
 
-namespace GTFO.API.Attributes
+namespace GTFO.API.Attributes.ConfigBind
 {
     /// <summary>
     /// Specify Tags to applied for <see cref="ConfigEntry{T}"/>

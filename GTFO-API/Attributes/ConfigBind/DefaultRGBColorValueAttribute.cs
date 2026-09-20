@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using UnityEngine;
 
-namespace GTFO.API.Attributes
+namespace GTFO.API.Attributes.ConfigBind
 {
     /// <summary>
     /// Util Attribute for <see cref="DefaultValueAttribute"/>, Convert types of RGB Color Represents to Hex String

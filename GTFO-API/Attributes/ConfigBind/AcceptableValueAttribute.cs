@@ -1,7 +1,7 @@
 ﻿using System;
 using BepInEx.Configuration;
 
-namespace GTFO.API.Attributes
+namespace GTFO.API.Attributes.ConfigBind
 {
     /// <summary>
     /// Base Type for <see cref="AcceptableValueRangeAttribute{T}"/> and <see cref="AcceptableValueListAttribute{T}"/>
