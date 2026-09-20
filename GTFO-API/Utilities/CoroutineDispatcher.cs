@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 using GTFO.API.Utilities.Impl;
 using UnityEngine;
 
@@ -32,6 +27,16 @@ namespace GTFO.API.Utilities
         public static Coroutine StartInLevelCoroutine(IEnumerator routine)
         {
             return CoroutineDispatcher_Impl.Instance.RunInLevelCoroutine(routine);
+        }
+
+        /// <summary>
+        /// Stop Coroutine (Both Persistent and InLevel allowed)
+        /// </summary>
+        /// <param name="routine">Coroutine to Stop</param>
+        public static void StopCoroutine(Coroutine routine)
+        {
+            CoroutineDispatcher_Impl.Instance.StopCoroutine(routine);
+            CoroutineDispatcher_Impl.Instance.RemoveInLevelCoroutine(routine);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils;
 using Il2CppInterop.Runtime.Attributes;
 using UnityEngine;
@@ -68,6 +69,15 @@ namespace GTFO.API.Utilities.Impl
             m_InLevelCoroutines.Add(coroutine);
             m_HasInLevelCoroutines = true;
             return coroutine;
+        }
+
+        [HideFromIl2Cpp]
+        internal void RemoveInLevelCoroutine(Coroutine routine)
+        {
+            if (m_InLevelCoroutines.Remove(routine))
+            {
+                m_HasInLevelCoroutines = m_InLevelCoroutines.Any();
+            }
         }
 
         private bool m_HasInLevelCoroutines = false;
