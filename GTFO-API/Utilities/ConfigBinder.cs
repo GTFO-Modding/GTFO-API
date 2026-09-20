@@ -12,7 +12,7 @@ namespace GTFO.API.Utilities
     /// </summary>
     public static class ConfigBinder
     {
-        private static readonly MethodInfo s_BindToProperty = typeof(ConfigBinder).GetMethod(nameof(BindToProperty));
+        private static readonly MethodInfo s_BindToProperty = typeof(ConfigBinder).GetMethod(nameof(BindToProperty), BindingFlags.NonPublic | BindingFlags.Static);
 
         /// <summary>
         /// Search Properties with <see cref="ConfigEntry{T}"/> inside given Type and Automatically Bind it
@@ -103,7 +103,7 @@ namespace GTFO.API.Utilities
             if (attr != null)
                 desc = attr.Description;
 
-            return desc;
+            return desc ?? string.Empty;
         }
 
         private static T GetDefaultValue<T>(PropertyInfo prop, ConfigEntryAttribute configEntryAttribute)
@@ -130,7 +130,7 @@ namespace GTFO.API.Utilities
 
         private static AcceptableValueBase GetAcceptableValue(PropertyInfo prop)
         {
-            return prop.GetCustomAttribute<AcceptableValueAttribute>().Value ?? null;
+            return prop.GetCustomAttribute<AcceptableValueAttribute>()?.Value ?? null;
         }
         #endregion Property Infos
 
