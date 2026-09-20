@@ -49,4 +49,21 @@ namespace GTFO.API.Attributes
             Value = new AcceptableValueList<T>(values);
         }
     }
+
+    /// <summary>
+    /// Specify <see cref="AcceptableValueRange{T}"/> with [0.0~1.0] range for ConfigEntry
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public sealed class AcceptableValueRange01Attribute : AcceptableValueAttribute
+    {
+        /// <summary>
+        /// Create Attribute Instance
+        /// </summary>
+        /// <param name="min">Allowed Minimum Value</param>
+        /// <param name="max">Allowed Maximum Value</param>
+        public AcceptableValueRange01Attribute()
+        {
+            Value = new AcceptableValueRange<float>(0.0f, 1.0f);
+        }
+    }
 }
