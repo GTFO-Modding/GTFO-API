@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using BepInEx.Configuration;
-using GTFO.API.Attributes.ConfigBind;
+using GTFO.API.Attributes.ConfigModel;
 
 namespace GTFO.API.Utilities
 {

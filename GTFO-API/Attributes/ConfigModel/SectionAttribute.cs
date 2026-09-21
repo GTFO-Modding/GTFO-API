@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GTFO.API.Attributes.ConfigBind
+namespace GTFO.API.Attributes.ConfigModel
 {
     /// <summary>
     /// Config Section Definition Attribute: <see cref="Section"/>
