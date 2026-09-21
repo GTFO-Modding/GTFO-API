@@ -64,4 +64,110 @@ namespace GTFO.API.Attributes.ConfigModel
             Value = new AcceptableValueRange<float>(0.0f, 1.0f);
         }
     }
+
+    /// <summary>
+    /// Specify <see cref="AcceptableValueRange{T}"/> with primitive types without generic
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public sealed class AcceptableValueRangeAttribute : AcceptableValueAttribute
+    {
+        /// <summary>
+        /// Create Attribute Instance
+        /// </summary>
+        /// <param name="min">Minimum Value</param>
+        /// <param name="max">Maximum Value</param>
+        public AcceptableValueRangeAttribute(byte min, byte max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(sbyte min, sbyte max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(short min, short max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(ushort min, ushort max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(int min, int max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(uint min, uint max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(long min, long max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(ulong min, ulong max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(float min, float max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(double min, double max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(decimal min, decimal max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(string min, string max) => SetValue(min, max);
+
+        /// <inheritdoc cref="AcceptableValueRangeAttribute(byte, byte)"/>
+        public AcceptableValueRangeAttribute(Enum min, Enum max) => SetValue(min, max);
+
+        private void SetValue<T>(T min, T max) where T : IComparable
+        {
+            Value = new AcceptableValueRange<T>(min, max);
+        }
+    }
+
+    /// <summary>
+    /// Specify <see cref="AcceptableValueList{T}"/> with primitive types without generic
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public sealed class AcceptableValueListAttribute : AcceptableValueAttribute
+    {
+        /// <summary>
+        /// Create Attribute Instance
+        /// </summary>
+        /// <param name="values">Acceptable Values</param>
+        public AcceptableValueListAttribute(params byte[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params sbyte[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params short[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params ushort[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params int[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params uint[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params long[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params ulong[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params float[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params double[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params decimal[] values) => SetValue(values);
+
+        /// <inheritdoc cref="AcceptableValueListAttribute(byte[])"/>
+        public AcceptableValueListAttribute(params string[] values) => SetValue(values);
+
+        private void SetValue<T>(params T[] values) where T : IEquatable<T>
+        {
+            Value = new AcceptableValueList<T>(values);
+        }
+    }
 }
