@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using AssetShards;
 using BepInEx;
+using GTFO.API.Assets;
+using GTFO.API.Assets.UnloadStrategies;
 using GTFO.API.Attributes;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
@@ -42,11 +43,7 @@ namespace GTFO.API
         /// <returns>Whether the asset is registered or not</returns>
         public static bool ContainsAsset(string assetName)
         {
-            string upperName = assetName.ToUpper();
-            if (!APIStatus.Asset.Ready)
-                return s_RegistryCache.ContainsKey(upperName);
-
-            return AssetShardManager.s_loadedAssetsLookup.ContainsKey(upperName);
+            return AssetReference.IsAssetRegistered(assetName);
         }
 
         /// <summary>
@@ -60,11 +57,6 @@ namespace GTFO.API
             APILogger.Verbose($"Asset", $"Requested Asset: {upperPath}");
             try
             {
-                if (!APIStatus.Asset.Ready)
-                {
-                    if (s_RegistryCache.TryGetValue(upperPath, out UnityEngine.Object asset))
-                        return asset;
-                }
                 return AssetShardManager.GetLoadedAsset(upperPath);
             }
             catch
@@ -92,13 +84,11 @@ namespace GTFO.API
         public static void RegisterAsset(string name, UnityEngine.Object gameObject)
         {
             string upperName = name.ToUpper();
-            if (!APIStatus.Asset.Ready)
-            {
-                if (s_RegistryCache.ContainsKey(upperName)) throw new ArgumentException($"The asset with {upperName} has already been registered.", nameof(name));
-                s_RegistryCache.TryAdd(upperName, gameObject);
-                return;
-            }
-            AssetAPI_Impl.Instance.RegisterAsset(upperName, gameObject);
+            if (AssetReference.IsAssetRegistered(upperName))
+                throw new ArgumentException($"The asset '{name}' has already been registered.", nameof(name));
+
+            APILogger.Verbose(nameof(AssetAPI_Impl), $"Registering asset: {name}");
+            AssetReference.AllAssets[name] = new AssetReference(name, gameObject);
         }
 
         /// <summary>
@@ -204,54 +194,53 @@ namespace GTFO.API
         {
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
+
+            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.Unspecified>();
+            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelBuildDone>();
+            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelSelected>();
         }
 
         private static void LoadAssetBundles()
         {
             string assetBundleDir = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles");
-            string assetBundlesDirOld = Path.Combine(Paths.ConfigPath, "Assets", "AssetBundles");
-            bool anyLoaded = LoadAssetBundles(assetBundleDir);
-            anyLoaded |= LoadAssetBundles(assetBundlesDirOld, outdated: true);
-            if (anyLoaded)
-                SafeInvoke.Invoke(OnAssetBundlesLoaded);
-        }
 
-        private static bool LoadAssetBundles(string assetBundlesDir, bool outdated = false)
-        {
-            if (outdated)
-            {
-                if (Directory.Exists(assetBundlesDir))
-                    APILogger.Warn(nameof(AssetAPI), "Storing asset bundles in the config path is deprecated and will be removed in a future version of GTFO-API. The path has been moved to 'BepInEx\\Assets\\AssetBundles'.");
-                else return false;
-            }
+            if (!Directory.Exists(assetBundleDir))
+                Directory.CreateDirectory(assetBundleDir);
 
-            if (!Directory.Exists(assetBundlesDir))
-            {
-                Directory.CreateDirectory(assetBundlesDir);
-                return false;
-            }
-
-            string[] bundlePaths = Directory.GetFiles(assetBundlesDir, "*", SearchOption.AllDirectories)
+            var bundlePaths = Directory.GetFiles(assetBundleDir, "*", SearchOption.AllDirectories)
                 .Where(x => !x.EndsWith(".manifest", StringComparison.InvariantCultureIgnoreCase))
-                .ToArray();
+                .Where(x => !x.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
 
-            if (bundlePaths.Length == 0) return false;
+            if (!bundlePaths.Any())
+                return;
 
-            for (int i = 0; i < bundlePaths.Length; i++)
+            int loadedBundle = 0;
+            foreach (var file in bundlePaths)
             {
                 try
                 {
-                    LoadAndRegisterAssetBundle(bundlePaths[i]);
+                    var name = Path.GetRelativePath(assetBundleDir, file).Replace('\\', '/');
+                    if (AssetBundleReference.AllAssetBundles.Contains(name))
+                    {
+                        APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
+                        continue;
+                    }
+
+                    var assetBundleReference = new AssetBundleReference(name, file);
+                    var assetCounts = assetBundleReference.Metadata.Assets.Count;
+                    AssetBundleReference.AllAssetBundles[name] = assetBundleReference;
+
+                    APILogger.Debug(nameof(AssetAPI), $"AssetBundle Loaded! Name: '{name}' AssetCount: {assetCounts}");
+                    loadedBundle++;
                 }
                 catch (Exception ex)
                 {
-                    APILogger.Warn(nameof(AssetAPI), $"Failed to load asset bundle '{bundlePaths[i]}' ({ex.Message})");
+                    APILogger.Warn(nameof(AssetAPI), $"Failed to load AssetBundle '{file}' ({ex.Message})");
                 }
             }
 
-            return true;
+            if (loadedBundle > 0)
+                SafeInvoke.Invoke(OnAssetBundlesLoaded);
         }
-
-        internal static ConcurrentDictionary<string, UnityEngine.Object> s_RegistryCache = new();
     }
 }

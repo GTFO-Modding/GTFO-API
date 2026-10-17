@@ -1,0 +1,177 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using GTFO.API.Assets.AssetBundleSources;
+using GTFO.API.Assets.UnloadStrategies;
+using UnityEngine;
+
+namespace GTFO.API.Assets;
+
+public sealed class AssetBundleReference
+{
+    public static AssetBundleRegistry AllAssetBundles { get; private set; } = new();
+    private static readonly Stopwatch s_LoadSW = new();
+
+    public AssetBundleMetadata Metadata { get; private set; }
+
+    public AssetBundleUnloadStrategy UnloadStrategy
+    {
+        get => _UnloadStrategy;
+        set
+        {
+            if (_UnloadStrategy != null)
+            {
+                _UnloadStrategy.Unapply();
+                _UnloadStrategy.ManagingBundle = null;
+            }
+
+            _UnloadStrategy = value ?? new AssetBundleUnloadStrategy.Unspecified();
+            _UnloadStrategy.ManagingBundle = this;
+            _UnloadStrategy.Apply();
+        }
+    }
+
+    public string Name { get; private set; }
+    public bool IsLoaded => _BundleSource.LoadedAssetBundle != null;
+    public AssetRegistry Assets { get; private set; } = new();
+
+    private AssetBundleUnloadStrategy _UnloadStrategy;
+    private readonly IAssetBundleSource _BundleSource;
+
+    internal AssetBundleReference(string name, string filePath)
+    {
+        _BundleSource = new AssetBundleSource_File(filePath);
+        Metadata = _BundleSource.Metadata;
+        Name = name;
+
+        Initialize();
+    }
+
+    internal AssetBundleReference(string name, byte[] bytes)
+    {
+        _BundleSource = new AssetBundleSource_Bytes(bytes);
+        Metadata = _BundleSource.Metadata;
+        Name = name;
+
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        UnloadStrategy = AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);
+
+        foreach (var asset in Metadata.Assets)
+        {
+            if (AssetReference.AllAssets.Contains(asset))
+                continue;
+
+            var assetReference = new AssetReference(asset, this);
+            AssetReference.AllAssets[asset] = assetReference;
+            Assets[asset] = assetReference;
+        }
+
+        switch (Metadata.StartupLoadMode)
+        {
+            case AssetBundleStartupLoadingMode.LoadBundle:
+                LoadBundle();
+                break;
+
+            case AssetBundleStartupLoadingMode.LoadAllAssets:
+                LoadBundle();
+                LoadAllAssets();
+                break;
+        }
+    }
+
+    public void LoadBundle()
+    {
+        _BundleSource.Load();
+    }
+
+    public void LoadBundleAsync(Action onLoaded)
+    {
+        _BundleSource.LoadAsync(onLoaded);
+    }
+
+    public IEnumerable<AssetReference> LoadAllAssets()
+    {
+        ValidateAssetBundle();
+
+        foreach (var asset in Assets.Assets)
+        {
+            asset.Load();
+        }
+
+        return Assets.Assets;
+    }
+
+    public void LoadAllAssetsAsync(Action<IEnumerable<AssetReference>> onLoaded)
+    {
+        ValidateAssetBundle();
+
+        int progressCounter = Assets.Assets.Count;
+        foreach (var asset in Assets.Assets)
+        {
+            asset.LoadAsync(() =>
+            {
+                progressCounter--;
+
+                if (progressCounter <= 0)
+                {
+                    onLoaded?.Invoke(Assets.Assets);
+                }
+            });
+        }
+    }
+
+    public void UnloadBundle(bool unloadAllLoadedAssets)
+    {
+        if (!IsLoaded)
+        {
+            APILogger.Error(nameof(AssetBundleReference), $"AssetBundle '{Name}' is not currently loaded!");
+            return;
+        }
+
+        if (unloadAllLoadedAssets)
+        {
+            foreach (var asset in Assets.Assets)
+            {
+                asset.Unload();
+            }
+        }
+
+        _BundleSource.Unload(unloadAllLoadedAssets);
+    }
+
+    internal UnityEngine.Object LoadAsset_Internal(string assetName)
+    {
+        ValidateAssetBundle();
+        return _BundleSource.LoadedAssetBundle.LoadAsset(assetName);
+    }
+
+    internal AssetBundleRequest LoadAssetAsync_Internal(string assetName)
+    {
+        ValidateAssetBundle();
+        return _BundleSource.LoadedAssetBundle.LoadAssetAsync(assetName);
+    }
+
+    private void ValidateAssetBundle()
+    {
+        if (IsLoaded)
+        {
+            return;
+        }
+
+        if (Metadata.DisableJustInTimeLoading)
+        {
+            APILogger.Error($"AssetJIT", $"AssetBundle '{Name}' was requested but JIT loading is disabled!");
+            throw new InvalidOperationException($"Bundle '{Name}' is not loaded!");
+        }
+
+        s_LoadSW.Restart();
+        LoadBundle();
+        s_LoadSW.Stop();
+
+        APILogger.Debug($"AssetJIT", $"AssetBundle '{Name}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+    }
+}

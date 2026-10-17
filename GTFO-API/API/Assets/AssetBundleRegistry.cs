@@ -1,0 +1,41 @@
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+namespace GTFO.API.Assets;
+
+public sealed class AssetBundleRegistry
+{
+    private readonly ConcurrentDictionary<string, AssetBundleReference> _Registry = [];
+
+    public ICollection<AssetBundleReference> AssetBundles => _Registry.Values;
+    public ICollection<string> AssetBundleNames => _Registry.Keys;
+    public IEnumerable<KeyValuePair<string, AssetBundleReference>> KeyValues => _Registry;
+
+    public AssetBundleReference this[string assetName]
+    {
+        get => _Registry[Key(assetName)];
+        internal set => _Registry[Key(assetName)] = value;
+    }
+
+    public bool TryGet(string assetBundleName, out AssetBundleReference assetBundle)
+    {
+        return _Registry.TryGetValue(Key(assetBundleName), out assetBundle);
+    }
+
+    public bool Contains(string assetBundleName)
+    {
+        return _Registry.ContainsKey(Key(assetBundleName));
+    }
+
+    internal bool Remove(string assetBundleName)
+    {
+        return _Registry.Remove(Key(assetBundleName), out _);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string Key(string assetBundleName)
+    {
+        return assetBundleName.ToUpper();
+    }
+}
