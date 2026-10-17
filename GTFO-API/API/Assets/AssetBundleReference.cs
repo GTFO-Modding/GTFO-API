@@ -62,8 +62,19 @@ public sealed class AssetBundleReference
 
         foreach (var asset in Metadata.Assets)
         {
-            if (AssetReference.AllAssets.Contains(asset))
+            if (AssetReference.IsAssetRegistered(asset))
+            {
+                if (AssetReference.AllAssets.TryGet(asset, out var assetRef))
+                {
+                    APILogger.Error("Asset", $"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
+                }
+                else
+                {
+                    APILogger.Error("Asset", $"AssetName: '{asset}' is already registered!");
+                }
                 continue;
+            }
+
 
             var assetReference = new AssetReference(asset, this);
             AssetReference.AllAssets[asset] = assetReference;
