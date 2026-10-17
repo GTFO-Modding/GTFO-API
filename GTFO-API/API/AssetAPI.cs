@@ -99,6 +99,7 @@ namespace GTFO.API
         /// <para>Use <seealso cref="LoadAndRegisterAssetBundle(string)"/> if you want to load from a path</para>
         /// </summary>
         /// <param name="bundle">The bundle to register</param>
+        [Obsolete]
         public static void RegisterAssetBundle(AssetBundle bundle)
         {
             string[] assetNames = bundle.AllAssetNames();
@@ -116,6 +117,7 @@ namespace GTFO.API
         /// </summary>
         /// <param name="pathToBundle">The location of the asset bundle</param>
         /// <exception cref="Exception">Failed to load the bundle</exception>
+        [Obsolete]
         public static void LoadAndRegisterAssetBundle(string pathToBundle)
         {
             AssetBundle bundle = AssetBundle.LoadFromFile(pathToBundle);
@@ -128,7 +130,8 @@ namespace GTFO.API
         /// </summary>
         /// <param name="bundleBytes">The raw bytes of the asset bundle</param>
         /// <exception cref="Exception">Failed to load the bundle</exception>
-        public static void wa(byte[] bundleBytes)
+        [Obsolete]
+        public static void LoadAndRegisterAssetBundle(byte[] bundleBytes)
         {
             AssetBundle bundle = AssetBundle.LoadFromMemory(bundleBytes);
             if (bundle == null) throw new Exception($"Failed to load asset bundle");
