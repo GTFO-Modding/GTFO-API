@@ -13,7 +13,7 @@ public abstract partial class AssetBundleUnloadStrategy
 
         public override void Unapply()
         {
-            LevelAPI.OnLevelSelected += LevelSelected;
+            LevelAPI.OnLevelSelected -= LevelSelected;
         }
 
         private void LevelSelected(eRundownTier expTier, int expIndexInTier, GameData.ExpeditionInTierData expData)
