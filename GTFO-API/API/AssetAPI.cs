@@ -216,6 +216,7 @@ namespace GTFO.API
 
             var bundlePaths = Directory.GetFiles(assetBundleDir, "*", SearchOption.AllDirectories)
                 .Where(x => !x.EndsWith(".manifest", StringComparison.InvariantCultureIgnoreCase))
+                .Where(x => !x.EndsWith(".old", StringComparison.InvariantCultureIgnoreCase))
                 .Where(x => !x.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
 
             if (!bundlePaths.Any())
