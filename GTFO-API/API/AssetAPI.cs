@@ -200,6 +200,7 @@ namespace GTFO.API
 
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.Unspecified>();
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelBuildDone>();
+            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelCleanup>();
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelSelected>();
         }
 
