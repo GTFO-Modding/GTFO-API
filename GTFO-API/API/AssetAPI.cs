@@ -57,6 +57,9 @@ namespace GTFO.API
             APILogger.Verbose($"Asset", $"Requested Asset: {upperPath}");
             try
             {
+                if (AssetReference.AllAssets.TryGet(upperPath, out var assetRef))
+                    return assetRef.Asset;
+
                 return AssetShardManager.GetLoadedAsset(upperPath);
             }
             catch
@@ -125,7 +128,7 @@ namespace GTFO.API
         /// </summary>
         /// <param name="bundleBytes">The raw bytes of the asset bundle</param>
         /// <exception cref="Exception">Failed to load the bundle</exception>
-        public static void LoadAndRegisterAssetBundle(byte[] bundleBytes)
+        public static void wa(byte[] bundleBytes)
         {
             AssetBundle bundle = AssetBundle.LoadFromMemory(bundleBytes);
             if (bundle == null) throw new Exception($"Failed to load asset bundle");
