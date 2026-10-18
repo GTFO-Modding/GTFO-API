@@ -41,7 +41,7 @@ internal sealed class AssetBundleSource_Bytes : IAssetBundleSource
         _Loader.LoadedObject = request.assetBundle;
     }
 
-    public void Unload(bool unloadAllAssets)
+    public void Unload()
     {
         if (_Loader.LoadedObject != null)
         {

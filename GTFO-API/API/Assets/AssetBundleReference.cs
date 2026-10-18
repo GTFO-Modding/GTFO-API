@@ -135,23 +135,17 @@ public sealed class AssetBundleReference
         }
     }
 
-    public void UnloadBundle(bool unloadAllLoadedAssets)
+    public void UnloadBundle()
     {
-        if (!IsLoaded)
-        {
-            APILogger.Error(nameof(AssetBundleReference), $"AssetBundle '{Name}' is not currently loaded!");
-            return;
-        }
+        _BundleSource.Unload();
+    }
 
-        if (unloadAllLoadedAssets)
+    public void UnloadAllAssets()
+    {
+        foreach (var asset in Assets.Assets)
         {
-            foreach (var asset in Assets.Assets)
-            {
-                asset.Unload();
-            }
+            asset.Unload();
         }
-
-        _BundleSource.Unload(unloadAllLoadedAssets);
     }
 
     internal UnityEngine.Object LoadAsset_Internal(string assetName)

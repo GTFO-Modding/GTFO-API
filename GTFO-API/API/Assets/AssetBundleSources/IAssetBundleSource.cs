@@ -9,5 +9,5 @@ internal interface IAssetBundleSource
     public AssetBundleMetadata Metadata { get; }
     public void Load();
     public void LoadAsync(Action onLoaded);
-    public void Unload(bool unloadAllAssets);
+    public void Unload();
 }

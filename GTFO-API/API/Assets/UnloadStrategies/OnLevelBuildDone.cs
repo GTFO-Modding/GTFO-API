@@ -18,7 +18,8 @@ public abstract partial class AssetBundleUnloadStrategy
 
         private void OnBuildDone()
         {
-            ManagingBundle.UnloadBundle(unloadAllLoadedAssets: true);
+            ManagingBundle.UnloadAllAssets();
+            ManagingBundle.UnloadBundle();
         }
     }
 }

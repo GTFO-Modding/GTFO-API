@@ -18,7 +18,8 @@ public abstract partial class AssetBundleUnloadStrategy
 
         private void LevelSelected(eRundownTier expTier, int expIndexInTier, GameData.ExpeditionInTierData expData)
         {
-            ManagingBundle.UnloadBundle(unloadAllLoadedAssets: true);
+            ManagingBundle.UnloadAllAssets();
+            ManagingBundle.UnloadBundle();
         }
     }
 }
