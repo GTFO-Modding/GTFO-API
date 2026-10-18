@@ -28,6 +28,7 @@ public sealed class AssetReference
         return false;
     }
 
+    public AssetBundleReference AssetSourceBundle { get; private set; }
     public string AssetSourceName { get; private set; }
     public string Name { get; private set; }
     public bool IsLoaded => _AssetSource.LoadedAsset != null;
@@ -64,6 +65,7 @@ public sealed class AssetReference
     internal AssetReference(string assetName, AssetBundleReference ownerBundle)
     {
         Name = assetName;
+        AssetSourceBundle = ownerBundle;
         AssetSourceName = $"AssetBundle ({ownerBundle.Name})";
         _AssetSource = new AssetSource_AssetBundle(assetName, ownerBundle);
     }
@@ -71,6 +73,7 @@ public sealed class AssetReference
     internal AssetReference(string assetName, UnityObject value)
     {
         Name = assetName;
+        AssetSourceBundle = null;
         AssetSourceName = "GENERATED";
         _AssetSource = new AssetSource_Generated(assetName, value);
     }

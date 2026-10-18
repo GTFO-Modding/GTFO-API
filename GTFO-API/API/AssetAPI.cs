@@ -9,6 +9,7 @@ using GTFO.API.Attributes;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
 using GTFO.API.Utilities;
+using LevelGeneration;
 using UnityEngine;
 
 namespace GTFO.API
@@ -30,6 +31,8 @@ namespace GTFO.API
         /// Invoked when all external asset bundles have been loaded (Not invoked if no bundles)
         /// </summary>
         public static event Action OnAssetBundlesLoaded;
+
+        public static event Action<LevelAssetLoadJob> PopulateLevelAssetLoadJob;
 
         /// <summary>
         /// Invoked when the internal handler is ready
@@ -198,6 +201,7 @@ namespace GTFO.API
 
         internal static void Setup()
         {
+            LevelAPI.OnBuildStart += OnLevelBuildStart;
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
 
@@ -205,6 +209,17 @@ namespace GTFO.API
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelBuildDone>();
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelCleanup>();
             AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelSelected>();
+        }
+
+        private static void OnLevelBuildStart()
+        {
+            var loadAssetsJob = new LevelAssetLoadJob();
+            SafeInvoke.Invoke(PopulateLevelAssetLoadJob, loadAssetsJob);
+
+            if (!loadAssetsJob.IsEmpty)
+            {
+                LG_Factory.InjectJob(loadAssetsJob.Impl, LG_Factory.BatchName.LoadResourcesShards_Level);
+            }
         }
 
         private static void LoadAssetBundles()
