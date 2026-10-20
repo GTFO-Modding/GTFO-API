@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text.Json;
 using UnityEngine;
 
@@ -40,11 +40,14 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
             Metadata = new();
         }
 
-        var lastModified = File.GetLastWriteTimeUtc(FilePath).ToString(AssetBundleMetadata.LastModifiedFormat, CultureInfo.InvariantCulture);
-        if (!Metadata.LastModified.Equals(lastModified, StringComparison.InvariantCulture))
+        using var fs = File.OpenRead(FilePath);
+        using var md5 = MD5.Create();
+
+        var checksum = Convert.ToHexString(md5.ComputeHash(fs));
+        if (!Metadata.Checksum.Equals(checksum, StringComparison.InvariantCulture))
         {
-            APILogger.Verbose("AssetBundle", $"File has modified! Rewriting Metadata! ({Metadata.LastModified} != {lastModified})");
-            Metadata.LastModified = lastModified;
+            APILogger.Verbose("AssetBundle", $"File has modified! Rewriting Metadata! ({Metadata.Checksum} != {checksum})");
+            Metadata.Checksum = checksum;
 
             var bundle = AssetBundle.LoadFromFile(FilePath);
             Metadata.Assets = [.. bundle.GetAllAssetNames()];
