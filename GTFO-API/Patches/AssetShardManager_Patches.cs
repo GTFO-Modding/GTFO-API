@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using AssetShards;
-using GTFO.API.Assets;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
 using HarmonyLib;
@@ -34,7 +33,7 @@ namespace GTFO.API.Patches
 
             public static void Prefix(string assetPath)
             {
-                if (AssetReference.AllAssets.TryGet(assetPath, out var assetRef))
+                if (AssetAPI.AllAssets.TryGet(assetPath, out var assetRef))
                 {
                     var asset = assetRef.Asset; // Kinda ugly /shrug
                     APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");
@@ -58,7 +57,7 @@ namespace GTFO.API.Patches
 
             public static void Prefix(string assetPath)
             {
-                if (AssetReference.AllAssets.TryGet(assetPath, out var assetRef))
+                if (AssetAPI.AllAssets.TryGet(assetPath, out var assetRef))
                 {
                     var asset = assetRef.Asset; // Kinda ugly /shrug
                     APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");

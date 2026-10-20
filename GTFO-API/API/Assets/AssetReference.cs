@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using AssetShards;
 using GTFO.API.Assets.AssetSources;
 using UnityEngine;
 
@@ -10,23 +9,7 @@ namespace GTFO.API.Assets;
 
 public sealed class AssetReference
 {
-    /// <summary>
-    /// List of every custom assets. This does NOT include Vanilla assets!
-    /// </summary>
-    public static AssetRegistry AllAssets { get; private set; } = new();
     private static readonly Stopwatch s_LoadSW = new();
-
-    public static bool IsAssetRegistered(string assetName)
-    {
-        assetName = assetName.ToUpper();
-        if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName))
-            return true;
-
-        if (AllAssets.Contains(assetName))
-            return true;
-
-        return false;
-    }
 
     public AssetBundleReference AssetSourceBundle { get; private set; }
     public string AssetSourceName => _AssetSource.SourceName;

@@ -16,7 +16,7 @@ public sealed class LevelAssetLoadJob
 
     public void EnqueueAssetToLoad(string assetName)
     {
-        if (!AssetReference.AllAssets.TryGet(assetName, out var assetRef))
+        if (!AssetAPI.AllAssets.TryGet(assetName, out var assetRef))
         {
             return;
         }
@@ -31,7 +31,7 @@ public sealed class LevelAssetLoadJob
 
     public void EnqueueAssetBundleToLoad(string assetBundleName)
     {
-        if (!AssetBundleReference.AllReferences.TryGet(assetBundleName, out var assetBundleRef))
+        if (!AssetAPI.AllAssetBundles.TryGet(assetBundleName, out var assetBundleRef))
         {
             return;
         }

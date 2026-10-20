@@ -43,13 +43,43 @@ namespace GTFO.API
         public static event Action OnImplReady;
 
         /// <summary>
+        /// List of every custom assets. This does NOT include Vanilla assets!
+        /// </summary>
+        public static AssetRegistry AllAssets { get; private set; } = new();
+
+        /// <summary>
+        /// List of every custom assetbundles.
+        /// </summary>
+        public static AssetBundleRegistry AllAssetBundles { get; private set; } = new();
+
+        /// <summary>
+        /// Checks if an <see cref="AssetBundle"/> is already registered in the <see cref="AssetAPI"/>
+        /// </summary>
+        /// <param name="assetBundleName">Name of the <see cref="AssetBundle"/> to check</param>
+        /// <returns>Whether the <see cref="AssetBundle"/> is registered or not</returns>
+        public static bool ContainsAssetBundle(string assetBundleName)
+        {
+            if (AllAssetBundles.Contains(assetBundleName))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
         /// Checks if an asset is already registered in the <see cref="AssetAPI"/>
         /// </summary>
         /// <param name="assetName">Name of the asset to check</param>
         /// <returns>Whether the asset is registered or not</returns>
         public static bool ContainsAsset(string assetName)
         {
-            return AssetReference.IsAssetRegistered(assetName);
+            assetName = assetName.ToUpper();
+            if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName))
+                return true;
+
+            if (AllAssets.Contains(assetName))
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -63,7 +93,7 @@ namespace GTFO.API
             APILogger.Verbose($"Asset", $"Requested Asset: {upperPath}");
             try
             {
-                if (AssetReference.AllAssets.TryGet(upperPath, out var assetRef))
+                if (AllAssets.TryGet(upperPath, out var assetRef))
                     return assetRef.Asset;
 
                 return AssetShardManager.GetLoadedAsset(upperPath);
@@ -93,11 +123,11 @@ namespace GTFO.API
         public static void RegisterAsset(string name, UnityEngine.Object gameObject)
         {
             string upperName = name.ToUpper();
-            if (AssetReference.IsAssetRegistered(upperName))
+            if (ContainsAsset(upperName))
                 throw new ArgumentException($"The asset '{name}' has already been registered.", nameof(name));
 
             APILogger.Verbose(nameof(AssetAPI_Impl), $"Registering asset: {name}");
-            AssetReference.AllAssets[name] = new AssetReference(name, gameObject);
+            AllAssets[name] = new AssetReference(name, gameObject);
         }
 
         /// <summary>
@@ -115,11 +145,11 @@ namespace GTFO.API
         /// <exception cref="ArgumentException"></exception>
         public static AssetBundleReference RegisterAssetBundle(string assetBundleName, AssetBundle bundle)
         {
-            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+            if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, bundle);
-            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            AllAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -132,11 +162,11 @@ namespace GTFO.API
         /// <exception cref="ArgumentException"></exception>
         public static AssetBundleReference RegisterAssetBundle(string assetBundleName, byte[] bytes)
         {
-            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+            if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, new MemoryStream(bytes));
-            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            AllAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -149,11 +179,11 @@ namespace GTFO.API
         /// <exception cref="ArgumentException"></exception>
         public static AssetBundleReference RegisterAssetBundle(string assetBundleName, Stream stream)
         {
-            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+            if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, stream);
-            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            AllAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -166,11 +196,11 @@ namespace GTFO.API
         /// <exception cref="ArgumentException"></exception>
         public static AssetBundleReference RegisterAssetBundle(string assetBundleName, string filePath)
         {
-            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+            if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
-            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            AllAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -319,7 +349,7 @@ namespace GTFO.API
                 try
                 {
                     var name = Path.GetRelativePath(assetBundleDir, file).Replace('\\', '/');
-                    if (AssetBundleReference.IsAssetBundleRegistered(name))
+                    if (ContainsAssetBundle(name))
                     {
                         APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
                         continue;

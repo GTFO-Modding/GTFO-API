@@ -10,16 +10,7 @@ namespace GTFO.API.Assets;
 
 public sealed class AssetBundleReference
 {
-    public static AssetBundleRegistry AllReferences { get; private set; } = new();
     private static readonly Stopwatch s_LoadSW = new();
-
-    public static bool IsAssetBundleRegistered(string assetBundleName)
-    {
-        if (AllReferences.Contains(assetBundleName))
-            return true;
-
-        return false;
-    }
 
     public AssetBundleMetadata Metadata { get; private set; }
 
@@ -80,9 +71,9 @@ public sealed class AssetBundleReference
 
         foreach (var asset in Metadata.Assets)
         {
-            if (AssetReference.IsAssetRegistered(asset))
+            if (AssetAPI.ContainsAsset(asset))
             {
-                if (AssetReference.AllAssets.TryGet(asset, out var assetRef))
+                if (AssetAPI.AllAssets.TryGet(asset, out var assetRef))
                 {
                     APILogger.Error("Asset", $"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
                 }
@@ -95,7 +86,7 @@ public sealed class AssetBundleReference
 
 
             var assetReference = new AssetReference(asset, this);
-            AssetReference.AllAssets[asset] = assetReference;
+            AssetAPI.AllAssets[asset] = assetReference;
             Assets[asset] = assetReference;
         }
 
