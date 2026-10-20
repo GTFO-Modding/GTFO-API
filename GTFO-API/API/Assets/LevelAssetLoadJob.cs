@@ -14,7 +14,7 @@ public sealed class LevelAssetLoadJob
         Impl = new LevelAssetLoadJob_Impl();
     }
 
-    public void RegisterAssetToLoad(string assetName)
+    public void EnqueueAssetToLoad(string assetName)
     {
         if (!AssetReference.AllAssets.TryGet(assetName, out var assetRef))
         {
@@ -29,7 +29,7 @@ public sealed class LevelAssetLoadJob
         Impl.AssetsToLoad.Add(assetRef);
     }
 
-    public void RegisterAssetBundleToLoad(string assetBundleName)
+    public void EnqueueAssetBundleToLoad(string assetBundleName)
     {
         if (!AssetBundleReference.AllAssetBundles.TryGet(assetBundleName, out var assetBundleRef))
         {

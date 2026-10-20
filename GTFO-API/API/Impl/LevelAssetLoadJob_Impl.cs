@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using GTFO.API.Assets;
 using Il2CppInterop.Runtime.Injection;
 using LevelGeneration;
@@ -18,6 +20,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
     internal HashSet<AssetBundleReference> BundlesToLoad = [];
     internal HashSet<AssetReference> AssetsToLoad = [];
 
+    private readonly Stopwatch _SW = new();
     private LoadState _BundlesLoadState = LoadState.None;
     private LoadState _AssetsLoadState = LoadState.None;
 
@@ -52,9 +55,17 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                     bundle.LoadBundleAsync(null);
                     _BundlesLoadState = LoadState.Loading;
                 }
+                APILogger.Debug("AssetAPI", $"Start loading bundles...");
+                _SW.Restart();
                 return false;
 
             case LoadState.Loading:
+                if (BundlesToLoad.All(bundle => bundle.IsLoaded))
+                {
+                    _SW.Stop();
+                    APILogger.Debug("AssetAPI", $"Loaded all queued bundle (took {_SW.ElapsedMilliseconds}ms)");
+                    _BundlesLoadState = LoadState.Loaded;
+                }
                 return false;
         }
 
@@ -70,9 +81,17 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                     asset.LoadAsync(null);
                     _BundlesLoadState = LoadState.Loading;
                 }
+                APILogger.Debug("AssetAPI", $"Start loading assets...");
+                _SW.Restart();
                 return false;
 
             case LoadState.Loading:
+                if (AssetsToLoad.All(asset => asset.IsLoaded))
+                {
+                    _SW.Stop();
+                    APILogger.Debug("AssetAPI", $"Loaded all queued assets (took {_SW.ElapsedMilliseconds}ms)");
+                    _AssetsLoadState = LoadState.Loaded;
+                }
                 return false;
         }
 
