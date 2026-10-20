@@ -29,7 +29,7 @@ public sealed class AssetReference
     }
 
     public AssetBundleReference AssetSourceBundle { get; private set; }
-    public string AssetSourceName { get; private set; }
+    public string AssetSourceName => _AssetSource.SourceName;
     public string Name { get; private set; }
     public bool IsLoaded => _AssetSource.LoadedAsset != null;
 
@@ -66,7 +66,6 @@ public sealed class AssetReference
     {
         Name = assetName;
         AssetSourceBundle = ownerBundle;
-        AssetSourceName = $"AssetBundle ({ownerBundle.Name})";
         _AssetSource = new AssetSource_AssetBundle(assetName, ownerBundle);
     }
 
@@ -74,8 +73,7 @@ public sealed class AssetReference
     {
         Name = assetName;
         AssetSourceBundle = null;
-        AssetSourceName = "GENERATED";
-        _AssetSource = new AssetSource_Generated(assetName, value);
+        _AssetSource = new AssetSource_External(assetName, value);
     }
 
     public void Load()
@@ -83,7 +81,7 @@ public sealed class AssetReference
         _AssetSource.Load();
     }
 
-    public void LoadAsync(Action onLoaded)
+    public void LoadAsync(Action onLoaded = null)
     {
         _AssetSource.LoadAsync(onLoaded);
     }

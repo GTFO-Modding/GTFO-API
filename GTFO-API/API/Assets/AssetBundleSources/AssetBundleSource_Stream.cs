@@ -7,6 +7,7 @@ namespace GTFO.API.Assets.AssetBundleSources;
 
 internal sealed class AssetBundleSource_Stream : IAssetBundleSource
 {
+    public string SourceName => $"Stream ({Stream.GetType().Name})";
     public AssetBundle LoadedAssetBundle => _Loader.LoadedObject;
     public AssetBundleMetadata Metadata { get; private set; }
     public Stream Stream { get; private set; }

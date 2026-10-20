@@ -3,12 +3,13 @@ using AssetShards;
 
 namespace GTFO.API.Assets.AssetSources;
 
-internal sealed class AssetSource_Generated : IAssetSource
+internal sealed class AssetSource_External : IAssetSource
 {
+    public string SourceName => "External";
     public UnityEngine.Object LoadedAsset { get; private set; }
     public string AssetName { get; private set; }
 
-    public AssetSource_Generated(string assetName, UnityEngine.Object asset)
+    public AssetSource_External(string assetName, UnityEngine.Object asset)
     {
         LoadedAsset = asset;
         AssetName = assetName;
@@ -30,19 +31,19 @@ internal sealed class AssetSource_Generated : IAssetSource
 
     public void Load()
     {
-        APILogger.Error("Asset", $"{nameof(Load)} is not allowed for generated asset! '{LoadedAsset.name}'");
+        APILogger.Error("Asset", $"{nameof(Load)} is not allowed for external asset! '{AssetName}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 
     public void LoadAsync(Action onLoaded)
     {
-        APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for generated asset! '{LoadedAsset.name}'");
+        APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external asset! '{AssetName}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 
     public void Unload()
     {
-        APILogger.Error("Asset", $"{nameof(Unload)} is not allowed for generated asset! '{LoadedAsset.name}'");
+        APILogger.Error("Asset", $"{nameof(Unload)} is not allowed for external asset! '{AssetName}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 }

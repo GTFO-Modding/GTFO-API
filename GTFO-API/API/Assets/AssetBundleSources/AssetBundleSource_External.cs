@@ -5,6 +5,7 @@ namespace GTFO.API.Assets.AssetBundleSources;
 
 internal sealed class AssetBundleSource_External : IAssetBundleSource
 {
+    public string SourceName => $"External";
     public AssetBundle LoadedAssetBundle { get; private set; }
     public AssetBundleMetadata Metadata { get; private set; }
 

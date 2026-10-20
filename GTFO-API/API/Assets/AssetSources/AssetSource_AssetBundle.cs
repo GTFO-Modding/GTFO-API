@@ -6,6 +6,7 @@ namespace GTFO.API.Assets.AssetSources;
 
 internal sealed class AssetSource_AssetBundle : IAssetSource
 {
+    public string SourceName => $"AssetBundle ({OwnerBundle.Name})";
     public UnityEngine.Object LoadedAsset => _Loader.LoadedObject;
     public AssetBundleReference OwnerBundle { get; private set; }
     public string AssetName { get; private set; }

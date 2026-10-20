@@ -9,6 +9,7 @@ namespace GTFO.API.Assets.AssetBundleSources;
 
 internal sealed class AssetBundleSource_File : IAssetBundleSource
 {
+    public string SourceName => $"File ({FilePath})";
     public AssetBundle LoadedAssetBundle => _Loader.LoadedObject;
     public AssetBundleMetadata Metadata { get; private set; }
     public string FilePath { get; private set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using GTFO.API.Assets.AssetBundleSources;
 using GTFO.API.Assets.UnloadStrategies;
 using UnityEngine;
@@ -9,8 +10,16 @@ namespace GTFO.API.Assets;
 
 public sealed class AssetBundleReference
 {
-    public static AssetBundleRegistry AllAssetBundles { get; private set; } = new();
+    public static AssetBundleRegistry AllReferences { get; private set; } = new();
     private static readonly Stopwatch s_LoadSW = new();
+
+    public static bool IsAssetBundleRegistered(string assetBundleName)
+    {
+        if (AllReferences.Contains(assetBundleName))
+            return true;
+
+        return false;
+    }
 
     public AssetBundleMetadata Metadata { get; private set; }
 
@@ -47,9 +56,9 @@ public sealed class AssetBundleReference
         Initialize();
     }
 
-    internal AssetBundleReference(string name, byte[] bytes)
+    internal AssetBundleReference(string name, Stream stream)
     {
-        _BundleSource = new AssetBundleSource_Bytes(bytes);
+        _BundleSource = new AssetBundleSource_Stream(stream);
         Metadata = _BundleSource.Metadata;
         Name = name;
 
@@ -99,7 +108,7 @@ public sealed class AssetBundleReference
         _BundleSource.Load();
     }
 
-    public void LoadBundleAsync(Action onLoaded)
+    public void LoadBundleAsync(Action onLoaded = null)
     {
         _BundleSource.LoadAsync(onLoaded);
     }
@@ -116,7 +125,7 @@ public sealed class AssetBundleReference
         return Assets.Assets;
     }
 
-    public void LoadAllAssetsAsync(Action<IEnumerable<AssetReference>> onLoaded)
+    public void LoadAllAssetsAsync(Action<IEnumerable<AssetReference>> onLoaded = null)
     {
         ValidateAssetBundle();
 

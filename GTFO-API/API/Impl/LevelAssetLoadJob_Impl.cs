@@ -52,7 +52,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                     if (bundle.IsLoaded)
                         continue;
 
-                    bundle.LoadBundleAsync(null);
+                    bundle.LoadBundleAsync();
                     _BundlesLoadState = LoadState.Loading;
                 }
                 APILogger.Debug("AssetAPI", $"Start loading bundles...");
@@ -78,7 +78,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                     if (asset.IsLoaded)
                         continue;
 
-                    asset.LoadAsync(null);
+                    asset.LoadAsync();
                     _BundlesLoadState = LoadState.Loading;
                 }
                 APILogger.Debug("AssetAPI", $"Start loading assets...");

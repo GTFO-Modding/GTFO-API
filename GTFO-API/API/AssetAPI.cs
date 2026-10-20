@@ -243,7 +243,7 @@ namespace GTFO.API
                 try
                 {
                     var name = Path.GetRelativePath(assetBundleDir, file).Replace('\\', '/');
-                    if (AssetBundleReference.AllAssetBundles.Contains(name))
+                    if (AssetBundleReference.IsAssetBundleRegistered(name))
                     {
                         APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
                         continue;
@@ -251,7 +251,7 @@ namespace GTFO.API
 
                     var assetBundleReference = new AssetBundleReference(name, file);
                     var assetCounts = assetBundleReference.Metadata.Assets.Count;
-                    AssetBundleReference.AllAssetBundles[name] = assetBundleReference;
+                    AssetBundleReference.AllReferences[name] = assetBundleReference;
 
                     APILogger.Debug(nameof(AssetAPI), $"AssetBundle Loaded! Name: '{name}' AssetCount: {assetCounts}");
                     loadedBundle++;
