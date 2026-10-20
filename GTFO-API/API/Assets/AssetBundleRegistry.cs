@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace GTFO.API.Assets;
 
@@ -33,9 +33,11 @@ public sealed class AssetBundleRegistry
         return _Registry.Remove(Key(assetBundleName), out _);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string Key(string assetBundleName)
     {
+        if (string.IsNullOrWhiteSpace(assetBundleName))
+            throw new ArgumentException($"AssetBundle Name can't be whitespace or null", nameof(assetBundleName));
+
         return assetBundleName.ToUpper();
     }
 }

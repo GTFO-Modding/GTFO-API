@@ -65,6 +65,15 @@ public sealed class AssetBundleReference
         Initialize();
     }
 
+    internal AssetBundleReference(string name, AssetBundle assetBundle)
+    {
+        _BundleSource = new AssetBundleSource_External(assetBundle);
+        Metadata = _BundleSource.Metadata;
+        Name = name;
+
+        Initialize();
+    }
+
     private void Initialize()
     {
         UnloadStrategy = AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);

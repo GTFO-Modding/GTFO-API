@@ -32,6 +32,9 @@ namespace GTFO.API
         /// </summary>
         public static event Action OnAssetBundlesLoaded;
 
+        /// <summary>
+        /// Invoked when starting level gen, <seealso cref="LevelAssetLoadJob"/> is provided to load assets before starting level generation.
+        /// </summary>
         public static event Action<LevelAssetLoadJob> PopulateLevelAssetLoadJob;
 
         /// <summary>
@@ -98,21 +101,93 @@ namespace GTFO.API
         }
 
         /// <summary>
+        /// Registers an <see cref="AssetBundle"/> to Game
+        /// <para>
+        /// Alternatives:<br/>
+        /// - <seealso cref="RegisterAssetBundle(string, string)"/><br/>
+        /// - <seealso cref="RegisterAssetBundle(string, byte[])"/><br/>
+        /// - <seealso cref="RegisterAssetBundle(string, Stream)"/><br/>
+        /// </para>
+        /// </summary>
+        /// <param name="assetBundleName">Unique Name of Bundle</param>
+        /// <param name="bundle">AssetBundle to Reference</param>
+        /// <returns><seealso cref="AssetBundleReference"/> Instance (Loading/Unloading Is NOT supported)</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, AssetBundle bundle)
+        {
+            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+                throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
+
+            var assetBundleReference = new AssetBundleReference(assetBundleName, bundle);
+            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            return assetBundleReference;
+        }
+
+        /// <summary>
+        /// Registers an <see cref="AssetBundle"/> to <see cref="AssetBundleRegistry"/>
+        /// </summary>
+        /// <param name="assetBundleName">Unique Name of Bundle</param>
+        /// <param name="bytes">Bundle file bytes</param>
+        /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, byte[] bytes)
+        {
+            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+                throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
+
+            var assetBundleReference = new AssetBundleReference(assetBundleName, new MemoryStream(bytes));
+            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            return assetBundleReference;
+        }
+
+        /// <summary>
+        /// Registers an <see cref="AssetBundle"/> to <see cref="AssetBundleRegistry"/>
+        /// </summary>
+        /// <param name="assetBundleName">Unique Name of Bundle</param>
+        /// <param name="stream">Stream of Bundle file</param>
+        /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, Stream stream)
+        {
+            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+                throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
+
+            var assetBundleReference = new AssetBundleReference(assetBundleName, stream);
+            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            return assetBundleReference;
+        }
+
+        /// <summary>
+        /// Registers an <see cref="AssetBundle"/> to <see cref="AssetBundleRegistry"/>
+        /// </summary>
+        /// <param name="assetBundleName">Unique Name of Bundle</param>
+        /// <param name="filePath">Location of the Bundle file</param>
+        /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, string filePath)
+        {
+            if (AssetBundleReference.IsAssetBundleRegistered(assetBundleName))
+                throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
+
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
+            AssetBundleReference.AllReferences[assetBundleName] = assetBundleReference;
+            return assetBundleReference;
+        }
+
+        #region Obsolete
+        private const string REGISTERBUNDLE_OBSOLETE = "Legacy RegisterBundle methods will register AssetBundleReference name as random UUID.";
+
+        /// <summary>
         /// Registers an <see cref="AssetBundle"/>'s assets into the asset registry
         /// <para>Use <seealso cref="LoadAndRegisterAssetBundle(string)"/> if you want to load from a path</para>
         /// </summary>
         /// <param name="bundle">The bundle to register</param>
-        [Obsolete]
+        [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, AssetBundle bundle)")]
         public static void RegisterAssetBundle(AssetBundle bundle)
         {
-            string[] assetNames = bundle.AllAssetNames();
-            APILogger.Verbose($"Asset", $"Bundle names: [{string.Join(", ", assetNames)}]");
-            foreach (string assetName in assetNames)
-            {
-                UnityEngine.Object asset = bundle.LoadAsset(assetName);
-                if (asset != null) RegisterAsset(assetName, asset);
-                else APILogger.Warn("Asset", $"Skipping asset {assetName}");
-            }
+            APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(RegisterAssetBundle)}' This is not recommended!");
+            APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+            RegisterAssetBundle(Guid.NewGuid().ToString(), bundle);
         }
 
         /// <summary>
@@ -120,12 +195,12 @@ namespace GTFO.API
         /// </summary>
         /// <param name="pathToBundle">The location of the asset bundle</param>
         /// <exception cref="Exception">Failed to load the bundle</exception>
-        [Obsolete]
+        [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, string filePath)")]
         public static void LoadAndRegisterAssetBundle(string pathToBundle)
         {
-            AssetBundle bundle = AssetBundle.LoadFromFile(pathToBundle);
-            if (bundle == null) throw new Exception($"Failed to load asset bundle");
-            RegisterAssetBundle(bundle);
+            APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
+            APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+            RegisterAssetBundle(Guid.NewGuid().ToString(), pathToBundle);
         }
 
         /// <summary>
@@ -133,13 +208,14 @@ namespace GTFO.API
         /// </summary>
         /// <param name="bundleBytes">The raw bytes of the asset bundle</param>
         /// <exception cref="Exception">Failed to load the bundle</exception>
-        [Obsolete]
+        [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, byte[] bytes)")]
         public static void LoadAndRegisterAssetBundle(byte[] bundleBytes)
         {
-            AssetBundle bundle = AssetBundle.LoadFromMemory(bundleBytes);
-            if (bundle == null) throw new Exception($"Failed to load asset bundle");
-            RegisterAssetBundle(bundle);
+            APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
+            APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+            RegisterAssetBundle(Guid.NewGuid().ToString(), bundleBytes);
         }
+        #endregion
 
         /// <summary>
         /// Clones an asset into a new one with a different name
@@ -249,9 +325,8 @@ namespace GTFO.API
                         continue;
                     }
 
-                    var assetBundleReference = new AssetBundleReference(name, file);
+                    var assetBundleReference = RegisterAssetBundle(name, file);
                     var assetCounts = assetBundleReference.Metadata.Assets.Count;
-                    AssetBundleReference.AllReferences[name] = assetBundleReference;
 
                     APILogger.Debug(nameof(AssetAPI), $"AssetBundle Loaded! Name: '{name}' AssetCount: {assetCounts}");
                     loadedBundle++;
