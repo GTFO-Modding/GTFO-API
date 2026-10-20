@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetBundleSources;
 
-internal sealed class AssetBundleSource_Bytes : IAssetBundleSource
+internal sealed class AssetBundleSource_Stream : IAssetBundleSource
 {
     public AssetBundle LoadedAssetBundle => _Loader.LoadedObject;
     public AssetBundleMetadata Metadata { get; private set; }
-    public ReadOnlyMemory<byte> Bytes { get; private set; }
+    public Stream Stream { get; private set; }
 
     private readonly AsyncLoader<AssetBundle> _Loader = new();
 
-    internal AssetBundleSource_Bytes(byte[] bytes, AssetBundleMetadata metadata = null)
+    internal AssetBundleSource_Stream(Stream stream, AssetBundleMetadata metadata = null)
     {
-        Bytes = bytes;
+        Stream = stream;
         Metadata = metadata ?? new AssetBundleMetadata();
     }
 
@@ -23,7 +24,11 @@ internal sealed class AssetBundleSource_Bytes : IAssetBundleSource
         if (_Loader.IsLoaded)
             return;
 
-        _Loader.LoadedObject = AssetBundle.LoadFromMemory(Bytes.ToArray());
+        using var ms = new MemoryStream();
+        Stream.Position = 0;
+        Stream.CopyTo(ms);
+
+        _Loader.LoadedObject = AssetBundle.LoadFromMemory(ms.ToArray());
         _Loader.SynchronouslyLoaded();
     }
 
@@ -35,7 +40,12 @@ internal sealed class AssetBundleSource_Bytes : IAssetBundleSource
 
     private IEnumerator DoLoadAsync()
     {
-        var request = AssetBundle.LoadFromMemoryAsync(Bytes.ToArray());
+        using var ms = new MemoryStream();
+        Stream.Position = 0;
+        var copyTask = Stream.CopyToAsync(ms);
+        yield return new WaitUntil((Func<bool>)(() => copyTask.IsCompleted));
+
+        var request = AssetBundle.LoadFromMemoryAsync(ms.ToArray());
         yield return request;
 
         _Loader.LoadedObject = request.assetBundle;
