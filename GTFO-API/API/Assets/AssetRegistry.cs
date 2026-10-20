@@ -12,6 +12,8 @@ public sealed class AssetRegistry
     public ICollection<string> AssetNames => _Registry.Keys;
     public IEnumerable<KeyValuePair<string, AssetReference>> KeyValues => _Registry;
 
+    internal AssetRegistry() { }
+
     public AssetReference this[string assetName]
     {
         get => _Registry[Key(assetName)];

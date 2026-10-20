@@ -12,6 +12,8 @@ public sealed class AssetBundleRegistry
     public ICollection<string> AssetBundleNames => _Registry.Keys;
     public IEnumerable<KeyValuePair<string, AssetBundleReference>> KeyValues => _Registry;
 
+    internal AssetBundleRegistry() { }
+
     public AssetBundleReference this[string assetName]
     {
         get => _Registry[Key(assetName)];
