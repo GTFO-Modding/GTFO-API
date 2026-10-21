@@ -1,15 +1,19 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using GTFO.API.Impl;
 
-namespace GTFO.API.Assets;
+namespace GTFO.API.EventArg;
 
-public sealed class LevelAssetLoadJob
+/// <summary>
+/// EventArgs for <see cref="AssetAPI.OnLoadLevelAssets"/>
+/// </summary>
+public sealed class OnLoadLevelAssetsEventArgs : EventArgs
 {
     internal LevelAssetLoadJob_Impl Impl;
 
     public bool IsEmpty => !Impl.AssetsToLoad.Any() && !Impl.BundlesToLoad.Any();
 
-    public LevelAssetLoadJob()
+    public OnLoadLevelAssetsEventArgs()
     {
         Impl = new LevelAssetLoadJob_Impl();
     }

@@ -4,27 +4,57 @@ using System.Collections.Generic;
 
 namespace GTFO.API.Assets;
 
+/// <summary>
+/// Read-Only Dictionary of <see cref="AssetBundleReference"/>
+/// </summary>
 public sealed class AssetBundleRegistry
 {
     private readonly ConcurrentDictionary<string, AssetBundleReference> _Registry = [];
 
+    /// <summary>
+    /// Collection of <see cref="AssetBundleReference"/>
+    /// </summary>
     public ICollection<AssetBundleReference> AssetBundles => _Registry.Values;
+
+    /// <summary>
+    /// Collection of AssetName
+    /// </summary>
     public ICollection<string> AssetBundleNames => _Registry.Keys;
+
+    /// <summary>
+    /// KeyValue Pairs
+    /// </summary>
     public IEnumerable<KeyValuePair<string, AssetBundleReference>> KeyValues => _Registry;
 
     internal AssetBundleRegistry() { }
 
-    public AssetBundleReference this[string assetName]
+    /// <summary>
+    /// Indexer for Accessing <see cref="AssetBundleReference"/> Instance
+    /// </summary>
+    /// <param name="assetBundleName">AssetBundle Name to search</param>
+    /// <returns><see cref="AssetBundleReference"/> of given Name</returns>
+    public AssetBundleReference this[string assetBundleName]
     {
-        get => _Registry[Key(assetName)];
-        internal set => _Registry[Key(assetName)] = value;
+        get => _Registry[Key(assetBundleName)];
+        internal set => _Registry[Key(assetBundleName)] = value;
     }
 
+    /// <summary>
+    /// Try Get <see cref="AssetBundleReference"/> Instance of given Name
+    /// </summary>
+    /// <param name="assetBundleName">AssetBundle Name to search</param>
+    /// <param name="assetBundle"><see cref="AssetBundleReference"/> of given Name</param>
+    /// <returns><see langword="true"/> if found one, otherwise <see langword="false"/></returns>
     public bool TryGet(string assetBundleName, out AssetBundleReference assetBundle)
     {
         return _Registry.TryGetValue(Key(assetBundleName), out assetBundle);
     }
 
+    /// <summary>
+    /// Check if AssetBundle Name is registered
+    /// </summary>
+    /// <param name="assetBundleName">AssetBundle Name to search</param>
+    /// <returns><see langword="true"/> if found one, otherwise <see langword="false"/></returns>
     public bool Contains(string assetBundleName)
     {
         return _Registry.ContainsKey(Key(assetBundleName));

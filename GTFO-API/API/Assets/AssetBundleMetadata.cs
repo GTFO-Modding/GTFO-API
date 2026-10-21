@@ -64,6 +64,11 @@ public sealed class AssetBundleMetadata
     [JsonInclude]
     public IReadOnlyList<string> Assets { get; internal set; } = [];
 
+    /// <summary>
+    /// Generate Checksum from File path
+    /// </summary>
+    /// <param name="filePath">File path to AssetBundle</param>
+    /// <returns>MD5 hashed Checksum <see langword="string"/></returns>
     public static string ComputeChecksum(string filePath)
     {
         using var fs = File.OpenRead(filePath);
@@ -71,27 +76,52 @@ public sealed class AssetBundleMetadata
         return Convert.ToHexString(md5.ComputeHash(fs));
     }
 
+    /// <summary>
+    /// Generate Checksum from Stream
+    /// </summary>
+    /// <param name="stream">Stream of AssetBundle</param>
+    /// <returns>MD5 hashed Checksum <see langword="string"/></returns>
     public static string ComputeChecksum(Stream stream)
     {
         using var md5 = MD5.Create();
         return Convert.ToHexString(md5.ComputeHash(stream));
     }
 
+    /// <summary>
+    /// Deserialize Json String into <see cref="AssetBundleMetadata"/>
+    /// </summary>
+    /// <param name="json">Json String</param>
+    /// <returns>Deserialized <see cref="AssetBundleMetadata"/></returns>
     public static AssetBundleMetadata ReadJson(string json)
     {
         return JsonSerializer.Deserialize<AssetBundleMetadata>(json, _JsonOpt);
     }
 
+    /// <summary>
+    /// Deserialize Json Stream into <see cref="AssetBundleMetadata"/>
+    /// </summary>
+    /// <param name="jsonStream">Json String Stream</param>
+    /// <returns>Deserialized <see cref="AssetBundleMetadata"/></returns>
     public static AssetBundleMetadata ReadJson(Stream jsonStream)
     {
         return JsonSerializer.Deserialize<AssetBundleMetadata>(jsonStream, _JsonOpt);
     }
 
+    /// <summary>
+    /// Serialize <see cref="AssetBundleMetadata"/> into Json String
+    /// </summary>
+    /// <param name="metadata">Metadata to Serialize</param>
+    /// <returns>Serialized Json String</returns>
     public static string WriteJson(AssetBundleMetadata metadata)
     {
         return JsonSerializer.Serialize(metadata, _JsonOpt);
     }
 
+    /// <summary>
+    /// Serialize <see cref="AssetBundleMetadata"/> into Stream
+    /// </summary>
+    /// <param name="metadata">Metadata to Serialize</param>
+    /// <param name="stream">Stream to write Serialized String</param>
     public static void WriteJson(AssetBundleMetadata metadata, Stream stream)
     {
         JsonSerializer.Serialize(stream, metadata, _JsonOpt);

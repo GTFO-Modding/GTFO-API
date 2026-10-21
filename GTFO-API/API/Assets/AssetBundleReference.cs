@@ -7,10 +7,16 @@ using UnityEngine;
 
 namespace GTFO.API.Assets;
 
+/// <summary>
+/// Indirect Managed Reference to <see cref="AssetBundle"/>
+/// </summary>
 public sealed class AssetBundleReference
 {
     private static readonly Stopwatch s_LoadSW = new();
 
+    /// <summary>
+    /// Metadata of given <see cref="AssetBundle"/>
+    /// </summary>
     public AssetBundleMetadata Metadata { get; private set; }
 
     public AssetBundleUnloadStrategy UnloadStrategy
@@ -30,19 +36,40 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Name of the <see cref="AssetBundle"/>
+    /// </summary>
     public string Name { get; private set; }
+
+    /// <summary>
+    /// Check if <see cref="AssetBundle"/> has loaded
+    /// </summary>
     public bool IsLoaded => _BundleSource.LoadedAssetBundle != null;
+
+    /// <summary>
+    /// Collection of <see cref="AssetReference"/> that Registered by this <see cref="AssetBundleReference"/>
+    /// </summary>
     public AssetRegistry Assets { get; private set; } = new();
 
     private AssetBundleUnloadStrategy _UnloadStrategy;
     private readonly IAssetBundleSource _BundleSource;
 
-    internal AssetBundleReference(string name, string filePath, AssetBundleLoadingOptions loadingOptions = null)
+    internal AssetBundleReference(string name, string filePath)
     {
         _BundleSource = new AssetBundleSource_File(filePath);
         Metadata = _BundleSource.Metadata;
         Name = name;
+    }
 
+    internal AssetBundleReference(string name, AssetBundle assetBundle)
+    {
+        _BundleSource = new AssetBundleSource_External(assetBundle);
+        Metadata = _BundleSource.Metadata;
+        Name = name;
+    }
+
+    internal void Initialize(AssetBundleLoadingOptions loadingOptions)
+    {
         if (loadingOptions != null)
         {
             if (loadingOptions.InitialLoadMode.HasValue)
@@ -54,20 +81,6 @@ public sealed class AssetBundleReference
             UnloadStrategy = loadingOptions.UnloadStrategy;
         }
 
-        Initialize();
-    }
-
-    internal AssetBundleReference(string name, AssetBundle assetBundle)
-    {
-        _BundleSource = new AssetBundleSource_External(assetBundle);
-        Metadata = _BundleSource.Metadata;
-        Name = name;
-
-        Initialize();
-    }
-
-    private void Initialize()
-    {
         UnloadStrategy ??= AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);
 
         foreach (var asset in Metadata.Assets)
@@ -104,6 +117,9 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Load Referenced AssetBundle (Blocking)
+    /// </summary>
     public void LoadBundle()
     {
         if (_BundleSource.CanManualLoad)
@@ -112,6 +128,10 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Load Referenced AssetBundle (Non-Blocking)
+    /// </summary>
+    /// <param name="onLoaded">Callback when AssetBundle has loaded</param>
     public void LoadBundleAsync(Action onLoaded = null)
     {
         if (_BundleSource.CanManualLoad)
@@ -120,6 +140,10 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Load Every <see cref="AssetReference"/> from this Bundle
+    /// </summary>
+    /// <returns>Collection of AssetReference</returns>
     public IEnumerable<AssetReference> LoadAllAssets()
     {
         ValidateAssetBundle();
@@ -132,6 +156,10 @@ public sealed class AssetBundleReference
         return Assets.Assets;
     }
 
+    /// <summary>
+    /// Load Every <see cref="AssetReference"/> from this Bundle (Non-Blocking)
+    /// </summary>
+    /// <param name="onLoaded">Callback when every Asset has loaded</param>
     public void LoadAllAssetsAsync(Action<IEnumerable<AssetReference>> onLoaded = null)
     {
         ValidateAssetBundle();
@@ -151,6 +179,9 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Unload AssetBundle <u>This does NOT automatically unload all loaded assets!</u>
+    /// </summary>
     public void UnloadBundle()
     {
         if (_BundleSource.CanManualUnload)
@@ -159,6 +190,12 @@ public sealed class AssetBundleReference
         }
     }
 
+    /// <summary>
+    /// Unload Every loaded Assets
+    /// <para>
+    /// For Unloading specific Assets, Access them via <see cref="Assets"/> and do manual <see cref="AssetReference.Unload"/>
+    /// </para>
+    /// </summary>
     public void UnloadAllAssets()
     {
         foreach (var asset in Assets.Assets)

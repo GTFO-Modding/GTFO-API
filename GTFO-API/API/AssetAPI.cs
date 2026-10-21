@@ -8,7 +8,7 @@ using BepInEx;
 using GTFO.API.Assets;
 using GTFO.API.Assets.UnloadStrategies;
 using GTFO.API.Attributes;
-using GTFO.API.EventArgs;
+using GTFO.API.EventArg;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
 using GTFO.API.Utilities;
@@ -36,11 +36,16 @@ namespace GTFO.API
         public static event Action OnAssetBundlesLoaded;
 
         /// <summary>
-        /// Invoked when starting level gen, <seealso cref="LevelAssetLoadJob"/> is provided to load assets before starting level generation.
+        /// Invoked when start loading Level generation Assets
+        /// <para><seealso cref="OnLoadLevelAssetsEventArgs"/> is provided to load assets before starting level generation.</para>
         /// </summary>
-        public static event Action<LevelAssetLoadJob> PopulateLevelAssetLoadJob;
+        public static event Action<OnLoadLevelAssetsEventArgs> OnLoadLevelAssets;
 
-        public static event Action<ModifyBundleLoadingOptionsEventArgs> ModifyBundleLoadingOptions;
+        /// <summary>
+        /// Invoked when new <see cref="AssetBundleReference"/> has loaded
+        /// <para><seealso cref="OnAssetBundleLoadedEventArgs"/> is provided to modify <see cref="AssetBundleLoadingOptions"/> to use.</para>
+        /// </summary>
+        public static event Action<OnAssetBundleLoadedEventArgs> OnAssetBundleLoaded;
 
         /// <summary>
         /// Invoked when the internal handler is ready
@@ -155,13 +160,18 @@ namespace GTFO.API
         /// <param name="bundle">AssetBundle to Reference</param>
         /// <returns><seealso cref="AssetBundleReference"/> Instance (Loading/Unloading Is NOT supported)</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, AssetBundle bundle)
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, AssetBundle bundle, AssetBundleLoadingOptions loadingOptions = null)
         {
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, bundle);
             AllCustomBundles[assetBundleName] = assetBundleReference;
+
+            var eventArgs = new OnAssetBundleLoadedEventArgs(assetBundleName, loadingOptions);
+            SafeInvoke.Invoke(OnAssetBundleLoaded, eventArgs);
+            assetBundleReference.Initialize(loadingOptions);
+
             return assetBundleReference;
         }
 
@@ -178,17 +188,14 @@ namespace GTFO.API
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
-            loadingOptions ??= new AssetBundleLoadingOptions();
-            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
-            {
-                AssetBundleName = assetBundleName,
-                LoadingOptions = loadingOptions
-            };
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
-
             var filePath = CopyAssetBundleCache(assetBundleName, new MemoryStream(bytes));
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomBundles[assetBundleName] = assetBundleReference;
+
+            var eventArgs = new OnAssetBundleLoadedEventArgs(assetBundleName, loadingOptions);
+            SafeInvoke.Invoke(OnAssetBundleLoaded, eventArgs);
+            assetBundleReference.Initialize(loadingOptions);
+
             return assetBundleReference;
         }
 
@@ -205,17 +212,14 @@ namespace GTFO.API
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
-            loadingOptions ??= new AssetBundleLoadingOptions();
-            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
-            {
-                AssetBundleName = assetBundleName,
-                LoadingOptions = loadingOptions
-            };
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
-
             var filePath = CopyAssetBundleCache(assetBundleName, stream);
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomBundles[assetBundleName] = assetBundleReference;
+
+            var eventArgs = new OnAssetBundleLoadedEventArgs(assetBundleName, loadingOptions);
+            SafeInvoke.Invoke(OnAssetBundleLoaded, eventArgs);
+            assetBundleReference.Initialize(loadingOptions);
+
             return assetBundleReference;
         }
 
@@ -243,16 +247,13 @@ namespace GTFO.API
                 filePath = CopyAssetBundleCache(assetBundleName, fs);
             }
 
-            loadingOptions ??= new AssetBundleLoadingOptions();
-            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
-            {
-                AssetBundleName = assetBundleName,
-                LoadingOptions = loadingOptions
-            };
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
-
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomBundles[assetBundleName] = assetBundleReference;
+
+            var eventArgs = new OnAssetBundleLoadedEventArgs(assetBundleName, loadingOptions);
+            SafeInvoke.Invoke(OnAssetBundleLoaded, eventArgs);
+            assetBundleReference.Initialize(loadingOptions);
+
             return assetBundleReference;
         }
 
@@ -415,8 +416,8 @@ namespace GTFO.API
 
         private static void OnLevelBuildStart()
         {
-            var loadAssetsJob = new LevelAssetLoadJob();
-            SafeInvoke.Invoke(PopulateLevelAssetLoadJob, loadAssetsJob);
+            var loadAssetsJob = new OnLoadLevelAssetsEventArgs();
+            SafeInvoke.Invoke(OnLoadLevelAssets, loadAssetsJob);
 
             if (!loadAssetsJob.IsEmpty)
             {

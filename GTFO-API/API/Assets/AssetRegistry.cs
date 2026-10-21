@@ -4,27 +4,57 @@ using System.Collections.Generic;
 
 namespace GTFO.API.Assets;
 
+/// <summary>
+/// Read-Only Dictionary of <see cref="AssetBundleReference"/>
+/// </summary>
 public sealed class AssetRegistry
 {
     private readonly ConcurrentDictionary<string, AssetReference> _Registry = [];
 
+    /// <summary>
+    /// Collection of <see cref="AssetReference"/>
+    /// </summary>
     public ICollection<AssetReference> Assets => _Registry.Values;
+
+    /// <summary>
+    /// Collection of AssetName
+    /// </summary>
     public ICollection<string> AssetNames => _Registry.Keys;
+
+    /// <summary>
+    /// KeyValue Pairs
+    /// </summary>
     public IEnumerable<KeyValuePair<string, AssetReference>> KeyValues => _Registry;
 
     internal AssetRegistry() { }
 
+    /// <summary>
+    /// Indexer for Accessing <see cref="AssetReference"/> Instance
+    /// </summary>
+    /// <param name="assetName">Asset Name to search</param>
+    /// <returns><see cref="AssetReference"/> of given Name</returns>
     public AssetReference this[string assetName]
     {
         get => _Registry[Key(assetName)];
         internal set => _Registry[Key(assetName)] = value;
     }
 
+    /// <summary>
+    /// Try Get <see cref="AssetReference"/> Instance of given Name
+    /// </summary>
+    /// <param name="assetName">Asset Name to search</param>
+    /// <param name="asset"><see cref="AssetReference"/> of given Name</param>
+    /// <returns><see langword="true"/> if found one, otherwise <see langword="false"/></returns>
     public bool TryGet(string assetName, out AssetReference asset)
     {
         return _Registry.TryGetValue(Key(assetName), out asset);
     }
 
+    /// <summary>
+    /// Check if Asset Name is registered
+    /// </summary>
+    /// <param name="assetName">Asset Name to search</param>
+    /// <returns><see langword="true"/> if found one, otherwise <see langword="false"/></returns>
     public bool Contains(string assetName)
     {
         return _Registry.ContainsKey(Key(assetName));
