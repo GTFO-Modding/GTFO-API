@@ -31,7 +31,7 @@ public sealed class LevelAssetLoadJob
 
     public void EnqueueAssetBundleToLoad(string assetBundleName)
     {
-        if (!AssetAPI.AllCustomAssetBundles.TryGet(assetBundleName, out var assetBundleRef))
+        if (!AssetAPI.AllCustomBundles.TryGet(assetBundleName, out var assetBundleRef))
         {
             return;
         }

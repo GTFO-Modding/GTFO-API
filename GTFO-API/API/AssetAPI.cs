@@ -55,7 +55,7 @@ namespace GTFO.API
         /// <summary>
         /// List of every <u>custom</u> <see cref="AssetBundle"/>. <u>This does NOT include Vanilla AssetBundles!</u>
         /// </summary>
-        public static AssetBundleRegistry AllCustomAssetBundles { get; private set; } = new();
+        public static AssetBundleRegistry AllCustomBundles { get; private set; } = new();
 
         /// <summary>
         /// Path to AssetBundles: 'BepInEx/Assets/AssetBundles'
@@ -74,7 +74,7 @@ namespace GTFO.API
         /// <returns>Whether the <see cref="AssetBundle"/> is registered or not</returns>
         public static bool ContainsAssetBundle(string assetBundleName)
         {
-            if (AllCustomAssetBundles.Contains(assetBundleName))
+            if (AllCustomBundles.Contains(assetBundleName))
                 return true;
 
             return false;
@@ -161,7 +161,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, bundle);
-            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -188,7 +188,7 @@ namespace GTFO.API
 
             var filePath = CopyAssetBundleCache(assetBundleName, new MemoryStream(bytes));
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
-            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -215,7 +215,7 @@ namespace GTFO.API
 
             var filePath = CopyAssetBundleCache(assetBundleName, stream);
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
-            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -252,7 +252,7 @@ namespace GTFO.API
             SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
-            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
