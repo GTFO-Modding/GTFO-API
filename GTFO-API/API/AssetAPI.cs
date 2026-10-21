@@ -57,8 +57,15 @@ namespace GTFO.API
         /// </summary>
         public static AssetBundleRegistry AllCustomAssetBundles { get; private set; } = new();
 
+        /// <summary>
+        /// Path to AssetBundles: 'BepInEx/Assets/AssetBundles'
+        /// </summary>
         public static readonly string AssetBundlesPath = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles");
-        public static readonly string ExternalAssetBundlesCachePath = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles", ".cache");
+
+        /// <summary>
+        /// Path to AssetBundle Caches: 'BepInEx/cache/assetbundles'
+        /// </summary>
+        public static readonly string AssetBundlesCachePath = Path.Combine(Paths.BepInExRootPath, "cache", "assetbundles");
 
         /// <summary>
         /// Checks if an <see cref="AssetBundle"/> is already registered in the <see cref="AssetAPI"/>
@@ -233,7 +240,7 @@ namespace GTFO.API
 
             // Handle External Files
             // Copy them to .cache folder
-            if (Path.GetRelativePath(AssetBundlesPath, filePath) == filePath)
+            if (!IsFileInDir(filePath, AssetBundlesPath) && !IsFileInDir(filePath, AssetBundlesCachePath))
             {
                 using var fs = File.OpenRead(filePath);
                 filePath = CopyAssetBundleCache(assetBundleName, fs);
@@ -252,13 +259,22 @@ namespace GTFO.API
             return assetBundleReference;
         }
 
+        private static bool IsFileInDir(string filePath, string dirPath)
+        {
+            dirPath = Path.GetFullPath(dirPath)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            filePath = Path.GetFullPath(filePath);
+            return filePath.StartsWith(dirPath, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static string CopyAssetBundleCache(string assetBundleName, Stream stream)
         {
-            if (!Directory.Exists(ExternalAssetBundlesCachePath))
-                Directory.CreateDirectory(ExternalAssetBundlesCachePath);
+            if (!Directory.Exists(AssetBundlesCachePath))
+                Directory.CreateDirectory(AssetBundlesCachePath);
 
             var newFileName = GetHashedName(assetBundleName);
-            var cacheFile = Path.Combine(ExternalAssetBundlesCachePath, newFileName);
+            var cacheFile = Path.Combine(AssetBundlesCachePath, newFileName);
 
             if (File.Exists(cacheFile))
                 File.Delete(cacheFile);
@@ -381,8 +397,8 @@ namespace GTFO.API
         {
             Application.quitting += (Il2CppSystem.Action)(() =>
             {
-                var caches = Directory.EnumerateFiles(ExternalAssetBundlesCachePath, "*", SearchOption.AllDirectories)
-                    .Where(f => !f.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
+                var caches = Directory.EnumerateFiles(AssetBundlesCachePath, "*", SearchOption.AllDirectories)
+                    .Where(f => !f.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.OrdinalIgnoreCase));
 
                 foreach (var cache in caches)
                 {
@@ -417,9 +433,9 @@ namespace GTFO.API
                 Directory.CreateDirectory(AssetBundlesPath);
 
             var bundlePaths = Directory.GetFiles(AssetBundlesPath, "*", SearchOption.AllDirectories)
-                .Where(x => !x.EndsWith(".manifest", StringComparison.InvariantCultureIgnoreCase))
-                .Where(x => !x.EndsWith(".old", StringComparison.InvariantCultureIgnoreCase))
-                .Where(x => !x.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
+                .Where(x => !x.EndsWith(".manifest", StringComparison.OrdinalIgnoreCase))
+                .Where(x => !x.EndsWith(".old", StringComparison.OrdinalIgnoreCase))
+                .Where(x => !x.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.OrdinalIgnoreCase));
 
             if (!bundlePaths.Any())
                 return;
@@ -430,11 +446,6 @@ namespace GTFO.API
                 try
                 {
                     var name = Path.GetRelativePath(AssetBundlesPath, file).Replace('\\', '/');
-                    if (name.StartsWith(".cache/", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        continue;
-                    }
-
                     if (ContainsAssetBundle(name))
                     {
                         APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
