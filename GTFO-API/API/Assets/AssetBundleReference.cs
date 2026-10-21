@@ -103,8 +103,8 @@ public sealed class AssetBundleReference
     {
         if (loadingOptions != null)
         {
-            if (loadingOptions.InitialLoadMode.HasValue)
-                Metadata.InitialLoadMode = loadingOptions.InitialLoadMode.Value;
+            if (loadingOptions.InitialMode.HasValue)
+                Metadata.InitialMode = loadingOptions.InitialMode.Value;
 
             if (loadingOptions.DisableJustInTimeLoading.HasValue)
                 Metadata.DisableJustInTimeLoading = loadingOptions.DisableJustInTimeLoading.Value;
@@ -114,7 +114,7 @@ public sealed class AssetBundleReference
 
         Profile ??= AssetBundleProfile.CreateInstance(Metadata.Profile);
 
-        switch (Metadata.InitialLoadMode)
+        switch (Metadata.InitialMode)
         {
             case AssetBundleLoadingMode.LoadBundle:
                 LoadBundle();

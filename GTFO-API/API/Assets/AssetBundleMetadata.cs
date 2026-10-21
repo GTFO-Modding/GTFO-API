@@ -40,16 +40,16 @@ public sealed class AssetBundleMetadata
     }
 
     /// <summary>
-    /// Defines how AssetBundle should be Loaded after Initial Startup.
-    /// </summary>
-    [JsonInclude]
-    public AssetBundleLoadingMode InitialLoadMode { get; internal set; } = AssetBundleLoadingMode.DontLoad;
-
-    /// <summary>
     /// Defines how AssetBundle should be Managed. To modify, check <see cref="AssetBundleReference.Profile"/>
     /// </summary>
     [JsonInclude]
     public string Profile { get; internal set; } = nameof(AssetBundleProfile.Unspecified);
+
+    /// <summary>
+    /// Defines how AssetBundle should be Loaded after Initial Startup.
+    /// </summary>
+    [JsonInclude]
+    public AssetBundleLoadingMode InitialMode { get; internal set; } = AssetBundleLoadingMode.DontLoad;
 
     /// <summary>
     /// Flag for toggling JIT-Loading
@@ -58,16 +58,16 @@ public sealed class AssetBundleMetadata
     public bool DisableJustInTimeLoading { get; internal set; } = false;
 
     /// <summary>
-    /// MD5 Checksum of the <see cref="AssetBundle"/> file
-    /// </summary>
-    [JsonInclude]
-    public string Checksum { get; internal set; } = "";
-
-    /// <summary>
     /// List of Asset Names defined in <see cref="AssetBundle"/>
     /// </summary>
     [JsonInclude]
     public IReadOnlyList<string> Assets { get; internal set; } = [];
+
+    /// <summary>
+    /// MD5 Checksum of the <see cref="AssetBundle"/> file
+    /// </summary>
+    [JsonInclude]
+    public string Checksum { get; internal set; } = "";
 
     /// <summary>
     /// Revision of Metadata json file

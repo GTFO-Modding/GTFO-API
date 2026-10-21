@@ -10,7 +10,7 @@ public class AssetBundleLoadingOptions
     /// <summary>
     /// Defines how AssetBundle should be Loaded after loaded.
     /// </summary>
-    public AssetBundleLoadingMode? InitialLoadMode { get; set; } = null;
+    public AssetBundleLoadingMode? InitialMode { get; set; } = null;
 
     /// <summary>
     /// Defines how AssetBundle should be Managed.
