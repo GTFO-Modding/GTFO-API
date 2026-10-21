@@ -416,10 +416,13 @@ namespace GTFO.API
 
         private static void OnLevelBuildStart()
         {
-            var loadAssetsJob = new OnLoadLevelAssetsEventArgs();
+            var loadAssetsJob = new OnLoadLevelAssetsEventArgs
+            {
+                Impl = new LevelAssetLoadJob_Impl()
+            };
             SafeInvoke.Invoke(OnLoadLevelAssets, loadAssetsJob);
 
-            if (!loadAssetsJob.IsEmpty)
+            if (!loadAssetsJob.IsLoadingQueueEmpty)
             {
                 LG_Factory.InjectJob(loadAssetsJob.Impl, LG_Factory.BatchName.LoadResourcesShards_Level);
             }

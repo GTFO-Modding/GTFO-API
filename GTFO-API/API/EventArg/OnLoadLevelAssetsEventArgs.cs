@@ -11,13 +11,15 @@ public sealed class OnLoadLevelAssetsEventArgs : EventArgs
 {
     internal LevelAssetLoadJob_Impl Impl;
 
-    public bool IsEmpty => !Impl.AssetsToLoad.Any() && !Impl.BundlesToLoad.Any();
+    /// <summary>
+    /// Check if Loading Queue is empty
+    /// </summary>
+    public bool IsLoadingQueueEmpty => !Impl.AssetsToLoad.Any() && !Impl.BundlesToLoad.Any();
 
-    public OnLoadLevelAssetsEventArgs()
-    {
-        Impl = new LevelAssetLoadJob_Impl();
-    }
-
+    /// <summary>
+    /// Enqueue Asset to Load
+    /// </summary>
+    /// <param name="assetName">Asset Name</param>
     public void EnqueueAssetToLoad(string assetName)
     {
         if (!AssetAPI.AllCustomAssets.TryGet(assetName, out var assetRef))
@@ -33,6 +35,10 @@ public sealed class OnLoadLevelAssetsEventArgs : EventArgs
         Impl.AssetsToLoad.Add(assetRef);
     }
 
+    /// <summary>
+    /// Enqueue AssetBundle to Load
+    /// </summary>
+    /// <param name="assetBundleName">AssetBundle Name</param>
     public void EnqueueAssetBundleToLoad(string assetBundleName)
     {
         if (!AssetAPI.AllCustomBundles.TryGet(assetBundleName, out var assetBundleRef))
