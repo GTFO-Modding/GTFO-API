@@ -409,9 +409,7 @@ namespace GTFO.API
             OnImplReady += LoadAssetBundles;
 
             AssetBundleProfile.RegisterType<AssetBundleProfile.Unspecified>();
-            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelBuildDone>();
-            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelCleanup>();
-            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelSelected>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.LevelAsset>();
         }
 
         private static void OnLevelBuildStart()
