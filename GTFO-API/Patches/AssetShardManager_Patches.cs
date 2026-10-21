@@ -33,7 +33,7 @@ namespace GTFO.API.Patches
 
             public static void Prefix(string assetPath)
             {
-                if (AssetAPI.AllAssets.TryGet(assetPath, out var assetRef))
+                if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
                 {
                     var asset = assetRef.Asset; // Kinda ugly /shrug
                     APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");
@@ -57,7 +57,7 @@ namespace GTFO.API.Patches
 
             public static void Prefix(string assetPath)
             {
-                if (AssetAPI.AllAssets.TryGet(assetPath, out var assetRef))
+                if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
                 {
                     var asset = assetRef.Asset; // Kinda ugly /shrug
                     APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");

@@ -8,6 +8,8 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
     public string SourceName => $"External";
     public AssetBundle LoadedAssetBundle { get; private set; }
     public AssetBundleMetadata Metadata { get; private set; }
+    public bool CanManualLoad => false;
+    public bool CanManualUnload => false;
 
     internal AssetBundleSource_External(AssetBundle assetBundle, AssetBundleMetadata metadata = null)
     {

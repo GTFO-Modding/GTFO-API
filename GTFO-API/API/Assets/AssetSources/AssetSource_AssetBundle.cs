@@ -9,6 +9,8 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
     public string SourceName => $"AssetBundle ({OwnerBundle.Name})";
     public UnityEngine.Object LoadedAsset => _Loader.LoadedObject;
     public AssetBundleReference OwnerBundle { get; private set; }
+    public bool CanManualLoad => true;
+    public bool CanManualUnload => true;
     public string AssetName { get; private set; }
 
     private readonly AsyncLoader<UnityEngine.Object> _Loader = new();

@@ -73,7 +73,7 @@ public sealed class AssetBundleReference
         {
             if (AssetAPI.ContainsAsset(asset))
             {
-                if (AssetAPI.AllAssets.TryGet(asset, out var assetRef))
+                if (AssetAPI.AllCustomAssets.TryGet(asset, out var assetRef))
                 {
                     APILogger.Error("Asset", $"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
                 }
@@ -86,7 +86,7 @@ public sealed class AssetBundleReference
 
 
             var assetReference = new AssetReference(asset, this);
-            AssetAPI.AllAssets[asset] = assetReference;
+            AssetAPI.AllCustomAssets[asset] = assetReference;
             Assets[asset] = assetReference;
         }
 
@@ -105,12 +105,18 @@ public sealed class AssetBundleReference
 
     public void LoadBundle()
     {
-        _BundleSource.Load();
+        if (_BundleSource.CanManualLoad)
+        {
+            _BundleSource.Load();
+        }
     }
 
     public void LoadBundleAsync(Action onLoaded = null)
     {
-        _BundleSource.LoadAsync(onLoaded);
+        if (_BundleSource.CanManualLoad)
+        {
+            _BundleSource.LoadAsync(onLoaded);
+        }
     }
 
     public IEnumerable<AssetReference> LoadAllAssets()
@@ -146,7 +152,10 @@ public sealed class AssetBundleReference
 
     public void UnloadBundle()
     {
-        _BundleSource.Unload();
+        if (_BundleSource.CanManualUnload)
+        {
+            _BundleSource.Unload();
+        }
     }
 
     public void UnloadAllAssets()

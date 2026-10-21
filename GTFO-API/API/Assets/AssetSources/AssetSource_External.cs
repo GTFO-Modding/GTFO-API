@@ -7,6 +7,8 @@ internal sealed class AssetSource_External : IAssetSource
 {
     public string SourceName => "External";
     public UnityEngine.Object LoadedAsset { get; private set; }
+    public bool CanManualLoad => false;
+    public bool CanManualUnload => false;
     public string AssetName { get; private set; }
 
     public AssetSource_External(string assetName, UnityEngine.Object asset)

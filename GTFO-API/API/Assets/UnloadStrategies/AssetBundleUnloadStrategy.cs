@@ -30,7 +30,7 @@ public abstract partial class AssetBundleUnloadStrategy
     {
         if (!s_StrategyTypeLookup.TryGetValue(strategyName, out var type))
         {
-            return new AssetBundleUnloadStrategy.Unspecified();
+            return new Unspecified();
         }
 
         return (AssetBundleUnloadStrategy)Activator.CreateInstance(type);

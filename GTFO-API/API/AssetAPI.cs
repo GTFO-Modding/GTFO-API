@@ -43,14 +43,14 @@ namespace GTFO.API
         public static event Action OnImplReady;
 
         /// <summary>
-        /// List of every custom assets. This does NOT include Vanilla assets!
+        /// List of every custom assets. <u>This does NOT include Vanilla Assets!</u>
         /// </summary>
-        public static AssetRegistry AllAssets { get; private set; } = new();
+        public static AssetRegistry AllCustomAssets { get; private set; } = new();
 
         /// <summary>
-        /// List of every custom assetbundles.
+        /// List of every custom assetbundles. <u>This does NOT include Vanilla AssetBundles!</u>
         /// </summary>
-        public static AssetBundleRegistry AllAssetBundles { get; private set; } = new();
+        public static AssetBundleRegistry AllCustomAssetBundles { get; private set; } = new();
 
         /// <summary>
         /// Checks if an <see cref="AssetBundle"/> is already registered in the <see cref="AssetAPI"/>
@@ -59,14 +59,14 @@ namespace GTFO.API
         /// <returns>Whether the <see cref="AssetBundle"/> is registered or not</returns>
         public static bool ContainsAssetBundle(string assetBundleName)
         {
-            if (AllAssetBundles.Contains(assetBundleName))
+            if (AllCustomAssetBundles.Contains(assetBundleName))
                 return true;
 
             return false;
         }
 
         /// <summary>
-        /// Checks if an asset is already registered in the <see cref="AssetAPI"/>
+        /// Checks if an asset is already registered in the <see cref="AssetAPI"/> or <see cref="AssetShardManager"/>
         /// </summary>
         /// <param name="assetName">Name of the asset to check</param>
         /// <returns>Whether the asset is registered or not</returns>
@@ -76,7 +76,7 @@ namespace GTFO.API
             if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName))
                 return true;
 
-            if (AllAssets.Contains(assetName))
+            if (AllCustomAssets.Contains(assetName))
                 return true;
 
             return false;
@@ -93,7 +93,7 @@ namespace GTFO.API
             APILogger.Verbose($"Asset", $"Requested Asset: {upperPath}");
             try
             {
-                if (AllAssets.TryGet(upperPath, out var assetRef))
+                if (AllCustomAssets.TryGet(upperPath, out var assetRef))
                     return assetRef.Asset;
 
                 return AssetShardManager.GetLoadedAsset(upperPath);
@@ -127,7 +127,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The asset '{name}' has already been registered.", nameof(name));
 
             APILogger.Verbose(nameof(AssetAPI_Impl), $"Registering asset: {name}");
-            AllAssets[name] = new AssetReference(name, gameObject);
+            AllCustomAssets[name] = new AssetReference(name, gameObject);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, bundle);
-            AllAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -166,7 +166,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, new MemoryStream(bytes));
-            AllAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -183,7 +183,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, stream);
-            AllAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 
@@ -200,7 +200,7 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
-            AllAssetBundles[assetBundleName] = assetBundleReference;
+            AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
 

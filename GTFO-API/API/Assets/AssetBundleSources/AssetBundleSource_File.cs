@@ -12,6 +12,8 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
     public string SourceName => $"File ({FilePath})";
     public AssetBundle LoadedAssetBundle => _Loader.LoadedObject;
     public AssetBundleMetadata Metadata { get; private set; }
+    public bool CanManualLoad => true;
+    public bool CanManualUnload => true;
     public string FilePath { get; private set; }
     public string MetaFilePath { get; private set; }
 

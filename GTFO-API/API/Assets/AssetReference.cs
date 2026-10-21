@@ -23,21 +23,14 @@ public sealed class AssetReference
             if (_AssetSource.LoadedAsset != null)
                 return _AssetSource.LoadedAsset;
 
-            if (_AssetSource is not AssetSource_AssetBundle assetSource)
+            if (!_AssetSource.CanManualLoad)
                 return null;
-
-            var assetBundle = assetSource.OwnerBundle;
-            if (assetBundle.Metadata.DisableJustInTimeLoading)
-            {
-                APILogger.Error($"AssetJIT", $"Asset '{Name}' from '{assetBundle.Name}' was requested but JIT loading is disabled!");
-                return null;
-            }
 
             s_LoadSW.Restart();
             _AssetSource.Load();
             s_LoadSW.Stop();
 
-            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{assetBundle.Name}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
 
             return _AssetSource.LoadedAsset;
         }
@@ -61,17 +54,27 @@ public sealed class AssetReference
 
     public void Load()
     {
-        _AssetSource.Load();
+        if (_AssetSource.CanManualLoad)
+        {
+            _AssetSource.Load();
+        }
+
     }
 
     public void LoadAsync(Action onLoaded = null)
     {
-        _AssetSource.LoadAsync(onLoaded);
+        if (_AssetSource.CanManualLoad)
+        {
+            _AssetSource.LoadAsync(onLoaded);
+        }
     }
 
     public void Unload()
     {
-        _AssetSource.Unload();
+        if (_AssetSource.CanManualUnload)
+        {
+            _AssetSource.Unload();
+        }
     }
 
     /// <summary>
