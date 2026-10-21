@@ -87,8 +87,7 @@ namespace GTFO.API
         /// <returns>Whether the asset is registered or not</returns>
         public static bool ContainsAsset(string assetName)
         {
-            assetName = assetName.ToUpper();
-            if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName))
+            if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName.ToUpper()))
                 return true;
 
             if (AllCustomAssets.Contains(assetName))
@@ -104,14 +103,13 @@ namespace GTFO.API
         /// <returns>The <see cref="UnityEngine.Object"/> of the asset requested or null if it's not loaded</returns>
         public static UnityEngine.Object GetLoadedAsset(string path)
         {
-            string upperPath = path.ToUpper();
-            APILogger.Verbose($"Asset", $"Requested Asset: {upperPath}");
+            APILogger.Verbose($"Asset", $"Requested Asset: {path}");
             try
             {
-                if (AllCustomAssets.TryGet(upperPath, out var assetRef))
+                if (AllCustomAssets.TryGet(path, out var assetRef))
                     return assetRef.Asset;
 
-                return AssetShardManager.GetLoadedAsset(upperPath);
+                return AssetShardManager.GetLoadedAsset(path);
             }
             catch
             {
@@ -137,8 +135,7 @@ namespace GTFO.API
         /// <exception cref="ArgumentException">The name is already registered</exception>
         public static void RegisterAsset(string name, UnityEngine.Object gameObject)
         {
-            string upperName = name.ToUpper();
-            if (ContainsAsset(upperName))
+            if (ContainsAsset(name))
                 throw new ArgumentException($"The asset '{name}' has already been registered.", nameof(name));
 
             APILogger.Verbose(nameof(AssetAPI_Impl), $"Registering asset: {name}");
