@@ -158,6 +158,7 @@ namespace GTFO.API
         /// </summary>
         /// <param name="assetBundleName">Unique Name of Bundle</param>
         /// <param name="bundle">AssetBundle to Reference</param>
+        /// <param name="loadingOptions"><see cref="AssetBundleLoadingOptions"/> to use</param>
         /// <returns><seealso cref="AssetBundleReference"/> Instance (Loading/Unloading Is NOT supported)</returns>
         /// <exception cref="ArgumentException"></exception>
         public static AssetBundleReference RegisterAssetBundle(string assetBundleName, AssetBundle bundle, AssetBundleLoadingOptions loadingOptions = null)
