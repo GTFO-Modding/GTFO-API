@@ -39,6 +39,8 @@ namespace GTFO.API
         /// </summary>
         public static event Action<LevelAssetLoadJob> PopulateLevelAssetLoadJob;
 
+        public static event Action<string, AssetBundleLoadingOptions> ModifyBundleLoadingOptions;
+
         /// <summary>
         /// Invoked when the internal handler is ready
         /// </summary>
@@ -139,9 +141,9 @@ namespace GTFO.API
         /// Registers an <see cref="AssetBundle"/> to Game
         /// <para>
         /// Alternatives:<br/>
-        /// - <seealso cref="RegisterAssetBundle(string, string)"/><br/>
-        /// - <seealso cref="RegisterAssetBundle(string, byte[])"/><br/>
-        /// - <seealso cref="RegisterAssetBundle(string, Stream)"/><br/>
+        /// - <seealso cref="RegisterAssetBundle(string, string, AssetBundleLoadingOptions)"/><br/>
+        /// - <seealso cref="RegisterAssetBundle(string, byte[], AssetBundleLoadingOptions)"/><br/>
+        /// - <seealso cref="RegisterAssetBundle(string, Stream, AssetBundleLoadingOptions)"/><br/>
         /// </para>
         /// </summary>
         /// <param name="assetBundleName">Unique Name of Bundle</param>
@@ -163,15 +165,19 @@ namespace GTFO.API
         /// </summary>
         /// <param name="assetBundleName">Unique Name of Bundle</param>
         /// <param name="bytes">Bundle file bytes</param>
+        /// <param name="loadingOptions"><see cref="AssetBundleLoadingOptions"/> to use</param>
         /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, byte[] bytes)
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, byte[] bytes, AssetBundleLoadingOptions loadingOptions = null)
         {
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
+            loadingOptions ??= new AssetBundleLoadingOptions();
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+
             var filePath = CopyAssetBundleCache(assetBundleName, new MemoryStream(bytes));
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
@@ -181,15 +187,19 @@ namespace GTFO.API
         /// </summary>
         /// <param name="assetBundleName">Unique Name of Bundle</param>
         /// <param name="stream">Stream of Bundle file</param>
+        /// <param name="loadingOptions"><see cref="AssetBundleLoadingOptions"/> to use</param>
         /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, Stream stream)
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, Stream stream, AssetBundleLoadingOptions loadingOptions = null)
         {
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
+            loadingOptions ??= new AssetBundleLoadingOptions();
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+
             var filePath = CopyAssetBundleCache(assetBundleName, stream);
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
@@ -199,9 +209,10 @@ namespace GTFO.API
         /// </summary>
         /// <param name="assetBundleName">Unique Name of Bundle</param>
         /// <param name="filePath">Location of the Bundle file</param>
+        /// <param name="loadingOptions"><see cref="AssetBundleLoadingOptions"/> to use</param>
         /// <returns><seealso cref="AssetBundleReference"/> Instance</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, string filePath)
+        public static AssetBundleReference RegisterAssetBundle(string assetBundleName, string filePath, AssetBundleLoadingOptions loadingOptions = null)
         {
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
@@ -217,7 +228,10 @@ namespace GTFO.API
                 filePath = CopyAssetBundleCache(assetBundleName, fs);
             }
 
-            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
+            loadingOptions ??= new AssetBundleLoadingOptions();
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
@@ -233,10 +247,9 @@ namespace GTFO.API
             if (File.Exists(cacheFile))
                 File.Delete(cacheFile);
 
-            var fs = File.Open(cacheFile, FileMode.Create, FileAccess.Write);
+            using var fs = File.Open(cacheFile, FileMode.Create, FileAccess.Write);
             stream.Seek(0, SeekOrigin.Begin);
             stream.CopyTo(fs);
-            fs.Dispose();
 
             return cacheFile;
         }

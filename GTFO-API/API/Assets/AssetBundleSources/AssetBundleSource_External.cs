@@ -11,10 +11,10 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
     public bool CanManualLoad => false;
     public bool CanManualUnload => false;
 
-    internal AssetBundleSource_External(AssetBundle assetBundle, AssetBundleMetadata metadata = null)
+    internal AssetBundleSource_External(AssetBundle assetBundle)
     {
         LoadedAssetBundle = assetBundle;
-        Metadata = metadata ?? new AssetBundleMetadata();
+        Metadata = new AssetBundleMetadata();
     }
 
     public void Load()

@@ -37,11 +37,22 @@ public sealed class AssetBundleReference
     private AssetBundleUnloadStrategy _UnloadStrategy;
     private readonly IAssetBundleSource _BundleSource;
 
-    internal AssetBundleReference(string name, string filePath)
+    internal AssetBundleReference(string name, string filePath, AssetBundleLoadingOptions loadingOptions = null)
     {
         _BundleSource = new AssetBundleSource_File(filePath);
         Metadata = _BundleSource.Metadata;
         Name = name;
+
+        if (loadingOptions != null)
+        {
+            if (loadingOptions.InitialLoadMode.HasValue)
+                Metadata.InitialLoadMode = loadingOptions.InitialLoadMode.Value;
+
+            if (loadingOptions.DisableJustInTimeLoading.HasValue)
+                Metadata.DisableJustInTimeLoading = loadingOptions.DisableJustInTimeLoading.Value;
+
+            UnloadStrategy = loadingOptions.UnloadStrategy;
+        }
 
         Initialize();
     }
@@ -57,7 +68,7 @@ public sealed class AssetBundleReference
 
     private void Initialize()
     {
-        UnloadStrategy = AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);
+        UnloadStrategy ??= AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);
 
         foreach (var asset in Metadata.Assets)
         {
@@ -80,13 +91,13 @@ public sealed class AssetBundleReference
             Assets[asset] = assetReference;
         }
 
-        switch (Metadata.StartupLoadMode)
+        switch (Metadata.InitialLoadMode)
         {
-            case AssetBundleStartupLoadingMode.LoadBundle:
+            case AssetBundleLoadingMode.LoadBundle:
                 LoadBundle();
                 break;
 
-            case AssetBundleStartupLoadingMode.LoadAllAssets:
+            case AssetBundleLoadingMode.LoadAllAssets:
                 LoadBundle();
                 LoadAllAssets();
                 break;
