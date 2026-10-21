@@ -2,6 +2,12 @@
 
 public abstract partial class AssetBundleProfile
 {
+    /// <summary>
+    /// AssetBundleProfile: Unspecified
+    /// <para>
+    /// Do nothing ;)
+    /// </para>
+    /// </summary>
     public sealed class Unspecified : AssetBundleProfile
     {
         public override string ProfileName => nameof(Unspecified);

@@ -6,7 +6,7 @@ public abstract partial class AssetBundleProfile
     /// AssetBundleProfile: LevelAsset
     /// <para>
     /// Unload Bundle on LevelAPI.OnBuildDone
-    /// Unload Asset on 
+    /// Unload Assets on LevelAPI.OnLevelCleanup
     /// </para>
     /// </summary>
     public sealed class LevelAsset : AssetBundleProfile
@@ -19,6 +19,12 @@ public abstract partial class AssetBundleProfile
             LevelAPI.OnLevelCleanup += OnLevelCleanup;
         }
 
+        public override void Unapply()
+        {
+            LevelAPI.OnBuildDone -= OnBuildDone;
+            LevelAPI.OnLevelCleanup -= OnLevelCleanup;
+        }
+
         private void OnBuildDone()
         {
             ManagingBundle.UnloadBundle();
@@ -27,12 +33,6 @@ public abstract partial class AssetBundleProfile
         private void OnLevelCleanup()
         {
             ManagingBundle.UnloadAllAssets();
-        }
-
-        public override void Unapply()
-        {
-            LevelAPI.OnBuildDone -= OnBuildDone;
-            LevelAPI.OnLevelCleanup -= OnLevelCleanup;
         }
     }
 }
