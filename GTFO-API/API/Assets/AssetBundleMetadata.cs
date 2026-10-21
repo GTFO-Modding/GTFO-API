@@ -20,6 +20,11 @@ public sealed class AssetBundleMetadata
     /// </summary>
     public static readonly string FileExtension = ".meta.json";
 
+    /// <summary>
+    /// Revision of Metadata Format
+    /// </summary>
+    public static readonly int MetadataFormatRevision = 1; //Bump this to trigger force metadata rebuild
+
     private static readonly JsonSerializerOptions _JsonOpt;
 
     static AssetBundleMetadata()
@@ -63,6 +68,12 @@ public sealed class AssetBundleMetadata
     /// </summary>
     [JsonInclude]
     public IReadOnlyList<string> Assets { get; internal set; } = [];
+
+    /// <summary>
+    /// Revision of Metadata json file
+    /// </summary>
+    [JsonInclude]
+    public int Revision { get; internal set; } = MetadataFormatRevision;
 
     /// <summary>
     /// Generate Checksum from File path

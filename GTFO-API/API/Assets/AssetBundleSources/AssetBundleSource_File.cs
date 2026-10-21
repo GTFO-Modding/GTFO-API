@@ -42,15 +42,27 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         }
 
         var checksum = AssetBundleMetadata.ComputeChecksum(FilePath);
+        bool shouldRewrite = false;
+        if (Metadata.Revision != AssetBundleMetadata.MetadataFormatRevision)
+        {
+            APILogger.Debug("AssetBundle", $"Metadata Revision mismatch with GAPI version (JSON:{Metadata.Revision} != GAPI:{AssetBundleMetadata.MetadataFormatRevision})");
+            Metadata.Revision = AssetBundleMetadata.MetadataFormatRevision;
+            shouldRewrite = true;
+        }
+
         if (!Metadata.Checksum.Equals(checksum, StringComparison.OrdinalIgnoreCase))
         {
-            APILogger.Verbose("AssetBundle", $"File has modified! Rewriting Metadata! ({Metadata.Checksum} != {checksum})");
+            APILogger.Debug("AssetBundle", $"File has modified! Fetching AssetNames! (JSON:{Metadata.Checksum} != CURRENT:{checksum})");
             Metadata.Checksum = checksum;
 
             var bundle = AssetBundle.LoadFromFile(FilePath);
             Metadata.Assets = [.. bundle.GetAllAssetNames()];
             bundle.Unload(unloadAllLoadedObjects: true);
+            shouldRewrite = true;
+        }
 
+        if (shouldRewrite)
+        {
             using var metaFileStream = File.Create(MetaFilePath);
             AssetBundleMetadata.WriteJson(Metadata, metaFileStream);
         }
