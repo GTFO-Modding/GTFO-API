@@ -8,6 +8,7 @@ using BepInEx;
 using GTFO.API.Assets;
 using GTFO.API.Assets.UnloadStrategies;
 using GTFO.API.Attributes;
+using GTFO.API.EventArgs;
 using GTFO.API.Impl;
 using GTFO.API.Resources;
 using GTFO.API.Utilities;
@@ -39,7 +40,7 @@ namespace GTFO.API
         /// </summary>
         public static event Action<LevelAssetLoadJob> PopulateLevelAssetLoadJob;
 
-        public static event Action<string, AssetBundleLoadingOptions> ModifyBundleLoadingOptions;
+        public static event Action<ModifyBundleLoadingOptionsEventArgs> ModifyBundleLoadingOptions;
 
         /// <summary>
         /// Invoked when the internal handler is ready
@@ -174,7 +175,12 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             loadingOptions ??= new AssetBundleLoadingOptions();
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
+            {
+                AssetBundleName = assetBundleName,
+                LoadingOptions = loadingOptions
+            };
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
 
             var filePath = CopyAssetBundleCache(assetBundleName, new MemoryStream(bytes));
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
@@ -196,7 +202,12 @@ namespace GTFO.API
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
             loadingOptions ??= new AssetBundleLoadingOptions();
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
+            {
+                AssetBundleName = assetBundleName,
+                LoadingOptions = loadingOptions
+            };
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
 
             var filePath = CopyAssetBundleCache(assetBundleName, stream);
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
@@ -229,7 +240,12 @@ namespace GTFO.API
             }
 
             loadingOptions ??= new AssetBundleLoadingOptions();
-            SafeInvoke.Invoke(ModifyBundleLoadingOptions, assetBundleName, loadingOptions);
+            var eventArgs = new ModifyBundleLoadingOptionsEventArgs()
+            {
+                AssetBundleName = assetBundleName,
+                LoadingOptions = loadingOptions
+            };
+            SafeInvoke.Invoke(ModifyBundleLoadingOptions, eventArgs);
 
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath, loadingOptions);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
