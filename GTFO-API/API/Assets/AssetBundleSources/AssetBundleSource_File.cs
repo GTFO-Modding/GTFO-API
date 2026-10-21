@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Text.Json;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetBundleSources;
@@ -27,7 +26,8 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         {
             if (File.Exists(MetaFilePath))
             {
-                Metadata = JsonSerializer.Deserialize<AssetBundleMetadata>(File.ReadAllText(MetaFilePath));
+                using var fs = File.OpenRead(MetaFilePath);
+                Metadata = AssetBundleMetadata.ReadJson(fs);
             }
             else
             {
@@ -42,7 +42,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         }
 
         var checksum = AssetBundleMetadata.ComputeChecksum(FilePath);
-        if (!Metadata.Checksum.Equals(checksum, StringComparison.InvariantCulture))
+        if (!Metadata.Checksum.Equals(checksum, StringComparison.OrdinalIgnoreCase))
         {
             APILogger.Verbose("AssetBundle", $"File has modified! Rewriting Metadata! ({Metadata.Checksum} != {checksum})");
             Metadata.Checksum = checksum;
@@ -52,7 +52,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
             bundle.Unload(unloadAllLoadedObjects: true);
 
             using var metaFileStream = File.Create(MetaFilePath);
-            JsonSerializer.Serialize(metaFileStream, Metadata, new JsonSerializerOptions() { WriteIndented = true });
+            AssetBundleMetadata.WriteJson(Metadata, metaFileStream);
         }
     }
 

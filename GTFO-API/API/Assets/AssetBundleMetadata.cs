@@ -82,9 +82,19 @@ public sealed class AssetBundleMetadata
         return JsonSerializer.Deserialize<AssetBundleMetadata>(json, _JsonOpt);
     }
 
+    public static AssetBundleMetadata ReadJson(Stream jsonStream)
+    {
+        return JsonSerializer.Deserialize<AssetBundleMetadata>(jsonStream, _JsonOpt);
+    }
+
     public static string WriteJson(AssetBundleMetadata metadata)
     {
         return JsonSerializer.Serialize(metadata, _JsonOpt);
+    }
+
+    public static void WriteJson(AssetBundleMetadata metadata, Stream stream)
+    {
+        JsonSerializer.Serialize(stream, metadata, _JsonOpt);
     }
 }
 
