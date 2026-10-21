@@ -62,6 +62,8 @@ public sealed class AssetBundleReference
         _BundleSource = new AssetBundleSource_File(filePath);
         Metadata = _BundleSource.Metadata;
         Name = name;
+
+        RegisterAssets();
     }
 
     internal AssetBundleReference(string name, AssetBundle assetBundle)
@@ -69,23 +71,12 @@ public sealed class AssetBundleReference
         _BundleSource = new AssetBundleSource_External(assetBundle);
         Metadata = _BundleSource.Metadata;
         Name = name;
+
+        RegisterAssets();
     }
 
-    internal void Initialize(AssetBundleLoadingOptions loadingOptions)
+    private void RegisterAssets()
     {
-        if (loadingOptions != null)
-        {
-            if (loadingOptions.InitialLoadMode.HasValue)
-                Metadata.InitialLoadMode = loadingOptions.InitialLoadMode.Value;
-
-            if (loadingOptions.DisableJustInTimeLoading.HasValue)
-                Metadata.DisableJustInTimeLoading = loadingOptions.DisableJustInTimeLoading.Value;
-
-            Profile = loadingOptions.Profile;
-        }
-
-        Profile ??= AssetBundleProfile.CreateInstance(Metadata.Profile);
-
         foreach (var asset in Metadata.Assets)
         {
             if (AssetAPI.ContainsAsset(asset))
@@ -106,6 +97,22 @@ public sealed class AssetBundleReference
             AssetAPI.AllCustomAssets[asset] = assetReference;
             Assets[asset] = assetReference;
         }
+    }
+
+    internal void Initialize(AssetBundleLoadingOptions loadingOptions)
+    {
+        if (loadingOptions != null)
+        {
+            if (loadingOptions.InitialLoadMode.HasValue)
+                Metadata.InitialLoadMode = loadingOptions.InitialLoadMode.Value;
+
+            if (loadingOptions.DisableJustInTimeLoading.HasValue)
+                Metadata.DisableJustInTimeLoading = loadingOptions.DisableJustInTimeLoading.Value;
+
+            Profile = loadingOptions.Profile;
+        }
+
+        Profile ??= AssetBundleProfile.CreateInstance(Metadata.Profile);
 
         switch (Metadata.InitialLoadMode)
         {
