@@ -6,7 +6,7 @@ using System.Text;
 using AssetShards;
 using BepInEx;
 using GTFO.API.Assets;
-using GTFO.API.Assets.UnloadStrategies;
+using GTFO.API.Assets.Profiles;
 using GTFO.API.Attributes;
 using GTFO.API.EventArg;
 using GTFO.API.Impl;
@@ -408,10 +408,10 @@ namespace GTFO.API
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
 
-            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.Unspecified>();
-            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelBuildDone>();
-            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelCleanup>();
-            AssetBundleUnloadStrategy.RegisterType<AssetBundleUnloadStrategy.OnLevelSelected>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.Unspecified>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelBuildDone>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelCleanup>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.OnLevelSelected>();
         }
 
         private static void OnLevelBuildStart()

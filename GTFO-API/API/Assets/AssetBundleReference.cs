@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using GTFO.API.Assets.AssetBundleSources;
-using GTFO.API.Assets.UnloadStrategies;
+using GTFO.API.Assets.Profiles;
 using UnityEngine;
 
 namespace GTFO.API.Assets;
@@ -19,20 +19,23 @@ public sealed class AssetBundleReference
     /// </summary>
     public AssetBundleMetadata Metadata { get; private set; }
 
-    public AssetBundleUnloadStrategy UnloadStrategy
+    /// <summary>
+    /// <see cref="AssetBundleProfile"/> to use
+    /// </summary>
+    public AssetBundleProfile Profile
     {
-        get => _UnloadStrategy;
+        get => _Profile;
         set
         {
-            if (_UnloadStrategy != null)
+            if (_Profile != null)
             {
-                _UnloadStrategy.Unapply();
-                _UnloadStrategy.ManagingBundle = null;
+                _Profile.Unapply();
+                _Profile.ManagingBundle = null;
             }
 
-            _UnloadStrategy = value ?? new AssetBundleUnloadStrategy.Unspecified();
-            _UnloadStrategy.ManagingBundle = this;
-            _UnloadStrategy.Apply();
+            _Profile = value ?? new AssetBundleProfile.Unspecified();
+            _Profile.ManagingBundle = this;
+            _Profile.Apply();
         }
     }
 
@@ -51,7 +54,7 @@ public sealed class AssetBundleReference
     /// </summary>
     public AssetRegistry Assets { get; private set; } = new();
 
-    private AssetBundleUnloadStrategy _UnloadStrategy;
+    private AssetBundleProfile _Profile;
     private readonly IAssetBundleSource _BundleSource;
 
     internal AssetBundleReference(string name, string filePath)
@@ -78,10 +81,10 @@ public sealed class AssetBundleReference
             if (loadingOptions.DisableJustInTimeLoading.HasValue)
                 Metadata.DisableJustInTimeLoading = loadingOptions.DisableJustInTimeLoading.Value;
 
-            UnloadStrategy = loadingOptions.UnloadStrategy;
+            Profile = loadingOptions.Profile;
         }
 
-        UnloadStrategy ??= AssetBundleUnloadStrategy.CreateInstance(Metadata.UnloadStrategy);
+        Profile ??= AssetBundleProfile.CreateInstance(Metadata.Profile);
 
         foreach (var asset in Metadata.Assets)
         {

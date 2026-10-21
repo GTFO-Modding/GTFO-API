@@ -4,7 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using GTFO.API.Assets.UnloadStrategies;
+using GTFO.API.Assets.Profiles;
 using UnityEngine;
 
 namespace GTFO.API.Assets;
@@ -41,10 +41,10 @@ public sealed class AssetBundleMetadata
     public AssetBundleLoadingMode InitialLoadMode { get; internal set; } = AssetBundleLoadingMode.DontLoad;
 
     /// <summary>
-    /// Defines how AssetBundle should be Managed. To modify, check <see cref="AssetBundleReference.UnloadStrategy"/>
+    /// Defines how AssetBundle should be Managed. To modify, check <see cref="AssetBundleReference.Profile"/>
     /// </summary>
     [JsonInclude]
-    public string UnloadStrategy { get; internal set; } = nameof(AssetBundleUnloadStrategy.Unspecified);
+    public string Profile { get; internal set; } = nameof(AssetBundleProfile.Unspecified);
 
     /// <summary>
     /// Flag for toggling JIT-Loading

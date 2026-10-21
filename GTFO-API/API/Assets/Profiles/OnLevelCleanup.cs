@@ -1,10 +1,10 @@
-﻿namespace GTFO.API.Assets.UnloadStrategies;
+﻿namespace GTFO.API.Assets.Profiles;
 
-public abstract partial class AssetBundleUnloadStrategy
+public abstract partial class AssetBundleProfile
 {
-    public sealed class OnLevelCleanup : AssetBundleUnloadStrategy
+    public sealed class OnLevelCleanup : AssetBundleProfile
     {
-        public override string StrategyName => nameof(OnLevelCleanup);
+        public override string ProfileName => nameof(OnLevelCleanup);
 
         public override void Apply()
         {

@@ -1,4 +1,4 @@
-﻿using GTFO.API.Assets.UnloadStrategies;
+﻿using GTFO.API.Assets.Profiles;
 
 namespace GTFO.API.Assets;
 
@@ -15,7 +15,7 @@ public class AssetBundleLoadingOptions
     /// <summary>
     /// Defines how AssetBundle should be Managed.
     /// </summary>
-    public AssetBundleUnloadStrategy UnloadStrategy { get; set; } = null;
+    public AssetBundleProfile Profile { get; set; } = null;
 
     /// <summary>
     /// Flag for toggling JIT-Loading
