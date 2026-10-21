@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using GTFO.API.Assets.AssetBundleSources;
 using GTFO.API.Assets.UnloadStrategies;
 using UnityEngine;
@@ -41,15 +40,6 @@ public sealed class AssetBundleReference
     internal AssetBundleReference(string name, string filePath)
     {
         _BundleSource = new AssetBundleSource_File(filePath);
-        Metadata = _BundleSource.Metadata;
-        Name = name;
-
-        Initialize();
-    }
-
-    internal AssetBundleReference(string name, Stream stream)
-    {
-        _BundleSource = new AssetBundleSource_Stream(stream);
         Metadata = _BundleSource.Metadata;
         Name = name;
 

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using GTFO.API.Assets.UnloadStrategies;
 using UnityEngine;
@@ -41,6 +44,19 @@ public sealed class AssetBundleMetadata
     /// List of Asset Names defined in <see cref="AssetBundle"/>
     /// </summary>
     [JsonInclude] public IReadOnlyList<string> Assets { get; internal set; } = [];
+
+    public static string ComputeChecksum(string filePath)
+    {
+        using var fs = File.OpenRead(filePath);
+        using var md5 = MD5.Create();
+        return Convert.ToHexString(md5.ComputeHash(fs));
+    }
+
+    public static string ComputeChecksum(Stream stream)
+    {
+        using var md5 = MD5.Create();
+        return Convert.ToHexString(md5.ComputeHash(stream));
+    }
 }
 
 /// <summary>

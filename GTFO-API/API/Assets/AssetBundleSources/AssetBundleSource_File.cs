@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text.Json;
 using UnityEngine;
 
@@ -42,10 +41,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
             Metadata = new();
         }
 
-        using var fs = File.OpenRead(FilePath);
-        using var md5 = MD5.Create();
-
-        var checksum = Convert.ToHexString(md5.ComputeHash(fs));
+        var checksum = AssetBundleMetadata.ComputeChecksum(FilePath);
         if (!Metadata.Checksum.Equals(checksum, StringComparison.InvariantCulture))
         {
             APILogger.Verbose("AssetBundle", $"File has modified! Rewriting Metadata! ({Metadata.Checksum} != {checksum})");

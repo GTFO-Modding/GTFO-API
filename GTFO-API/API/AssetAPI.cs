@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AssetShards;
 using BepInEx;
 using GTFO.API.Assets;
@@ -43,14 +45,17 @@ namespace GTFO.API
         public static event Action OnImplReady;
 
         /// <summary>
-        /// List of every custom assets. <u>This does NOT include Vanilla Assets!</u>
+        /// List of every <u>custom</u> assets. <u>This does NOT include Vanilla Assets!</u>
         /// </summary>
         public static AssetRegistry AllCustomAssets { get; private set; } = new();
 
         /// <summary>
-        /// List of every custom assetbundles. <u>This does NOT include Vanilla AssetBundles!</u>
+        /// List of every <u>custom</u> <see cref="AssetBundle"/>. <u>This does NOT include Vanilla AssetBundles!</u>
         /// </summary>
         public static AssetBundleRegistry AllCustomAssetBundles { get; private set; } = new();
+
+        public static readonly string AssetBundlesPath = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles");
+        public static readonly string ExternalAssetBundlesCachePath = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles", ".cache");
 
         /// <summary>
         /// Checks if an <see cref="AssetBundle"/> is already registered in the <see cref="AssetAPI"/>
@@ -83,7 +88,7 @@ namespace GTFO.API
         }
 
         /// <summary>
-        /// Obtains an asset from the currently loaded asset shards
+        /// Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>)
         /// </summary>
         /// <param name="path">The path to the asset to use</param>
         /// <returns>The <see cref="UnityEngine.Object"/> of the asset requested or null if it's not loaded</returns>
@@ -105,7 +110,7 @@ namespace GTFO.API
         }
 
         /// <summary>
-        /// Obtains an asset from the currently loaded asset shards and casts it to <typeparamref name="TAsset"/>
+        /// Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>) and casts it to <typeparamref name="TAsset"/>
         /// </summary>
         /// <typeparam name="TAsset">The type of asset to load</typeparam>
         /// <param name="path">The path to the asset to use</param>
@@ -165,7 +170,8 @@ namespace GTFO.API
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
-            var assetBundleReference = new AssetBundleReference(assetBundleName, new MemoryStream(bytes));
+            var filePath = CopyAssetBundleCache(assetBundleName, new MemoryStream(bytes));
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
@@ -182,7 +188,8 @@ namespace GTFO.API
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
-            var assetBundleReference = new AssetBundleReference(assetBundleName, stream);
+            var filePath = CopyAssetBundleCache(assetBundleName, stream);
+            var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
         }
@@ -199,9 +206,45 @@ namespace GTFO.API
             if (ContainsAssetBundle(assetBundleName))
                 throw new ArgumentException($"The assetbundle '{assetBundleName}' has already been registered.", nameof(assetBundleName));
 
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"The assetbundle file '{filePath}' doesn't exists.");
+
+            // Handle External Files
+            // Copy them to .cache folder
+            if (Path.GetRelativePath(AssetBundlesPath, filePath) == filePath)
+            {
+                using var fs = File.OpenRead(filePath);
+                filePath = CopyAssetBundleCache(assetBundleName, fs);
+            }
+
             var assetBundleReference = new AssetBundleReference(assetBundleName, filePath);
             AllCustomAssetBundles[assetBundleName] = assetBundleReference;
             return assetBundleReference;
+        }
+
+        private static string CopyAssetBundleCache(string assetBundleName, Stream stream)
+        {
+            if (!Directory.Exists(ExternalAssetBundlesCachePath))
+                Directory.CreateDirectory(ExternalAssetBundlesCachePath);
+
+            var newFileName = GetHashedName(assetBundleName);
+            var cacheFile = Path.Combine(ExternalAssetBundlesCachePath, newFileName);
+
+            if (File.Exists(cacheFile))
+                File.Delete(cacheFile);
+
+            var fs = File.Open(cacheFile, FileMode.Create, FileAccess.Write);
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.CopyTo(fs);
+            fs.Dispose();
+
+            return cacheFile;
+        }
+
+        private static string GetHashedName(string name)
+        {
+            using var md5 = MD5.Create();
+            return Convert.ToHexString(md5.ComputeHash(Encoding.UTF8.GetBytes(name)));
         }
 
         #region Obsolete
@@ -307,6 +350,17 @@ namespace GTFO.API
 
         internal static void Setup()
         {
+            Application.quitting += (Il2CppSystem.Action)(() =>
+            {
+                var caches = Directory.EnumerateFiles(ExternalAssetBundlesCachePath, "*", SearchOption.AllDirectories)
+                    .Where(f => !f.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (var cache in caches)
+                {
+                    File.Delete(cache);
+                }
+            });
+
             LevelAPI.OnBuildStart += OnLevelBuildStart;
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
@@ -330,12 +384,10 @@ namespace GTFO.API
 
         private static void LoadAssetBundles()
         {
-            string assetBundleDir = Path.Combine(Paths.BepInExRootPath, "Assets", "AssetBundles");
+            if (!Directory.Exists(AssetBundlesPath))
+                Directory.CreateDirectory(AssetBundlesPath);
 
-            if (!Directory.Exists(assetBundleDir))
-                Directory.CreateDirectory(assetBundleDir);
-
-            var bundlePaths = Directory.GetFiles(assetBundleDir, "*", SearchOption.AllDirectories)
+            var bundlePaths = Directory.GetFiles(AssetBundlesPath, "*", SearchOption.AllDirectories)
                 .Where(x => !x.EndsWith(".manifest", StringComparison.InvariantCultureIgnoreCase))
                 .Where(x => !x.EndsWith(".old", StringComparison.InvariantCultureIgnoreCase))
                 .Where(x => !x.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.InvariantCultureIgnoreCase));
@@ -348,7 +400,12 @@ namespace GTFO.API
             {
                 try
                 {
-                    var name = Path.GetRelativePath(assetBundleDir, file).Replace('\\', '/');
+                    var name = Path.GetRelativePath(AssetBundlesPath, file).Replace('\\', '/');
+                    if (name.StartsWith(".cache/", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+
                     if (ContainsAssetBundle(name))
                     {
                         APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
