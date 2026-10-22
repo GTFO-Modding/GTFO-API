@@ -16,13 +16,13 @@ public abstract partial class AssetBundleProfile
         public override void Apply()
         {
             LevelAPI.OnBuildDone += OnBuildDone;
-            LevelAPI.OnLevelCleanup += OnLevelCleanup;
+            LevelAPI.OnLevelSelected += OnLevelSelected;
         }
 
         public override void Unapply()
         {
             LevelAPI.OnBuildDone -= OnBuildDone;
-            LevelAPI.OnLevelCleanup -= OnLevelCleanup;
+            LevelAPI.OnLevelSelected -= OnLevelSelected;
         }
 
         private void OnBuildDone()
@@ -30,7 +30,7 @@ public abstract partial class AssetBundleProfile
             ManagingBundle.UnloadBundle();
         }
 
-        private void OnLevelCleanup()
+        private void OnLevelSelected(eRundownTier expTier, int expIndexInTier, GameData.ExpeditionInTierData expData)
         {
             ManagingBundle.UnloadAllAssets();
         }
