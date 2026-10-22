@@ -1,5 +1,6 @@
 ﻿using System;
 using AssetShards;
+using UnityEngine;
 
 namespace GTFO.API.Assets.AssetSources;
 
@@ -14,6 +15,8 @@ internal sealed class AssetSource_External : IAssetSource
     public AssetSource_External(string assetName, UnityEngine.Object asset)
     {
         LoadedAsset = asset;
+        LoadedAsset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
+
         AssetName = assetName;
 
         if (AssetShardManager.s_loadedAssetsLookup == null)

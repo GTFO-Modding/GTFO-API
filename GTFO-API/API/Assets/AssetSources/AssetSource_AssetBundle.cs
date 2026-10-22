@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using AssetShards;
+using UnityEngine;
 
 namespace GTFO.API.Assets.AssetSources;
 
@@ -26,6 +27,7 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
     {
         if (LoadedAsset != null)
         {
+            LoadedAsset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
             AssetShardManager.s_loadedAssetsLookup[AssetName.ToUpper()] = LoadedAsset;
         }
         else
