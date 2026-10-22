@@ -48,6 +48,14 @@ namespace GTFO.API
         public static event Action<OnAssetBundleLoadedEventArgs> OnAssetBundleLoaded;
 
         /// <summary>
+        /// Invoked when <see cref="AssetReference.GetAsset"/> or <see cref="AssetReference.Asset"/> has called
+        /// <para>
+        /// This is not limited to JIT-loaded cases
+        /// </para>
+        /// </summary>
+        public static event Action<OnCustomAssetRequestedEventArgs> OnCustomAssetRequested;
+
+        /// <summary>
         /// Invoked when the internal handler is ready
         /// </summary>
         public static event Action OnImplReady;
@@ -416,6 +424,8 @@ namespace GTFO.API
         }
 
         internal static void InvokeImplReady() => SafeInvoke.Invoke(OnImplReady);
+
+        internal static void InvokeOnCustomAssetRequested(OnCustomAssetRequestedEventArgs args) => SafeInvoke.Invoke(OnCustomAssetRequested, args);
 
         internal static void Setup()
         {

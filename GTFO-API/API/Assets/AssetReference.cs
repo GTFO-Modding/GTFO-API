@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using GTFO.API.Assets.AssetSources;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 using UnityObject = UnityEngine.Object;
@@ -101,19 +102,31 @@ public sealed class AssetReference
     /// <returns><see cref="UnityEngine.Object"/> Instance</returns>
     public UnityObject GetAsset()
     {
-        if (_AssetSource.LoadedAsset != null)
+        try
+        {
+            if (_AssetSource.LoadedAsset != null)
+                return _AssetSource.LoadedAsset;
+
+            if (!_AssetSource.CanManualLoad)
+                return null;
+
+            s_LoadSW.Restart();
+            _AssetSource.Load();
+            s_LoadSW.Stop();
+
+            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+
             return _AssetSource.LoadedAsset;
-
-        if (!_AssetSource.CanManualLoad)
-            return null;
-
-        s_LoadSW.Restart();
-        _AssetSource.Load();
-        s_LoadSW.Stop();
-
-        APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
-
-        return _AssetSource.LoadedAsset;
+        }
+        finally
+        {
+            var args = new OnCustomAssetRequestedEventArgs()
+            {
+                AssetName = Name,
+                Asset = this
+            };
+            AssetAPI.InvokeOnCustomAssetRequested(args);
+        }
     }
 
     /// <summary>
