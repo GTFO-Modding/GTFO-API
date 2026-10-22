@@ -3,7 +3,7 @@
 public abstract partial class AssetBundleProfile
 {
     /// <summary>
-    /// AssetBundleProfile: LevelAsset
+    /// <see cref="AssetBundleProfile"/>: LevelAsset
     /// <para>
     /// Unload Bundle on LevelAPI.OnBuildDone
     /// Unload Assets on LevelAPI.OnLevelCleanup

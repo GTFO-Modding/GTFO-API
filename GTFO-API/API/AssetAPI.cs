@@ -436,6 +436,7 @@ namespace GTFO.API
 
             AssetBundleProfile.RegisterType<AssetBundleProfile.Unspecified>();
             AssetBundleProfile.RegisterType<AssetBundleProfile.LevelAsset>();
+            AssetBundleProfile.RegisterType<AssetBundleProfile.EnemyAsset>();
         }
 
         private static void OnLevelBuildStart()

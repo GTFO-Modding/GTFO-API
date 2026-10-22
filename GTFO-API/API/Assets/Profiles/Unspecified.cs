@@ -3,7 +3,7 @@
 public abstract partial class AssetBundleProfile
 {
     /// <summary>
-    /// AssetBundleProfile: Unspecified
+    /// <see cref="AssetBundleProfile"/>: Unspecified
     /// <para>
     /// Do nothing ;)
     /// </para>
