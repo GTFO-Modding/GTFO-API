@@ -123,6 +123,18 @@ namespace GTFO.API
         }
 
         /// <summary>
+        /// Try Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>)
+        /// </summary>
+        /// <param name="path">The path to the asset to use</param>
+        /// <param name="asset">The <see cref="UnityEngine.Object"/> of the asset requested or null if it's not loaded</param>
+        /// <returns><see langword="true"/> if it's loaded, otherwise <see langword="false"/></returns>
+        public static bool TryGetLoadedAsset(string path, out UnityEngine.Object asset)
+        {
+            asset = GetLoadedAsset(path);
+            return asset != null;
+        }
+
+        /// <summary>
         /// Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>) and casts it to <typeparamref name="TAsset"/>
         /// </summary>
         /// <typeparam name="TAsset">The type of asset to load</typeparam>
@@ -131,6 +143,19 @@ namespace GTFO.API
         /// <exception cref="InvalidCastException">The loaded asset cannot be cast to <typeparamref name="TAsset"/></exception>
         public static TAsset GetLoadedAsset<TAsset>(string path) where TAsset : UnityEngine.Object
             => GetLoadedAsset(path)?.Cast<TAsset>();
+
+        /// <summary>
+        /// Try Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>) and casts it to <typeparamref name="TAsset"/>
+        /// </summary>
+        /// <typeparam name="TAsset">The type of asset to load</typeparam>
+        /// <param name="path">The path to the asset to use</param>
+        /// <param name="asset"><typeparamref name="TAsset"/> as the asset requested or null if it's not loaded</param>
+        /// <returns><see langword="true"/> if it's loaded and can be casted into <typeparamref name="TAsset"/>, otherwise <see langword="false"/></returns>
+        public static bool TryGetLoadedAsset<TAsset>(string path, out TAsset asset) where TAsset : UnityEngine.Object
+        {
+            asset = GetLoadedAsset<TAsset>(path);
+            return asset != null;
+        }
 
         /// <summary>
         /// Registers an asset into the asset shard lookup
