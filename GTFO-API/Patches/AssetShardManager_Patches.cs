@@ -35,8 +35,7 @@ namespace GTFO.API.Patches
             {
                 if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
                 {
-                    var asset = assetRef.GetAsset();
-                    APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");
+                    assetRef.GetAsset();
                 }
             }
         }
@@ -59,8 +58,7 @@ namespace GTFO.API.Patches
             {
                 if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
                 {
-                    var asset = assetRef.GetAsset();
-                    APILogger.Verbose("Asset", $"AssetRequest: {asset.name}");
+                    assetRef.GetAsset();
                 }
             }
         }

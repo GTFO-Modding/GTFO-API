@@ -444,6 +444,13 @@ namespace GTFO.API
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
 
+#if DEBUG
+            OnCustomAssetRequested += (args) =>
+            {
+                APILogger.Verbose("AssetAPI", $"CustomAsset Requested: '{args.AssetName}' from '{args.Asset.AssetSourceName}'");
+            };
+#endif
+
             AssetBundleProfile.RegisterType<AssetBundleProfile.Unspecified>();
             AssetBundleProfile.RegisterType<AssetBundleProfile.LevelAsset>();
             AssetBundleProfile.RegisterType<AssetBundleProfile.EnemyAsset>();
