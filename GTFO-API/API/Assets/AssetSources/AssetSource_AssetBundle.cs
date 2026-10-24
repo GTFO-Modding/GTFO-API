@@ -15,6 +15,7 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
     public string AssetName { get; private set; }
 
     private readonly AsyncLoader<UnityEngine.Object> _Loader = new();
+    private AssetBundleRequest _OnGoingRequest = null;
 
     internal AssetSource_AssetBundle(string assetName, AssetBundleReference ownerBundle)
     {
@@ -41,7 +42,17 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
         if (_Loader.IsLoaded)
             return;
 
-        _Loader.LoadedObject = OwnerBundle.LoadAsset_Internal(AssetName);
+        if (_OnGoingRequest != null)
+        {
+            APILogger.Warn("AssetAPI", $"Asset '{AssetName}' has requested while running non-blocking load!");
+            _Loader.LoadedObject = _OnGoingRequest.asset;
+            _OnGoingRequest = null;
+        }
+        else
+        {
+            _Loader.LoadedObject = OwnerBundle.LoadAsset_Internal(AssetName);
+        }
+
         _Loader.SynchronouslyLoaded();
     }
 
@@ -53,10 +64,11 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
 
     private IEnumerator DoLoadAsync()
     {
-        var request = OwnerBundle.LoadAssetAsync_Internal(AssetName);
-        yield return request;
+        _OnGoingRequest = OwnerBundle.LoadAssetAsync_Internal(AssetName);
+        yield return _OnGoingRequest;
 
-        _Loader.LoadedObject = request.asset;
+        _Loader.LoadedObject = _OnGoingRequest.asset;
+        _OnGoingRequest = null;
     }
 
     public void Unload()

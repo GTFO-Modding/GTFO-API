@@ -16,6 +16,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
     public string MetaFilePath { get; private set; }
 
     private readonly AsyncLoader<AssetBundle> _Loader = new();
+    private AssetBundleCreateRequest _OnGoingRequest = null;
 
     internal AssetBundleSource_File(string filePath)
     {
@@ -73,7 +74,18 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         if (_Loader.IsLoaded)
             return;
 
-        _Loader.LoadedObject = AssetBundle.LoadFromFile(FilePath);
+
+        if (_OnGoingRequest != null)
+        {
+            APILogger.Warn("AssetAPI", $"AssetBundle '{FilePath}' has requested while running non-blocking load!");
+            _Loader.LoadedObject = _OnGoingRequest.assetBundle;
+            _OnGoingRequest = null;
+        }
+        else
+        {
+            _Loader.LoadedObject = AssetBundle.LoadFromFile(FilePath);
+        }
+
         _Loader.SynchronouslyLoaded();
     }
 
@@ -85,10 +97,11 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
 
     private IEnumerator DoLoadAsync()
     {
-        var request = AssetBundle.LoadFromFileAsync(FilePath);
-        yield return request;
+        _OnGoingRequest = AssetBundle.LoadFromFileAsync(FilePath);
+        yield return _OnGoingRequest;
 
-        _Loader.LoadedObject = request.assetBundle;
+        _Loader.LoadedObject = _OnGoingRequest.assetBundle;
+        _OnGoingRequest = null;
     }
 
     public void Unload()
