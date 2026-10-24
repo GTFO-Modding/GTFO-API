@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GTFO.API.Assets.AssetBundleSources;
 using GTFO.API.Assets.Profiles;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 namespace GTFO.API.Assets;
@@ -142,7 +143,7 @@ public sealed class AssetBundleReference
     /// Load Referenced AssetBundle (Non-Blocking)
     /// </summary>
     /// <param name="onLoaded">Callback when AssetBundle has loaded</param>
-    public void LoadBundleAsync(Action onLoaded = null)
+    public void LoadBundleAsync(UnityObjectRequestEvent onLoaded = null)
     {
         if (_BundleSource.CanManualLoad)
         {
@@ -177,7 +178,7 @@ public sealed class AssetBundleReference
         int progressCounter = Assets.Assets.Count;
         foreach (var asset in Assets.Assets)
         {
-            asset.LoadAsync(() =>
+            asset.LoadAsync((args) =>
             {
                 progressCounter--;
 

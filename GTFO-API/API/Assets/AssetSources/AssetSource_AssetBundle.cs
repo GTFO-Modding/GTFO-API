@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
-using AssetShards;
+﻿using AssetShards;
+using GTFO.API.Assets.Loaders;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetSources;
@@ -14,22 +14,21 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
     public bool CanManualUnload => true;
     public string AssetName { get; private set; }
 
-    private readonly AsyncLoader<UnityEngine.Object> _Loader = new();
-    private AssetBundleRequest _OnGoingRequest = null;
+    private readonly AssetAsyncLoader _Loader = new();
 
     internal AssetSource_AssetBundle(string assetName, AssetBundleReference ownerBundle)
     {
         AssetName = assetName;
         OwnerBundle = ownerBundle;
-        _Loader.OnLoadedObjectChanged += OnLoadedAssetChanged;
+        _Loader.LoadedObjectChanged += OnLoadedAssetChanged;
     }
 
-    private void OnLoadedAssetChanged()
+    private void OnLoadedAssetChanged(UnityEngine.Object asset)
     {
-        if (LoadedAsset != null)
+        if (asset != null)
         {
-            LoadedAsset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
-            AssetShardManager.s_loadedAssetsLookup[AssetName.ToUpper()] = LoadedAsset;
+            asset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
+            AssetShardManager.s_loadedAssetsLookup[AssetName.ToUpper()] = asset;
         }
         else
         {
@@ -39,45 +38,16 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
 
     public void Load()
     {
-        if (_Loader.IsLoaded)
-            return;
-
-        if (_OnGoingRequest != null)
-        {
-            APILogger.Warn("AssetAPI", $"Asset '{AssetName}' has requested while running non-blocking load!");
-            _Loader.LoadedObject = _OnGoingRequest.asset;
-            _OnGoingRequest = null;
-        }
-        else
-        {
-            _Loader.LoadedObject = OwnerBundle.LoadAsset_Internal(AssetName);
-        }
-
-        _Loader.SynchronouslyLoaded();
+        _Loader.Load(() => OwnerBundle.LoadAsset_Internal(AssetName));
     }
 
-    public void LoadAsync(Action onLoaded)
+    public void LoadAsync(UnityObjectRequestEvent onLoaded)
     {
-        _Loader.OnLoaded += onLoaded;
-        _Loader.Load(DoLoadAsync());
-    }
-
-    private IEnumerator DoLoadAsync()
-    {
-        _OnGoingRequest = OwnerBundle.LoadAssetAsync_Internal(AssetName);
-        yield return _OnGoingRequest;
-
-        _Loader.LoadedObject = _OnGoingRequest.asset;
-        _OnGoingRequest = null;
+        _Loader.LoadAsync(() => OwnerBundle.LoadAssetAsync_Internal(AssetName), onLoaded);
     }
 
     public void Unload()
     {
-        if (LoadedAsset != null)
-        {
-            UnityEngine.Object.Destroy(LoadedAsset);
-        }
-
         _Loader.Unload();
     }
 }

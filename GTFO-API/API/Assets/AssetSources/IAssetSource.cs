@@ -1,4 +1,4 @@
-﻿using System;
+﻿using GTFO.API.EventArg;
 
 namespace GTFO.API.Assets.AssetSources;
 
@@ -9,6 +9,6 @@ internal interface IAssetSource
     public bool CanManualLoad { get; }
     public bool CanManualUnload { get; }
     public void Load();
-    public void LoadAsync(Action onLoaded);
+    public void LoadAsync(UnityObjectRequestEvent onLoaded);
     public void Unload();
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetBundleSources;
@@ -26,7 +27,7 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 
-    public void LoadAsync(Action onLoaded)
+    public void LoadAsync(UnityObjectRequestEvent onLoaded)
     {
         APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");

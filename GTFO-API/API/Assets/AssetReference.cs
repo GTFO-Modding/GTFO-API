@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using GTFO.API.Assets.AssetSources;
 using GTFO.API.EventArg;
 using UnityEngine;
@@ -79,7 +78,7 @@ public sealed class AssetReference
     /// Load Referenced Asset (Non-Blocking)
     /// </summary>
     /// <param name="onLoaded">Callback when Asset has loaded</param>
-    public void LoadAsync(Action onLoaded = null)
+    public void LoadAsync(UnityObjectRequestEvent onLoaded = null)
     {
         if (_AssetSource.CanManualLoad)
         {

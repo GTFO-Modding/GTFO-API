@@ -1,5 +1,6 @@
 ﻿using System;
 using AssetShards;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetSources;
@@ -40,7 +41,7 @@ internal sealed class AssetSource_External : IAssetSource
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 
-    public void LoadAsync(Action onLoaded)
+    public void LoadAsync(UnityObjectRequestEvent onLoaded)
     {
         APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external asset! '{AssetName}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");

@@ -65,7 +65,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                 APILogger.Debug("AssetAPI", $"Start Loading Asset: {asset.Name}");
                 var sw = new Stopwatch();
                 sw.Restart();
-                asset.LoadAsync(() =>
+                asset.LoadAsync((args) =>
                 {
                     APILogger.Debug("AssetAPI", $"Asset Loaded: {asset.Name} (took {sw.ElapsedMilliseconds}ms)");
                 });
@@ -77,7 +77,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
             APILogger.Debug("AssetAPI", $"Start Loading Bundle: {bundle.Name}");
             var sw = new Stopwatch();
             sw.Restart();
-            bundle.LoadBundleAsync(() =>
+            bundle.LoadBundleAsync((args) =>
             {
                 APILogger.Debug("AssetAPI", $"Bundle Loaded: {bundle.Name} (took {sw.ElapsedMilliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))

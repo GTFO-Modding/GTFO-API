@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
+using GTFO.API.Assets.Loaders;
+using GTFO.API.EventArg;
 using UnityEngine;
 
 namespace GTFO.API.Assets.AssetBundleSources;
@@ -15,8 +16,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
     public string FilePath { get; private set; }
     public string MetaFilePath { get; private set; }
 
-    private readonly AsyncLoader<AssetBundle> _Loader = new();
-    private AssetBundleCreateRequest _OnGoingRequest = null;
+    private readonly AssetBundleAsyncLoader _Loader = new();
 
     internal AssetBundleSource_File(string filePath)
     {
@@ -71,45 +71,16 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
 
     public void Load()
     {
-        if (_Loader.IsLoaded)
-            return;
-
-
-        if (_OnGoingRequest != null)
-        {
-            APILogger.Warn("AssetAPI", $"AssetBundle '{FilePath}' has requested while running non-blocking load!");
-            _Loader.LoadedObject = _OnGoingRequest.assetBundle;
-            _OnGoingRequest = null;
-        }
-        else
-        {
-            _Loader.LoadedObject = AssetBundle.LoadFromFile(FilePath);
-        }
-
-        _Loader.SynchronouslyLoaded();
+        _Loader.Load(() => AssetBundle.LoadFromFile(FilePath));
     }
 
-    public void LoadAsync(Action onLoaded)
+    public void LoadAsync(UnityObjectRequestEvent onLoaded)
     {
-        _Loader.OnLoaded += onLoaded;
-        _Loader.Load(DoLoadAsync());
-    }
-
-    private IEnumerator DoLoadAsync()
-    {
-        _OnGoingRequest = AssetBundle.LoadFromFileAsync(FilePath);
-        yield return _OnGoingRequest;
-
-        _Loader.LoadedObject = _OnGoingRequest.assetBundle;
-        _OnGoingRequest = null;
+        _Loader.LoadAsync(() => AssetBundle.LoadFromFileAsync(FilePath), onLoaded);
     }
 
     public void Unload()
     {
-        if (LoadedAssetBundle != null)
-        {
-            LoadedAssetBundle.Unload(unloadAllLoadedObjects: false);
-        }
         _Loader.Unload();
     }
 }
