@@ -476,19 +476,21 @@ namespace GTFO.API
                 Directory.CreateDirectory(AssetBundlesPath);
 
             var legacyPath = Path.Combine(Paths.ConfigPath, "Assets", "AssetBundles");
-            var legacyFiles = Directory.GetFiles(legacyPath, "*", SearchOption.AllDirectories);
-            foreach (var legacyFile in legacyFiles)
+            if (Directory.Exists(legacyPath))
             {
-                var subPath = Path.GetRelativePath(legacyPath, legacyFile);
-                var targetFile = Path.Combine(AssetBundlesPath, subPath);
-                if (!File.Exists(targetFile))
+                var legacyFiles = Directory.GetFiles(legacyPath, "*", SearchOption.AllDirectories);
+                foreach (var legacyFile in legacyFiles)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
-                    File.Copy(legacyFile, targetFile);
-                    APILogger.Warn(nameof(AssetAPI), $"AssetBundle File: '{legacyFile}' has copied to '{targetFile}'");
+                    var subPath = Path.GetRelativePath(legacyPath, legacyFile);
+                    var targetFile = Path.Combine(AssetBundlesPath, subPath);
+                    if (!File.Exists(targetFile))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
+                        File.Copy(legacyFile, targetFile);
+                        APILogger.Warn(nameof(AssetAPI), $"AssetBundle File: '{legacyFile}' has copied to '{targetFile}'");
+                    }
                 }
             }
-
 
             var bundlePaths = Directory.GetFiles(AssetBundlesPath, "*", SearchOption.AllDirectories)
                 .Where(x => !x.EndsWith(".manifest", StringComparison.OrdinalIgnoreCase))
