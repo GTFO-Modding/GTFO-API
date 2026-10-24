@@ -440,7 +440,6 @@ namespace GTFO.API
                 }
             });
 
-            LevelAPI.OnBuildStart += OnLevelBuildStart;
             EventAPI.OnAssetsLoaded += OnAssetsLoaded;
             OnImplReady += LoadAssetBundles;
 
@@ -456,7 +455,7 @@ namespace GTFO.API
             AssetBundleProfile.RegisterType<AssetBundleProfile.EnemyAsset>();
         }
 
-        private static void OnLevelBuildStart()
+        internal static void InvokeOnLoadLevelAssets()
         {
             var loadAssetsJob = new OnLoadLevelAssetsEventArgs
             {

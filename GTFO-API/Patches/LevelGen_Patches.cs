@@ -31,6 +31,11 @@ namespace GTFO.API.Patches
         private static void Post_Batch(LG_Factory __instance)
         {
             LevelAPI.BeforeBuildBatch(__instance.m_currentBatchName);
+
+            if (__instance.m_currentBatchName == LG_Factory.BatchName.LoadResourcesShards_Level)
+            {
+                AssetAPI.InvokeOnLoadLevelAssets();
+            }
         }
 
         [HarmonyPostfix]
