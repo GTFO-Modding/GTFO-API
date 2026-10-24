@@ -67,7 +67,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                 sw.Restart();
                 asset.LoadAsync(() =>
                 {
-                    APILogger.Debug("AssetAPI", $"Asset Loaded: {asset.Name} (took {sw}ms)");
+                    APILogger.Debug("AssetAPI", $"Asset Loaded: {asset.Name} (took {sw.ElapsedMilliseconds}ms)");
                 });
             }
         }
@@ -79,7 +79,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
             sw.Restart();
             bundle.LoadBundleAsync(() =>
             {
-                APILogger.Debug("AssetAPI", $"Bundle Loaded: {bundle.Name} (took {sw}ms)");
+                APILogger.Debug("AssetAPI", $"Bundle Loaded: {bundle.Name} (took {sw.ElapsedMilliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
                     onBundleLoaded?.Invoke();
             });
