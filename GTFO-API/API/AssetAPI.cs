@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -465,7 +466,24 @@ namespace GTFO.API
 
             if (!loadAssetsJob.IsLoadingQueueEmpty)
             {
-                LG_Factory.InjectJob(loadAssetsJob.Impl, LG_Factory.BatchName.LoadResourcesShards_Level);
+                var jobQueue = LG_Factory.Current.m_batches[(int)LG_Factory.BatchName.LoadResourcesShards_Level].Jobs;
+                InsertToQueue(jobQueue, 0, loadAssetsJob.Impl);
+            }
+        }
+
+        private static void InsertToQueue(Il2CppSystem.Collections.Generic.Queue<LG_FactoryJob> queue, int index, LG_FactoryJob job)
+        {
+            var tempList = new List<LG_FactoryJob>();
+            var jobQueue = LG_Factory.Current.m_batches[(int)LG_Factory.BatchName.LoadResourcesShards_Level].Jobs;
+            while (jobQueue.Count > 0)
+            {
+                tempList.Add(jobQueue.Dequeue());
+            }
+
+            tempList.Insert(index, job);
+            foreach (var item in tempList)
+            {
+                jobQueue.Enqueue(item);
             }
         }
 
