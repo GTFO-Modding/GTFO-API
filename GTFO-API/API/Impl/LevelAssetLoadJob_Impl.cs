@@ -10,19 +10,11 @@ namespace GTFO.API.Impl;
 
 internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
 {
-    internal enum LoadState : byte
-    {
-        None,
-        Loading,
-        Loaded
-    }
-
     internal HashSet<AssetBundleReference> BundlesToLoad = [];
     internal HashSet<AssetReference> AssetsToLoad = [];
 
     private readonly Stopwatch _SW = new();
-    private LoadState _BundlesLoadState = LoadState.None;
-    private LoadState _AssetsLoadState = LoadState.None;
+    private bool _IsLoading = false;
 
     public LevelAssetLoadJob_Impl(IntPtr ptr) : base(ptr) { }
 
@@ -43,60 +35,56 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
 
     public override bool Build()
     {
-        switch (_BundlesLoadState)
+        if (!_IsLoading)
         {
-            case LoadState.None:
-                _BundlesLoadState = LoadState.Loaded;
-                foreach (var bundle in BundlesToLoad)
-                {
-                    if (bundle.IsLoaded)
-                        continue;
-
-                    bundle.LoadBundleAsync();
-                    APILogger.Debug("AssetAPI", $"Start loading bundle '{bundle.Name}'");
-                    _BundlesLoadState = LoadState.Loading;
-                }
-                APILogger.Debug("AssetAPI", $"Start loading bundles...");
-                _SW.Restart();
-                return false;
-
-            case LoadState.Loading:
-                if (BundlesToLoad.All(bundle => bundle.IsLoaded))
-                {
-                    _SW.Stop();
-                    APILogger.Debug("AssetAPI", $"Loaded all queued bundle (took {_SW.ElapsedMilliseconds}ms)");
-                    _BundlesLoadState = LoadState.Loaded;
-                }
-                return false;
+            StartLoad();
         }
 
-        switch (_AssetsLoadState)
+        return BundlesToLoad.All(bundle => bundle.IsLoaded) && AssetsToLoad.All(asset => asset.IsLoaded);
+    }
+
+    private void StartLoad()
+    {
+        var bundleLoadedLookup = new Dictionary<string, Action>();
+        foreach (var asset in AssetsToLoad)
         {
-            case LoadState.None:
-                _AssetsLoadState = LoadState.Loaded;
-                foreach (var asset in AssetsToLoad)
-                {
-                    if (asset.IsLoaded)
-                        continue;
+            if (asset.AssetSourceBundle != null)
+            {
+                if (bundleLoadedLookup.ContainsKey(asset.AssetSourceBundle.Name))
+                    bundleLoadedLookup[asset.AssetSourceBundle.Name] += loadAsset;
+                else
+                    bundleLoadedLookup[asset.AssetSourceBundle.Name] = loadAsset;
+            }
+            else
+            {
+                loadAsset();
+            }
 
-                    asset.LoadAsync();
-                    APILogger.Verbose("AssetAPI", $"Start loading asset '{asset.Name}'");
-                    _BundlesLoadState = LoadState.Loading;
-                }
-                APILogger.Debug("AssetAPI", $"Start loading assets...");
-                _SW.Restart();
-                return false;
-
-            case LoadState.Loading:
-                if (AssetsToLoad.All(asset => asset.IsLoaded))
+            void loadAsset()
+            {
+                APILogger.Debug("AssetAPI", $"Start Loading Asset: {asset.Name}");
+                var sw = new Stopwatch();
+                sw.Restart();
+                asset.LoadAsync(() =>
                 {
-                    _SW.Stop();
-                    APILogger.Debug("AssetAPI", $"Loaded all queued assets (took {_SW.ElapsedMilliseconds}ms)");
-                    _AssetsLoadState = LoadState.Loaded;
-                }
-                return false;
+                    APILogger.Debug("AssetAPI", $"Asset Loaded: {asset.Name} (took {sw}ms)");
+                });
+            }
         }
 
-        return true;
+        foreach (var bundle in BundlesToLoad)
+        {
+            APILogger.Debug("AssetAPI", $"Start Loading Bundle: {bundle.Name}");
+            var sw = new Stopwatch();
+            sw.Restart();
+            bundle.LoadBundleAsync(() =>
+            {
+                APILogger.Debug("AssetAPI", $"Bundle Loaded: {bundle.Name} (took {sw}ms)");
+                if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
+                    onBundleLoaded?.Invoke();
+            });
+        }
+
+        _IsLoading = true;
     }
 }
