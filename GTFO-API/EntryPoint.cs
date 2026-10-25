@@ -1,6 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
-using GTFO.API.Assets.LoaderSupports;
+using GTFO.API.Assets.Preloaders;
 using GTFO.API.Impl;
 using GTFO.API.Patches;
 using GTFO.API.Utilities.Impl;

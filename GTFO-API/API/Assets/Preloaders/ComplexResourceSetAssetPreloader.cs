@@ -6,7 +6,7 @@ using GameData;
 using GTFO.API.EventArg;
 using HarmonyLib;
 
-namespace GTFO.API.Assets.LoaderSupports;
+namespace GTFO.API.Assets.Preloaders;
 
 public static class ComplexResourceSetAssetPreloader
 {
