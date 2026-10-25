@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
+using GTFO.API.Assets.LoaderSupports;
 using GTFO.API.Impl;
 using GTFO.API.Patches;
 using GTFO.API.Utilities.Impl;
@@ -37,6 +38,8 @@ namespace GTFO.API
             SoundBankAPI.Setup();
             LevelAPI.Setup();
             LocalizationAPI.Setup();
+
+            ComplexResourceSetAssetPreloader.Setup();
 
             APILogger.Verbose("Core", "Plugin Load Complete");
 
