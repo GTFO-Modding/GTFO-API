@@ -1,5 +1,5 @@
 ﻿using AssetShards;
-using GTFO.API.Assets.Loaders;
+using GTFO.API.Assets.ObjectLoaders;
 using GTFO.API.EventArg;
 using UnityEngine;
 

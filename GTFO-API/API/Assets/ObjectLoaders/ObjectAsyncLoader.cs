@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using GTFO.API.EventArg;
+﻿using GTFO.API.EventArg;
 using GTFO.API.Utilities;
-using UnityEngine;
 
-namespace GTFO.API.Assets.Loaders;
+namespace GTFO.API.Assets.ObjectLoaders;
 
 internal abstract class ObjectAsyncLoader<TObject, TAsyncOperation>
     where TObject : UnityEngine.Object

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace GTFO.API.Assets.Loaders;
+namespace GTFO.API.Assets.ObjectLoaders;
 
 internal sealed class AssetAsyncLoader : ObjectAsyncLoader<Object, AssetBundleRequest>
 {
