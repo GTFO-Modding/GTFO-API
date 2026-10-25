@@ -31,6 +31,16 @@ namespace GTFO.API
         /// </summary>
         public static ApiStatusInfo Status => APIStatus.Level;
 
+        /// <summary>
+        /// Current <see cref="ActiveExpedition"/>, <see langword="null"/> if NoLobby
+        /// </summary>
+        public static ActiveExpedition? CurrentActiveExpedition { get; private set; } = null;
+
+        /// <summary>
+        /// Current <see cref="ExpeditionInTierData"/>, <see langword="null"/> if NoLobby
+        /// </summary>
+        public static ExpeditionInTierData CurrentExpeditionData { get; private set; } = null;
+
         private static eRundownTier s_LatestExpTier = eRundownTier.Surface;
         private static int s_LatestExpIndex = -1;
 
@@ -39,6 +49,7 @@ namespace GTFO.API
             Status.Created = true;
             Status.Ready = true;
 
+            EventAPI.OnGameStateChanged += GameStateChanged;
             EventAPI.OnExpeditionStarted += EnterLevel;
 
 #if DEBUG
@@ -105,9 +116,20 @@ namespace GTFO.API
         /// </summary>
         public static event Action<LG_Factory.BatchName> OnAfterBuildBatch;
 
+        private static void GameStateChanged(eGameStateName oldState, eGameStateName newState)
+        {
+            if (newState == eGameStateName.NoLobby)
+            {
+                CurrentActiveExpedition = null;
+                CurrentExpeditionData = null;
+            }
+        }
+
         internal static void ExpeditionUpdated(pActiveExpedition activeExp, ExpeditionInTierData expData)
         {
             var activeExpData = ActiveExpedition.CreateFrom(activeExp);
+            CurrentActiveExpedition = activeExpData;
+            CurrentExpeditionData = expData;
             SafeInvoke.InvokeDelegate<LevelDataUpdateEvent>(OnLevelDataUpdated, (del) => { del(activeExpData, expData); });
 
             var tier = activeExp.tier;
