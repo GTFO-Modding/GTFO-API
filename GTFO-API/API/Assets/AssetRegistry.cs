@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -7,7 +8,7 @@ namespace GTFO.API.Assets;
 /// <summary>
 /// Read-Only Dictionary of <see cref="AssetBundleReference"/>
 /// </summary>
-public sealed class AssetRegistry
+public sealed class AssetRegistry : IEnumerable<KeyValuePair<string, AssetReference>>
 {
     private readonly ConcurrentDictionary<string, AssetReference> _Registry = [];
 
@@ -71,5 +72,15 @@ public sealed class AssetRegistry
             throw new ArgumentException($"Asset Name can't be whitespace or null", nameof(assetName));
 
         return assetName.ToUpper();
+    }
+
+    public IEnumerator<KeyValuePair<string, AssetReference>> GetEnumerator()
+    {
+        return _Registry.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
