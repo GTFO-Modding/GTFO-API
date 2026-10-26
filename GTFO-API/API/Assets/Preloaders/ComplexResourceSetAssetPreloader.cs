@@ -104,11 +104,29 @@ public static class ComplexResourceSetAssetPreloader
 
     private static bool TryGetCRSDataBlock(uint crsID, out ComplexResourceSetDataBlock db)
     {
-        return ComplexResourceSetDataBlock.s_blockByID.TryGetValue(crsID, out db);
+        try
+        {
+            db = ComplexResourceSetDataBlock.s_blockByID[crsID];
+            return db != null;
+        }
+        catch
+        {
+            db = null;
+            return false;
+        }
     }
 
     private static bool TryGetDimensionDataBlock(uint dimID, out DimensionDataBlock db)
     {
-        return DimensionDataBlock.s_blockByID.TryGetValue(dimID, out db);
+        try
+        {
+            db = DimensionDataBlock.s_blockByID[dimID];
+            return db != null;
+        }
+        catch
+        {
+            db = null;
+            return false;
+        }
     }
 }

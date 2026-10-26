@@ -69,8 +69,10 @@ internal class AssetShardManager_Patches
             return loadedCustomAsset;
         }
 
-        if (AssetShardManager.s_loadedAssetsLookup.TryGetValue(assetPath.ToUpper(), out var asset))
+        assetPath = assetPath.ToUpper();
+        if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetPath))
         {
+            var asset = AssetShardManager.s_loadedAssetsLookup[assetPath];
             if (asset == null)
                 APILogger.Error("AssetShard", $"Asset: '{assetPath}' exists, but value is null!");
 
