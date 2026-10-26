@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Reflection;
 using AssetShards;
-using BepInEx.Unity.IL2CPP.Hook;
 using GTFO.API.Impl;
+using GTFO.API.NativePatches;
 using GTFO.API.Resources;
 using HarmonyLib;
-using Il2CppInterop.Runtime.Runtime;
+using Il2CppInterop.Runtime;
 
 namespace GTFO.API.Patches
 {
     [HarmonyPatch(typeof(AssetShardManager))]
     internal class AssetShardManager_Patches
     {
-        private static bool s_PatchApplied = false;
-        private static INativeDetour s_GetLoadedAssetDetour;
-        private static GetLoadedAssetDelegate s_GetLoadedAssetOriginal;
-        private delegate IntPtr GetLoadedAssetDelegate(IntPtr assetPath, byte* forceAssetDatabase, Il2CppMethodInfo* methodInfo);
-
         [HarmonyPatch(nameof(AssetShardManager.Setup))]
         [HarmonyWrapSafe]
         [HarmonyPostfix]
@@ -24,33 +19,6 @@ namespace GTFO.API.Patches
         {
             if (APIStatus.Asset.Created) return;
             APIStatus.CreateApi<AssetAPI_Impl>(nameof(APIStatus.Asset));
-        }
-
-        internal static unsafe void CreateNativePatch()
-        {
-            if (s_PatchApplied)
-                return;
-
-            var methodName = nameof(AssetShardManager.GetLoadedAsset);
-            var returnName = "T";
-
-            s_GetLoadedAssetDetour = Il2CppAPI.CreateGenericDetour<AssetShardManager, GetLoadedAssetDelegate>(methodName, returnName,
-            [
-                typeof(string).FullName,
-                typeof(bool).MakeByRefType().FullName
-            ], [typeof(UnityEngine.Object)], Patch_GetLoadedAsset, out s_GetLoadedAssetOriginal);
-            s_PatchApplied = true;
-        }
-
-        private static unsafe IntPtr Patch_GetLoadedAsset(IntPtr assetPath, byte* forceAssetDatabase, Il2CppMethodInfo* methodInfo)
-        {
-            string assetPathStr = new Il2CppSystem.String(assetPath);
-            if (AssetAPI.AllCustomAssets.TryGet(assetPathStr, out var assetRef))
-            {
-                assetRef.GetAsset();
-            }
-
-            return s_GetLoadedAssetOriginal(assetPath, forceAssetDatabase, methodInfo);
         }
 
         [HarmonyPatch]
@@ -68,6 +36,19 @@ namespace GTFO.API.Patches
 
             public static void Prefix(string assetPath)
             {
+                if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
+                {
+                    assetRef.GetAsset();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(AssetShardManager_Native), nameof(AssetShardManager_Native.GetLoadedAsset__T__String_Boolean))]
+        private static class GetLoadedAssetT
+        {
+            public static void Prefix(IntPtr n_assetPath)
+            {
+                var assetPath = IL2CPP.Il2CppStringToManaged(n_assetPath);
                 if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
                 {
                     assetRef.GetAsset();

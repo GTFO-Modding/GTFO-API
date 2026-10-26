@@ -2,7 +2,7 @@
 using BepInEx.Unity.IL2CPP;
 using GTFO.API.Assets.Preloaders;
 using GTFO.API.Impl;
-using GTFO.API.Patches;
+using GTFO.API.NativePatches;
 using GTFO.API.Utilities.Impl;
 using GTFO.API.Wrappers;
 using HarmonyLib;
@@ -31,7 +31,8 @@ namespace GTFO.API
             APILogger.Verbose("Core", "Applying Patches");
             m_Harmony = new Harmony("dev.gtfomodding.gtfo-api");
             m_Harmony.PatchAll();
-            AssetShardManager_Patches.CreateNativePatch();
+            AssetShardManager_Native.CreateNativePatch();
+            CellJSON_Native.CreateNativePatch();
 
             EventAPI.Setup();
             AssetAPI.Setup();
