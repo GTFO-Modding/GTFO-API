@@ -432,6 +432,9 @@ namespace GTFO.API
         {
             Application.quitting += (Il2CppSystem.Action)(() =>
             {
+                if (!Directory.Exists(AssetBundlesCachePath))
+                    return;
+
                 var caches = Directory.EnumerateFiles(AssetBundlesCachePath, "*", SearchOption.AllDirectories)
                     .Where(f => !f.EndsWith(AssetBundleMetadata.FileExtension, StringComparison.OrdinalIgnoreCase));
 
