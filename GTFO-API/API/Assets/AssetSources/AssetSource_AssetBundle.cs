@@ -41,7 +41,7 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
         _Loader.Load(() => OwnerBundle.LoadAsset_Internal(AssetName));
     }
 
-    public void LoadAsync(UnityObjectRequestEvent onLoaded)
+    public void LoadAsync(UnityObjectRequestCallback onLoaded)
     {
         _Loader.LoadAsync(() => OwnerBundle.LoadAssetAsync_Internal(AssetName), onLoaded);
     }

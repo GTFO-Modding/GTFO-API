@@ -78,7 +78,7 @@ public sealed class AssetReference
     /// Load Referenced Asset (Non-Blocking)
     /// </summary>
     /// <param name="onLoaded">Callback when Asset has loaded</param>
-    public void LoadAsync(UnityObjectRequestEvent onLoaded = null)
+    public void LoadAsync(UnityObjectRequestCallback onLoaded = null)
     {
         if (_AssetSource.CanManualLoad)
         {

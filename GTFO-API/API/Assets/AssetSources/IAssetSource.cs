@@ -9,6 +9,6 @@ internal interface IAssetSource
     public bool CanManualLoad { get; }
     public bool CanManualUnload { get; }
     public void Load();
-    public void LoadAsync(UnityObjectRequestEvent onLoaded);
+    public void LoadAsync(UnityObjectRequestCallback onLoaded);
     public void Unload();
 }

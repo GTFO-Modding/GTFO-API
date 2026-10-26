@@ -3,13 +3,13 @@
 namespace GTFO.API.EventArg;
 
 /// <summary>
-/// Delegate for Load Callback of <see cref="UnityEngine.Object"/> kind objects
+/// Delegate for Request/Load Callback of <see cref="UnityEngine.Object"/> kind objects
 /// </summary>
 /// <param name="args">EventArgs</param>
-public delegate void UnityObjectRequestEvent(UnityObjectRequestEventArgs args);
+public delegate void UnityObjectRequestCallback(UnityObjectRequestEventArgs args);
 
 /// <summary>
-/// EventArgs for Load Callback of <see cref="UnityEngine.Object"/> kind objects
+/// EventArgs for Request/Load Callback of <see cref="UnityEngine.Object"/> kind objects
 /// </summary>
 public sealed class UnityObjectRequestEventArgs : EventArgs
 {

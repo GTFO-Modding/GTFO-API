@@ -28,7 +28,7 @@ internal abstract class ObjectAsyncLoader<TObject, TAsyncOperation>
     private TObject _LoadedObject = null;
     private TAsyncOperation _WorkingOperation = null;
     private bool _IsAsyncLoading = false;
-    private event UnityObjectRequestEvent _OnLoaded;
+    private event UnityObjectRequestCallback _OnLoaded;
 
     public void Load(Func<TObject> blockingCreateFunc)
     {
@@ -48,7 +48,7 @@ internal abstract class ObjectAsyncLoader<TObject, TAsyncOperation>
         Finish();
     }
 
-    public void LoadAsync(Func<TAsyncOperation> createRequest, UnityObjectRequestEvent onLoaded)
+    public void LoadAsync(Func<TAsyncOperation> createRequest, UnityObjectRequestCallback onLoaded)
     {
         if (LoadedObject != null)
         {
@@ -113,7 +113,7 @@ internal abstract class ObjectAsyncLoader<TObject, TAsyncOperation>
             Success = LoadedObject != null
         };
 
-        SafeInvoke.InvokeDelegate<UnityObjectRequestEvent>(_OnLoaded, (del) =>
+        SafeInvoke.InvokeDelegate<UnityObjectRequestCallback>(_OnLoaded, (del) =>
         {
             del(eventArgs);
         });

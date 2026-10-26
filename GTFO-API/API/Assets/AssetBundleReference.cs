@@ -143,7 +143,7 @@ public sealed class AssetBundleReference
     /// Load Referenced AssetBundle (Non-Blocking)
     /// </summary>
     /// <param name="onLoaded">Callback when AssetBundle has loaded</param>
-    public void LoadBundleAsync(UnityObjectRequestEvent onLoaded = null)
+    public void LoadBundleAsync(UnityObjectRequestCallback onLoaded = null)
     {
         if (_BundleSource.CanManualLoad)
         {
