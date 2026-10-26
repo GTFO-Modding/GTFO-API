@@ -74,6 +74,7 @@ public sealed class AssetRegistry : IEnumerable<KeyValuePair<string, AssetRefere
         return assetName.ToUpper();
     }
 
+    /// <inheritdoc/>
     public IEnumerator<KeyValuePair<string, AssetReference>> GetEnumerator()
     {
         return _Registry.GetEnumerator();

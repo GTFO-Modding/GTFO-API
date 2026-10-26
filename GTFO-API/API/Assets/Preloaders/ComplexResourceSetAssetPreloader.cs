@@ -8,15 +8,31 @@ using HarmonyLib;
 
 namespace GTFO.API.Assets.Preloaders;
 
+/// <summary>
+/// Preload that loads custom assets specified in <see cref="ComplexResourceSetDataBlock"/>
+/// </summary>
 public static class ComplexResourceSetAssetPreloader
 {
+    /// <summary>
+    /// Toggle Preloader Feature
+    /// </summary>
     public static bool Enabled { get; private set; } = false;
+
+    /// <summary>
+    /// Toggle Each Resource types load flag
+    /// <para>
+    /// Example) This code snippet will disable GeomorphTiles_1x1 being pre-loaded:<br/>
+    /// ResourceNameLoadFlags[nameof(ComplexResourceSetDataBlock.GeomorphTiles_1x1)] = false;
+    /// </para>
+    /// </summary>
     public static IDictionary<string, bool> ResourceNameLoadFlags { get; private set; } = new Dictionary<string, bool>();
 
     private static PropertyInfo[] _ResourceProperties;
 
     internal static void Setup()
     {
+
+
         var closedGeneric = typeof(Il2CppSystem.Collections.Generic.List<ResourceData>);
         _ResourceProperties = [.. AccessTools.GetDeclaredProperties(typeof(ComplexResourceSetDataBlock))
             .Where(prop => prop.PropertyType == closedGeneric && !prop.Name.EndsWith("_k__BackingField", StringComparison.Ordinal))
@@ -25,6 +41,10 @@ public static class ComplexResourceSetAssetPreloader
         SetEnabled(true);
     }
 
+    /// <summary>
+    /// Set Feature to be Enabled or Disabled
+    /// </summary>
+    /// <param name="enabled"></param>
     public static void SetEnabled(bool enabled)
     {
         if (Enabled == enabled)

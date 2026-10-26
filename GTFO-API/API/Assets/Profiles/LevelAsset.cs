@@ -11,14 +11,17 @@ public abstract partial class AssetBundleProfile
     /// </summary>
     public sealed class LevelAsset : AssetBundleProfile
     {
+        /// <inheritdoc/>
         public override string ProfileName => nameof(LevelAsset);
 
+        /// <inheritdoc/>
         public override void Apply()
         {
             LevelAPI.OnBuildDone += OnBuildDone;
             LevelAPI.OnLevelSelected += OnLevelSelected;
         }
 
+        /// <inheritdoc/>
         public override void Unapply()
         {
             LevelAPI.OnBuildDone -= OnBuildDone;

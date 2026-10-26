@@ -74,6 +74,7 @@ public sealed class AssetBundleRegistry : IEnumerable<KeyValuePair<string, Asset
         return assetBundleName.ToUpper();
     }
 
+    /// <inheritdoc/>
     public IEnumerator<KeyValuePair<string, AssetBundleReference>> GetEnumerator()
     {
         return _Registry.GetEnumerator();
