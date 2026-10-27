@@ -67,19 +67,35 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                 sw.Restart();
                 asset.LoadAsync((args) =>
                 {
-                    APILogger.Debug("AssetAPI", $"Asset Loaded: {asset.Name} (took {sw.ElapsedMilliseconds}ms)");
+                    sw.Stop();
+
+                    if (!args.Success)
+                    {
+                        APILogger.Error("AssetAPI", $"Asset: '{asset.Name}' has failed to load! Level will not be loaded!!!");
+                        return;
+                    }
+
+                    APILogger.Debug("AssetAPI", $"Asset Loaded: '{asset.Name}' (took {sw.ElapsedMilliseconds}ms)");
                 });
             }
         }
 
         foreach (var bundle in BundlesToLoad)
         {
-            APILogger.Debug("AssetAPI", $"Start Loading Bundle: {bundle.Name}");
+            APILogger.Debug("AssetAPI", $"Start Loading Bundle: '{bundle.Name}'");
             var sw = new Stopwatch();
             sw.Restart();
             bundle.LoadBundleAsync((args) =>
             {
-                APILogger.Debug("AssetAPI", $"Bundle Loaded: {bundle.Name} (took {sw.ElapsedMilliseconds}ms)");
+                sw.Stop();
+
+                if (!args.Success)
+                {
+                    APILogger.Error("AssetAPI", $"Bundle: '{bundle.Name}' has failed to load! Level will not be loaded!!!");
+                    return;
+                }
+
+                APILogger.Debug("AssetAPI", $"Bundle Loaded: '{bundle.Name}' (took {sw.ElapsedMilliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
                     onBundleLoaded?.Invoke();
             });
