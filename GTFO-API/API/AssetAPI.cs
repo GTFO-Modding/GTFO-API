@@ -110,6 +110,47 @@ namespace GTFO.API
             return false;
         }
 
+        internal static UnityEngine.Object Internal_GetLoadedAsset(string assetPath, bool logErrors, bool logExceptions)
+        {
+            APILogger.Verbose($"AssetAPI", $"Requested Asset: {assetPath}");
+
+            try
+            {
+                if (AllCustomAssets.TryGet(assetPath, out var assetRef))
+                {
+                    var loadedCustomAsset = assetRef.Asset;
+                    if (loadedCustomAsset == null && logErrors)
+                        APILogger.Error("AssetAPI", $"Custom Asset: '{assetPath}' did not loaded!");
+
+                    return loadedCustomAsset;
+                }
+
+                assetPath = assetPath.ToUpper();
+                if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetPath))
+                {
+                    var asset = AssetShardManager.s_loadedAssetsLookup[assetPath];
+                    if (asset == null && logErrors)
+                        APILogger.Error("AssetAPI", $"Asset: '{assetPath}' exists, but value is null!");
+
+                    return asset;
+                }
+
+                if (logErrors)
+                    APILogger.Error("AssetAPI", $"Asset: '{assetPath}' did not loaded!");
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                if (logExceptions)
+                {
+                    APILogger.Error("AssetAPI", $"Exception thrown while loading asset: '{assetPath}'");
+                    APILogger.Error("AssetAPI", $"- StackTrace: {e}");
+                }
+                return null;
+            }
+        }
+
         /// <summary>
         /// Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>)
         /// </summary>
@@ -117,18 +158,7 @@ namespace GTFO.API
         /// <returns>The <see cref="UnityEngine.Object"/> of the asset requested or null if it's not loaded</returns>
         public static UnityEngine.Object GetLoadedAsset(string path)
         {
-            APILogger.Verbose($"Asset", $"Requested Asset: {path}");
-            try
-            {
-                if (AllCustomAssets.TryGet(path, out var assetRef))
-                    return assetRef.Asset;
-
-                return AssetShardManager.GetLoadedAsset(path);
-            }
-            catch
-            {
-                return null;
-            }
+            return Internal_GetLoadedAsset(path, logErrors: true, logExceptions: true);
         }
 
         /// <summary>
@@ -139,7 +169,7 @@ namespace GTFO.API
         /// <returns><see langword="true"/> if it's loaded, otherwise <see langword="false"/></returns>
         public static bool TryGetLoadedAsset(string path, out UnityEngine.Object asset)
         {
-            asset = GetLoadedAsset(path);
+            asset = Internal_GetLoadedAsset(path, logErrors: false, logExceptions: true);
             return asset != null;
         }
 
@@ -151,7 +181,14 @@ namespace GTFO.API
         /// <returns><typeparamref name="TAsset"/> as the asset requested or null if it's not loaded</returns>
         /// <exception cref="InvalidCastException">The loaded asset cannot be cast to <typeparamref name="TAsset"/></exception>
         public static TAsset GetLoadedAsset<TAsset>(string path) where TAsset : UnityEngine.Object
-            => GetLoadedAsset(path)?.Cast<TAsset>();
+        {
+            var uncastedAsset = Internal_GetLoadedAsset(path, logErrors: true, logExceptions: true);
+            if (uncastedAsset == null)
+            {
+                return null;
+            }
+            return uncastedAsset.TryCast<TAsset>();
+        }
 
         /// <summary>
         /// Try Obtains an asset from the currently loaded pool (<see cref="AllCustomAssets"/> and <see cref="AssetShardManager"/>) and casts it to <typeparamref name="TAsset"/>
@@ -162,7 +199,14 @@ namespace GTFO.API
         /// <returns><see langword="true"/> if it's loaded and can be casted into <typeparamref name="TAsset"/>, otherwise <see langword="false"/></returns>
         public static bool TryGetLoadedAsset<TAsset>(string path, out TAsset asset) where TAsset : UnityEngine.Object
         {
-            asset = GetLoadedAsset<TAsset>(path);
+            var uncastedAsset = Internal_GetLoadedAsset(path, logErrors: false, logExceptions: true);
+            if (uncastedAsset == null)
+            {
+                asset = null;
+                return false;
+            }
+
+            asset = uncastedAsset.TryCast<TAsset>();
             return asset != null;
         }
 

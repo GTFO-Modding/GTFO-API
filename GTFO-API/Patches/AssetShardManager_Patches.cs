@@ -36,7 +36,7 @@ internal class AssetShardManager_Patches
 
         public static bool Prefix(string assetPath, ref UnityEngine.Object __result)
         {
-            __result = GetAsset(assetPath);
+            __result = AssetAPI.Internal_GetLoadedAsset(assetPath, logErrors: true, logExceptions: true);
             return false;
         }
     }
@@ -48,7 +48,7 @@ internal class AssetShardManager_Patches
         {
             var assetPath = IL2CPP.Il2CppStringToManaged(n_assetPath);
 
-            var asset = GetAsset(assetPath);
+            var asset = AssetAPI.Internal_GetLoadedAsset(assetPath, logErrors: true, logExceptions: true);
             if (asset != null)
                 __result = asset.Pointer;
             else
