@@ -57,29 +57,4 @@ internal class AssetShardManager_Patches
             return false;
         }
     }
-
-    private static UnityEngine.Object GetAsset(string assetPath)
-    {
-        if (AssetAPI.AllCustomAssets.TryGet(assetPath, out var assetRef))
-        {
-            var loadedCustomAsset = assetRef.Asset;
-            if (loadedCustomAsset == null)
-                APILogger.Error("AssetShard", $"Custom Asset: '{assetPath}' did not loaded!");
-
-            return loadedCustomAsset;
-        }
-
-        assetPath = assetPath.ToUpper();
-        if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetPath))
-        {
-            var asset = AssetShardManager.s_loadedAssetsLookup[assetPath];
-            if (asset == null)
-                APILogger.Error("AssetShard", $"Asset: '{assetPath}' exists, but value is null!");
-
-            return asset;
-        }
-
-        APILogger.Error("AssetShard", $"Asset: '{assetPath}' did not loaded!");
-        return null;
-    }
 }

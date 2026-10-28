@@ -1,5 +1,4 @@
-﻿using AssetShards;
-using GTFO.API.Assets.ObjectLoaders;
+﻿using GTFO.API.Assets.ObjectLoaders;
 using GTFO.API.EventArg;
 using UnityEngine;
 
@@ -25,15 +24,10 @@ internal sealed class AssetSource_AssetBundle : IAssetSource
 
     private void OnLoadedAssetChanged(UnityEngine.Object asset)
     {
-        if (asset != null)
-        {
-            asset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
-            AssetShardManager.s_loadedAssetsLookup[AssetName.ToUpper()] = asset;
-        }
-        else
-        {
-            AssetShardManager.s_loadedAssetsLookup.Remove(AssetName.ToUpper());
-        }
+        if (asset == null)
+            return;
+
+        asset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
     }
 
     public void Load()

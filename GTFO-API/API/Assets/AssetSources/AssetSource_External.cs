@@ -1,5 +1,4 @@
 ﻿using System;
-using AssetShards;
 using GTFO.API.EventArg;
 using UnityEngine;
 
@@ -19,20 +18,6 @@ internal sealed class AssetSource_External : IAssetSource
         LoadedAsset.hideFlags |= HideFlags.DontUnloadUnusedAsset;
 
         AssetName = assetName;
-
-        if (AssetShardManager.s_loadedAssetsLookup == null)
-        {
-            AssetAPI.OnImplReady += Register;
-        }
-        else
-        {
-            Register();
-        }
-    }
-
-    private void Register()
-    {
-        AssetShardManager.s_loadedAssetsLookup[AssetName.ToUpper()] = LoadedAsset;
     }
 
     public void Load()

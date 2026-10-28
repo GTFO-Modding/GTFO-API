@@ -101,13 +101,43 @@ namespace GTFO.API
         /// <returns>Whether the asset is registered or not</returns>
         public static bool ContainsAsset(string assetName)
         {
-            if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName.ToUpper()))
-                return true;
-
             if (AllCustomAssets.Contains(assetName))
                 return true;
 
+            if (IsShardAssetLoaded(assetName))
+                return true;
+
             return false;
+        }
+
+        internal static bool IsShardAssetLoaded(string assetName)
+        {
+            if (AssetShardManager.s_loadedAssetsLookup == null)
+                return false;
+
+            if (!AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName.ToUpper()))
+                return false;
+
+            return true;
+        }
+
+        internal static bool TryGetShardAsset(string assetName, out UnityEngine.Object asset)
+        {
+            if (AssetShardManager.s_loadedAssetsLookup == null)
+            {
+                asset = null;
+                return false;
+            }
+
+            assetName = assetName.ToUpper();
+            if (!AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetName))
+            {
+                asset = null;
+                return false;
+            }
+
+            asset = AssetShardManager.s_loadedAssetsLookup[assetName];
+            return true;
         }
 
         internal static UnityEngine.Object Internal_GetLoadedAsset(string assetPath, bool logErrors, bool logExceptions)
@@ -125,10 +155,8 @@ namespace GTFO.API
                     return loadedCustomAsset;
                 }
 
-                assetPath = assetPath.ToUpper();
-                if (AssetShardManager.s_loadedAssetsLookup.ContainsKey(assetPath))
+                if (TryGetShardAsset(assetPath, out var asset))
                 {
-                    var asset = AssetShardManager.s_loadedAssetsLookup[assetPath];
                     if (asset == null && logErrors)
                         APILogger.Error("AssetAPI", $"Asset: '{assetPath}' exists, but value is null!");
 
