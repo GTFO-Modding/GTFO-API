@@ -58,10 +58,16 @@ public sealed class AssetBundleMetadata
     public bool DisableJustInTimeLoading { get; internal set; } = false;
 
     /// <summary>
-    /// List of Asset Names defined in <see cref="AssetBundle"/>
+    /// List of Asset Name defined in <see cref="AssetBundle"/>
     /// </summary>
     [JsonInclude]
     public IReadOnlyList<string> Assets { get; internal set; } = [];
+
+    /// <summary>
+    /// List of Dependency that referenced by <see cref="AssetBundle"/>
+    /// </summary>
+    [JsonInclude]
+    public IReadOnlyList<string> Dependencies { get; internal set; } = [];
 
     /// <summary>
     /// MD5 Checksum of the <see cref="AssetBundle"/> file
@@ -70,10 +76,10 @@ public sealed class AssetBundleMetadata
     public string Checksum { get; internal set; } = "";
 
     /// <summary>
-    /// Revision of Metadata json file
+    /// Revision of Metadata json file format
     /// </summary>
     [JsonInclude]
-    public int Revision { get; internal set; } = MetadataFormatRevision;
+    public int FormatRevision { get; internal set; } = -1;
 
     /// <summary>
     /// Generate Checksum from File path

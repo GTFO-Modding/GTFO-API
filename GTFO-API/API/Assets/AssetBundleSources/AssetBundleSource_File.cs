@@ -44,10 +44,10 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
 
         var checksum = AssetBundleMetadata.ComputeChecksum(FilePath);
         bool shouldRewrite = false;
-        if (Metadata.Revision != AssetBundleMetadata.MetadataFormatRevision)
+        if (Metadata.FormatRevision != AssetBundleMetadata.MetadataFormatRevision)
         {
-            APILogger.Debug("AssetBundle", $"Metadata Revision mismatch with GAPI version (JSON:{Metadata.Revision} != GAPI:{AssetBundleMetadata.MetadataFormatRevision})");
-            Metadata.Revision = AssetBundleMetadata.MetadataFormatRevision;
+            APILogger.Debug("AssetBundle", $"Metadata Revision mismatch with GAPI version (JSON:{Metadata.FormatRevision} != GAPI:{AssetBundleMetadata.MetadataFormatRevision})");
+            Metadata.FormatRevision = AssetBundleMetadata.MetadataFormatRevision;
             shouldRewrite = true;
         }
 
