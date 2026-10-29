@@ -78,8 +78,10 @@ public sealed class AssetBundleReference
 
     private void RegisterAssets()
     {
-        foreach (var asset in Metadata.Assets)
+        foreach (var kv in Metadata.Assets)
         {
+            var asset = kv.Key;
+            var meta = kv.Value;
             if (AssetAPI.ContainsAsset(asset))
             {
                 if (AssetAPI.AllCustomAssets.TryGet(asset, out var assetRef))
@@ -93,8 +95,7 @@ public sealed class AssetBundleReference
                 continue;
             }
 
-
-            var assetReference = new AssetReference(asset, this);
+            var assetReference = new AssetReference(asset, this, meta);
             AssetAPI.AllCustomAssets[asset] = assetReference;
             Assets[asset] = assetReference;
         }

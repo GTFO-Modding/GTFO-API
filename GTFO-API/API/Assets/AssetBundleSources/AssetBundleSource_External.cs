@@ -17,7 +17,7 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
         LoadedAssetBundle = assetBundle;
         Metadata = new AssetBundleMetadata
         {
-            Assets = [.. assetBundle.GetAllAssetNames()]
+            Assets = AssetMetadata.CreateAssetMetadatasFromBundle(assetBundle)
         };
     }
 

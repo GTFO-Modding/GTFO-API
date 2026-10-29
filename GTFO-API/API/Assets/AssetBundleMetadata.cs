@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BepInEx;
 using GTFO.API.Assets.Profiles;
 using UnityEngine;
 
@@ -61,7 +62,7 @@ public sealed class AssetBundleMetadata
     /// List of Asset Name defined in <see cref="AssetBundle"/>
     /// </summary>
     [JsonInclude]
-    public IReadOnlyList<string> Assets { get; internal set; } = [];
+    public IReadOnlyDictionary<string, AssetMetadata> Assets { get; internal set; } = new Dictionary<string, AssetMetadata>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// List of Dependency that referenced by <see cref="AssetBundle"/>
@@ -142,6 +143,66 @@ public sealed class AssetBundleMetadata
     public static void WriteJson(AssetBundleMetadata metadata, Stream stream)
     {
         JsonSerializer.Serialize(stream, metadata, _JsonOpt);
+    }
+
+    internal static AssetBundleMetadata CheckMetadata(string filePath)
+    {
+        var metaFilePath = filePath + FileExtension;
+        var filePathRelToBIE = Path.GetRelativePath(Paths.BepInExRootPath, filePath);
+        var metaPathRelToBIE = Path.GetRelativePath(Paths.BepInExRootPath, metaFilePath);
+
+        AssetBundleMetadata metadata;
+
+        try
+        {
+            if (File.Exists(metaFilePath))
+            {
+                using var fs = File.OpenRead(metaFilePath);
+                metadata = ReadJson(fs);
+            }
+            else
+            {
+                metadata = new();
+            }
+        }
+        catch (Exception e)
+        {
+            APILogger.Error("AssetBundle", $"Exception has thrown while loading '{metaPathRelToBIE}'");
+            APILogger.Error("AssetBundle", $"StackTrace: {e}");
+            metadata = new();
+        }
+
+        var checksum = ComputeChecksum(filePath);
+        bool shouldRewrite = false;
+        if (metadata.FormatRevision != MetadataFormatRevision)
+        {
+            if (metadata.FormatRevision < 0)
+                APILogger.Info("AssetBundle", $"New AssetBundle File: '{filePathRelToBIE}' detected!");
+            else
+                APILogger.Warn("AssetBundle", $"'{metaPathRelToBIE}' {nameof(FormatRevision)} mismatch with GAPI version (JSON:{metadata.FormatRevision} != GAPI:{MetadataFormatRevision})");
+
+            metadata.FormatRevision = MetadataFormatRevision;
+            shouldRewrite = true;
+        }
+
+        if (!metadata.Checksum.Equals(checksum, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!string.IsNullOrEmpty(metadata.Checksum))
+                APILogger.Info("AssetBundle", $"'{filePathRelToBIE}' has modified. Re-scanning asset lists... (JSON:{metadata.Checksum} != CURRENT:{checksum})");
+
+            metadata.Checksum = checksum;
+            metadata.Assets = AssetMetadata.CreateAssetMetadatasFromBundleFile(filePath);
+            shouldRewrite = true;
+        }
+
+        if (shouldRewrite)
+        {
+            using var metaFileStream = File.Create(metaFilePath);
+            WriteJson(metadata, metaFileStream);
+            APILogger.Info("AssetBundle", $"New Metadata has written to disk: {metaPathRelToBIE}");
+        }
+
+        return metadata;
     }
 }
 

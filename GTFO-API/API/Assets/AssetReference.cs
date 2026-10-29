@@ -15,6 +15,11 @@ public sealed class AssetReference
     private static readonly Stopwatch s_LoadSW = new();
 
     /// <summary>
+    /// Metadata of given Asset
+    /// </summary>
+    public AssetMetadata Metadata { get; private set; }
+
+    /// <summary>
     /// <see cref="AssetBundleReference"/> that owns this Asset; <see langword="null"/> If it's not from AssetBundle
     /// </summary>
     public AssetBundleReference AssetSourceBundle { get; private set; }
@@ -48,9 +53,10 @@ public sealed class AssetReference
 
     private readonly IAssetSource _AssetSource;
 
-    internal AssetReference(string assetName, AssetBundleReference ownerBundle)
+    internal AssetReference(string assetName, AssetBundleReference ownerBundle, AssetMetadata metadata)
     {
         Name = assetName;
+        Metadata = metadata;
         AssetSourceBundle = ownerBundle;
         _AssetSource = new AssetSource_AssetBundle(assetName, ownerBundle);
     }
@@ -58,6 +64,7 @@ public sealed class AssetReference
     internal AssetReference(string assetName, UnityObject value)
     {
         Name = assetName;
+        Metadata = AssetMetadata.Create(value);
         AssetSourceBundle = null;
         _AssetSource = new AssetSource_External(assetName, value);
     }
@@ -71,7 +78,6 @@ public sealed class AssetReference
         {
             _AssetSource.Load();
         }
-
     }
 
     /// <summary>

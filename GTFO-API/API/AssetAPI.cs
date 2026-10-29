@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using AssetShards;
 using BepInEx;
 using GTFO.API.Assets;
@@ -80,6 +81,8 @@ namespace GTFO.API
         /// Path to AssetBundle Caches: 'BepInEx/cache/assetbundles'
         /// </summary>
         public static readonly string AssetBundlesCachePath = Path.Combine(Paths.BepInExRootPath, "cache", "assetbundles");
+
+        internal static readonly Dictionary<string, AssetBundleMetadata> _BundleMetadataCache = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Checks if an <see cref="AssetBundle"/> is already registered in the <see cref="AssetAPI"/>
@@ -592,6 +595,29 @@ namespace GTFO.API
             if (!bundlePaths.Any())
                 return;
 
+            // Populate Metadata
+            using (TimeScope.Create("Checking Metadata"))
+            {
+                Parallel.ForEach(bundlePaths, (file, state) =>
+                {
+                    try
+                    {
+                        AssetBundleMetadata metadata = AssetBundleMetadata.CheckMetadata(file);
+
+                        lock (_BundleMetadataCache)
+                        {
+                            _BundleMetadataCache[file] = metadata;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        APILogger.Warn(nameof(AssetAPI), $"Failed to populate Metadata for bundle: '{file}'");
+                    }
+                });
+            }
+
+
+            // Do load bundle for real
             int loadedBundle = 0;
             foreach (var file in bundlePaths)
             {

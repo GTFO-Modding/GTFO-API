@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using GTFO.API.Assets.ObjectLoaders;
+﻿using GTFO.API.Assets.ObjectLoaders;
 using GTFO.API.EventArg;
 using UnityEngine;
 
@@ -23,50 +21,11 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         FilePath = filePath;
         MetaFilePath = filePath + AssetBundleMetadata.FileExtension;
 
-        try
+        if (!AssetAPI._BundleMetadataCache.TryGetValue(filePath, out var metadata))
         {
-            if (File.Exists(MetaFilePath))
-            {
-                using var fs = File.OpenRead(MetaFilePath);
-                Metadata = AssetBundleMetadata.ReadJson(fs);
-            }
-            else
-            {
-                Metadata = new();
-            }
+            metadata = AssetBundleMetadata.CheckMetadata(filePath);
         }
-        catch (Exception e)
-        {
-            APILogger.Error("AssetBundle", $"Exception has thrown while loading '{MetaFilePath}'");
-            APILogger.Error("AssetBundle", $"StackTrace: {e}");
-            Metadata = new();
-        }
-
-        var checksum = AssetBundleMetadata.ComputeChecksum(FilePath);
-        bool shouldRewrite = false;
-        if (Metadata.FormatRevision != AssetBundleMetadata.MetadataFormatRevision)
-        {
-            APILogger.Debug("AssetBundle", $"Metadata Revision mismatch with GAPI version (JSON:{Metadata.FormatRevision} != GAPI:{AssetBundleMetadata.MetadataFormatRevision})");
-            Metadata.FormatRevision = AssetBundleMetadata.MetadataFormatRevision;
-            shouldRewrite = true;
-        }
-
-        if (!Metadata.Checksum.Equals(checksum, StringComparison.OrdinalIgnoreCase))
-        {
-            APILogger.Debug("AssetBundle", $"File has modified! Fetching AssetNames! (JSON:{Metadata.Checksum} != CURRENT:{checksum})");
-            Metadata.Checksum = checksum;
-
-            var bundle = AssetBundle.LoadFromFile(FilePath);
-            Metadata.Assets = [.. bundle.GetAllAssetNames()];
-            bundle.Unload(unloadAllLoadedObjects: true);
-            shouldRewrite = true;
-        }
-
-        if (shouldRewrite)
-        {
-            using var metaFileStream = File.Create(MetaFilePath);
-            AssetBundleMetadata.WriteJson(Metadata, metaFileStream);
-        }
+        Metadata = metadata;
     }
 
     public void Load()
