@@ -32,7 +32,7 @@ public sealed class AssetMetadata
     {
         return new AssetMetadata()
         {
-            AssetType = asset.GetIl2CppType().FullName
+            AssetType = asset.GetIl2CppType().Name
         };
     }
 
