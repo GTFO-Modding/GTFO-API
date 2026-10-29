@@ -27,7 +27,7 @@ internal struct TimeScope : IDisposable
     {
 #if DEBUG
         _SW.Stop();
-        APILogger.Debug("TimeScope", $"'{_DebugName}' Elapsed: {_SW.ElapsedTicks} ticks");
+        APILogger.Debug("TimeScope", $"'{_DebugName}' Elapsed: {_SW.ElapsedMilliseconds}ms ({_SW.ElapsedTicks} ticks)");
 #endif
     }
 }
