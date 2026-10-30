@@ -16,7 +16,11 @@ public static class ComplexResourceSetAssetPreloader
     /// <summary>
     /// Toggle Preloader Feature
     /// </summary>
-    public static bool Enabled { get; private set; } = false;
+    public static bool Enabled
+    {
+        get => _IsEnabled;
+        set => SetEnabled(value);
+    }
 
     /// <summary>
     /// Toggle Each Resource types load flag
@@ -27,6 +31,7 @@ public static class ComplexResourceSetAssetPreloader
     /// </summary>
     public static IDictionary<string, bool> ResourceNameLoadFlags { get; private set; } = new Dictionary<string, bool>();
 
+    private static bool _IsEnabled = false;
     private static PropertyInfo[] _ResourceProperties;
 
     internal static void Setup()
@@ -47,10 +52,10 @@ public static class ComplexResourceSetAssetPreloader
     /// <param name="enabled"></param>
     public static void SetEnabled(bool enabled)
     {
-        if (Enabled == enabled)
+        if (_IsEnabled == enabled)
             return;
 
-        Enabled = enabled;
+        _IsEnabled = enabled;
         if (enabled)
         {
             AssetAPI.OnLoadLevelAssets += PrecacheLevelAssets;
