@@ -10,7 +10,9 @@ namespace GTFO.API.Utilities;
 internal struct TimeScope : IDisposable
 {
 #if DEBUG
-    private Stopwatch _SW;
+    private readonly double TickConv = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
+
+    private long _StartTick;
     private string _DebugName;
 #endif
 
@@ -36,7 +38,7 @@ internal struct TimeScope : IDisposable
     {
 #if DEBUG
         _DebugName = debugName.ToString();
-        _SW = Stopwatch.StartNew();
+        _StartTick = Stopwatch.GetTimestamp();
 #endif
     }
 
@@ -44,7 +46,7 @@ internal struct TimeScope : IDisposable
     {
 #if DEBUG
         _DebugName = debugName.ToString();
-        _SW = Stopwatch.StartNew();
+        _StartTick = Stopwatch.GetTimestamp();
 #endif
     }
 
@@ -53,8 +55,10 @@ internal struct TimeScope : IDisposable
     public void Dispose()
     {
 #if DEBUG
-        _SW.Stop();
-        APILogger.Debug("TimeScope", $"'{_DebugName}' Elapsed: {_SW.ElapsedMilliseconds}ms ({_SW.ElapsedTicks} ticks)");
+        var endTick = Stopwatch.GetTimestamp();
+        var elapsed = endTick - _StartTick;
+        var timeSpan = new TimeSpan((long)((elapsed) * TickConv));
+        APILogger.Debug("TimeScope", $"'{_DebugName}' Elapsed: {timeSpan.Milliseconds}ms ({timeSpan.Ticks} ticks)");
 #endif
     }
 }
