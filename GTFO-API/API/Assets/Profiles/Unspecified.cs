@@ -11,9 +11,6 @@ public abstract partial class AssetBundleProfile
     public sealed class Unspecified : AssetBundleProfile
     {
         /// <inheritdoc/>
-        public override string ProfileName => nameof(Unspecified);
-
-        /// <inheritdoc/>
         public override void Apply()
         {
 

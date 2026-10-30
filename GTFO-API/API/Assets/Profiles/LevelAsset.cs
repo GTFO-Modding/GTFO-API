@@ -12,9 +12,6 @@ public abstract partial class AssetBundleProfile
     public sealed class LevelAsset : AssetBundleProfile
     {
         /// <inheritdoc/>
-        public override string ProfileName => nameof(LevelAsset);
-
-        /// <inheritdoc/>
         public override void Apply()
         {
             LevelAPI.OnBuildDone += OnBuildDone;

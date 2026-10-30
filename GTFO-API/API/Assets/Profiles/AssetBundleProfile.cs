@@ -11,9 +11,10 @@ public abstract partial class AssetBundleProfile
     private static readonly ConcurrentDictionary<string, Type> s_ProfileTypeLookup = [];
 
     /// <summary>
-    /// Profile Name, AssetBundle Metadata can use this name to apply specified Profile
+    /// Profile Name, AssetBundle Metadata can use this name to apply specified Profile<br/>
+    /// - Default: GetType().Name
     /// </summary>
-    public abstract string ProfileName { get; }
+    public virtual string ProfileName => GetType().Name;
 
     /// <summary>
     /// Managing <see cref="AssetBundleReference"/>
@@ -36,15 +37,16 @@ public abstract partial class AssetBundleProfile
     /// <typeparam name="T">Profile Type</typeparam>
     public static void RegisterType<T>() where T : AssetBundleProfile, new()
     {
-        var strategyInstance = new T();
-        var strategyName = strategyInstance.ProfileName;
+        var profileInstance = new T();
+        var profileName = profileInstance.ProfileName;
 
-        if (s_ProfileTypeLookup.TryGetValue(strategyName, out var type))
+        if (s_ProfileTypeLookup.TryGetValue(profileName, out var type))
         {
+            APILogger.Error("AssetBundle", $"'{profileName}' is already registered by '{type.AssemblyQualifiedName}'");
             return;
         }
 
-        s_ProfileTypeLookup[strategyName] = typeof(T);
+        s_ProfileTypeLookup[profileName] = typeof(T);
     }
 
     /// <summary>
@@ -56,6 +58,7 @@ public abstract partial class AssetBundleProfile
     {
         if (!s_ProfileTypeLookup.TryGetValue(profileName, out var type))
         {
+            APILogger.Error("AssetBundle", $"'{profileName}' is invalid Profile name! Fall-backs to '{nameof(Unspecified)}'");
             return new Unspecified();
         }
 

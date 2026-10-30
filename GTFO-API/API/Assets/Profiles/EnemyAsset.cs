@@ -15,9 +15,6 @@ public abstract partial class AssetBundleProfile
     public sealed class EnemyAsset : AssetBundleProfile
     {
         /// <inheritdoc/>
-        public override string ProfileName => nameof(EnemyAsset);
-
-        /// <inheritdoc/>
         public override void Apply()
         {
             EnemyPrefabManager_Patches.OnAllPrefabBuilt += OnPrefabsBuilt;
