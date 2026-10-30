@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace GTFO.API.Utilities;
+namespace GTFO.API.Utilities.Diagnostics;
 
 /// <summary>
 /// Simple <see cref="Stopwatch"/> without allocation

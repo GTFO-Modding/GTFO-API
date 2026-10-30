@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+
+
 #if DEBUG
 using System.Diagnostics;
 #endif
 
-namespace GTFO.API.Utilities;
+namespace GTFO.API.Utilities.Diagnostics;
 
 internal struct TimeScope : IDisposable
 {

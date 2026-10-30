@@ -2,6 +2,7 @@
 using System.Collections;
 using GTFO.API.EventArg;
 using GTFO.API.Utilities;
+using GTFO.API.Utilities.Diagnostics;
 using UnityEngine;
 
 namespace GTFO.API.Assets.ObjectLoaders;
