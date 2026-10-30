@@ -21,9 +21,15 @@ namespace GTFO.API.Patches
             string path = new Il2CppSystem.String(n_path);
 
             if (path.EndsWith("GTFO_Favorites.txt", StringComparison.OrdinalIgnoreCase))
+            {
+                EnsureFavoriteDirectory();
                 n_path = IL2CPP.ManagedStringToIl2Cpp(FavoritePath);
+            }
             else if (path.EndsWith("GTFO_BotFavorites.txt", StringComparison.OrdinalIgnoreCase))
+            {
+                EnsureFavoriteDirectory();
                 n_path = IL2CPP.ManagedStringToIl2Cpp(BotFavoritePath);
+            }
         }
 
         [HarmonyPrefix]
@@ -33,13 +39,22 @@ namespace GTFO.API.Patches
             string path = new Il2CppSystem.String(n_path);
 
             if (path.EndsWith("GTFO_Favorites.txt", StringComparison.OrdinalIgnoreCase))
+            {
+                EnsureFavoriteDirectory();
                 n_path = IL2CPP.ManagedStringToIl2Cpp(FavoritePath);
+            }
             else if (path.EndsWith("GTFO_BotFavorites.txt", StringComparison.OrdinalIgnoreCase))
             {
+                EnsureFavoriteDirectory();
                 n_path = IL2CPP.ManagedStringToIl2Cpp(BotFavoritePath);
                 if (File.Exists(path))
                     File.Delete(path); //Remove Existing BotFavorite File
             }
+        }
+
+        private static void EnsureFavoriteDirectory()
+        {
+            Directory.CreateDirectory(FavoritesDirectory);
         }
     }
 }
