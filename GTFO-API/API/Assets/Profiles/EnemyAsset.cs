@@ -1,4 +1,5 @@
-﻿using Enemies;
+﻿using AssetsTools.NET.Extra;
+using Enemies;
 using GTFO.API.Patches;
 
 namespace GTFO.API.Assets.Profiles;
@@ -31,7 +32,10 @@ public abstract partial class AssetBundleProfile
         private void OnPrefabsBuilt()
         {
             ManagingBundle.UnloadBundle();
-            ManagingBundle.UnloadAllAssets();
+            foreach (var prefabs in ManagingBundle.Assets.FindByType(AssetClassID.GameObject))
+            {
+                prefabs.Unload();
+            }
         }
     }
 }
