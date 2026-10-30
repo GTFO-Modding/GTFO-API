@@ -36,8 +36,6 @@ public static class ComplexResourceSetAssetPreloader
 
     internal static void Setup()
     {
-
-
         var closedGeneric = typeof(Il2CppSystem.Collections.Generic.List<ResourceData>);
         _ResourceProperties = [.. AccessTools.GetDeclaredProperties(typeof(ComplexResourceSetDataBlock))
             .Where(prop => prop.PropertyType == closedGeneric && !prop.Name.EndsWith("_k__BackingField", StringComparison.Ordinal))
@@ -56,14 +54,11 @@ public static class ComplexResourceSetAssetPreloader
             return;
 
         _IsEnabled = enabled;
+
         if (enabled)
-        {
             AssetAPI.OnLoadLevelAssets += PrecacheLevelAssets;
-        }
         else
-        {
             AssetAPI.OnLoadLevelAssets -= PrecacheLevelAssets;
-        }
     }
 
     private static void PrecacheLevelAssets(OnLoadLevelAssetsEventArgs arg)
@@ -111,7 +106,6 @@ public static class ComplexResourceSetAssetPreloader
                     continue;
 
                 var datas = (Il2CppSystem.Collections.Generic.List<ResourceData>)prop.GetValue(block);
-
                 if (datas == null)
                     continue;
 

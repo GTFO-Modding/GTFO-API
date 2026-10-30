@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-
-
 #if DEBUG
 using System.Diagnostics;
 #endif
