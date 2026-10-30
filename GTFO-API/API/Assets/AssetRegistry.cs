@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using AssetsTools.NET.Extra;
 
 namespace GTFO.API.Assets;
 
@@ -59,6 +61,74 @@ public sealed class AssetRegistry : IEnumerable<KeyValuePair<string, AssetRefere
     public bool Contains(string assetName)
     {
         return _Registry.ContainsKey(Key(assetName));
+    }
+
+    /// <summary>
+    /// Look for <see cref="AssetReference"/> that has specified AssetType.
+    /// </summary>
+    /// <param name="assetType">AssetType to search</param>
+    /// <returns>
+    /// <list type="bullet">
+    /// <item>All Assets that matching the condition</item>
+    /// <item>Empty if <paramref name="assetType"/> is <see langword="null"/> or <see cref="string.Empty"/></item>
+    /// </list>
+    /// </returns>
+    public IEnumerable<AssetReference> FindByType(string assetType)
+    {
+        if (string.IsNullOrWhiteSpace(assetType))
+            return [];
+
+        return Assets.Where(a => a.Metadata.AssetType.Equals(assetType, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Look for <see cref="AssetReference"/> that has specified <see cref="AssetClassID"/>
+    /// </summary>
+    /// <param name="classID">ClassID to search</param>
+    /// <returns>All Assets that matching the condition</returns>
+    public IEnumerable<AssetReference> FindByType(AssetClassID classID)
+    {
+        var classIDName = classID.ToString();
+        return Assets.Where(a => a.Metadata.AssetType.Equals(classIDName, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Look for <see cref="AssetReference"/> that has ANY of specified tags (Overlaps)
+    /// </summary>
+    /// <param name="searchingTags">Tags to search, tag can't be whitespace or null</param>
+    /// <returns>
+    /// <list type="bullet">
+    /// <item>All Assets that matching the condition</item>
+    /// <item>Empty if <paramref name="searchingTags"/> is <see langword="null"/> or empty</item>
+    /// </list>
+    /// </returns>
+    public IEnumerable<AssetReference> FindByAnyTags(params string[] searchingTags) => FindByTags(searchingTags, matchAll: false);
+
+    /// <summary>
+    /// Look for <see cref="AssetReference"/> that has ALL of specified tags (Subset)
+    /// </summary>
+    /// <param name="searchingTags">Tags to search, tag can't be whitespace or null</param>
+    /// <returns>
+    /// <list type="bullet">
+    /// <item>All Assets that matching the condition</item>
+    /// <item>Empty if <paramref name="searchingTags"/> is <see langword="null"/> or empty</item>
+    /// </list>
+    /// </returns>
+    public IEnumerable<AssetReference> FindByAllTags(params string[] searchingTags) => FindByTags(searchingTags, matchAll: true);
+
+    internal IEnumerable<AssetReference> FindByTags(string[] searchingTags, bool matchAll)
+    {
+        if (searchingTags == null)
+            return [];
+
+        var tagsSet = new HashSet<string>(searchingTags.Where(tag => !string.IsNullOrWhiteSpace(tag)), StringComparer.OrdinalIgnoreCase);
+        if (tagsSet.Count < 1)
+            return [];
+
+        if (matchAll)
+            return Assets.Where(assetRef => tagsSet.IsSubsetOf(assetRef.Metadata.Tags));
+        else
+            return Assets.Where(assetRef => tagsSet.Overlaps(assetRef.Metadata.Tags));
     }
 
     internal bool Remove(string assetName)

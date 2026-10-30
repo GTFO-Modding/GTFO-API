@@ -7,6 +7,7 @@ using System.Threading;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BepInEx;
+using GTFO.API.JSON.Converters;
 using UnityEngine;
 
 namespace GTFO.API.Assets;
@@ -17,16 +18,17 @@ namespace GTFO.API.Assets;
 public sealed class AssetMetadata
 {
     /// <summary>
-    /// <see cref="Type.FullName"/> of the Asset
+    /// Name of the AssetType
     /// </summary>
     [JsonInclude]
-    public string AssetType { get; internal set; } = typeof(UnityEngine.Object).FullName;
+    public string AssetType { get; internal set; } = typeof(UnityEngine.Object).Name;
 
     /// <summary>
-    /// List of Custom Tags 
+    /// List of Custom Tags, Case Insensitive
     /// </summary>
     [JsonInclude]
-    public IReadOnlyList<string> Tags { get; internal set; } = [];
+    [JsonConverter(typeof(AssetTagsConverter))]
+    public IReadOnlySet<string> Tags { get; internal set; } = new HashSet<string>();
 
     internal static AssetMetadata Create(UnityEngine.Object asset)
     {
