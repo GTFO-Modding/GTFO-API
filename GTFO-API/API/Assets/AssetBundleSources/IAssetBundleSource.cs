@@ -11,6 +11,6 @@ internal interface IAssetBundleSource
     public bool CanManualLoad { get; }
     public bool CanManualUnload { get; }
     public void Load();
-    public void LoadAsync(UnityObjectRequestCallback onLoaded);
+    public void LoadAsync(UnityObjectRequestCallback onLoaded, params AssetBundleReference[] dependency);
     public void Unload();
 }

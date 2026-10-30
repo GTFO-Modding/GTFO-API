@@ -33,7 +33,7 @@ internal sealed class AssetBundleSource_File : IAssetBundleSource
         _Loader.Load(() => AssetBundle.LoadFromFile(FilePath));
     }
 
-    public void LoadAsync(UnityObjectRequestCallback onLoaded)
+    public void LoadAsync(UnityObjectRequestCallback onLoaded, params AssetBundleReference[] dependency)
     {
         _Loader.LoadAsync(() => AssetBundle.LoadFromFileAsync(FilePath), onLoaded);
     }

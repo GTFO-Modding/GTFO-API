@@ -27,7 +27,7 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
     }
 
-    public void LoadAsync(UnityObjectRequestCallback onLoaded)
+    public void LoadAsync(UnityObjectRequestCallback onLoaded, params AssetBundleReference[] dependency)
     {
         APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
         APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");

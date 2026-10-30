@@ -136,6 +136,7 @@ public sealed class AssetBundleReference
     {
         if (_BundleSource.CanManualLoad)
         {
+            ValidateDependencies();
             _BundleSource.Load();
         }
     }
@@ -148,6 +149,7 @@ public sealed class AssetBundleReference
     {
         if (_BundleSource.CanManualLoad)
         {
+            ValidateDependencies();
             _BundleSource.LoadAsync(onLoaded);
         }
     }
@@ -228,8 +230,25 @@ public sealed class AssetBundleReference
         return _BundleSource.LoadedAssetBundle.LoadAssetAsync(assetName);
     }
 
+    private void ValidateDependencies()
+    {
+        foreach (var dependency in Metadata.Dependencies ?? [])
+        {
+            if (AssetAPI.AllCustomBundles.TryGet(dependency, out var bundleRef) && !bundleRef.IsLoaded)
+            {
+                s_LoadSW.Restart();
+                bundleRef.LoadBundle();
+                s_LoadSW.Stop();
+
+                APILogger.Debug($"AssetBundle", $"Dependency ('{bundleRef.Name}' required by '{Name}') loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+            }
+        }
+    }
+
     private void ValidateAssetBundle()
     {
+        ValidateDependencies();
+
         if (IsLoaded)
         {
             return;
