@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using GTFO.API.Assets.AssetSources;
+﻿using GTFO.API.Assets.AssetSources;
 using GTFO.API.EventArg;
+using GTFO.API.Utilities;
 using UnityEngine;
 
 using UnityObject = UnityEngine.Object;
@@ -12,8 +12,6 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetReference
 {
-    private static readonly Stopwatch s_LoadSW = new();
-
     /// <summary>
     /// Metadata of given Asset
     /// </summary>
@@ -115,11 +113,11 @@ public sealed class AssetReference
             if (!_AssetSource.CanManualLoad)
                 return null;
 
-            s_LoadSW.Restart();
+            var sw = new StopwatchNoalloc();
             _AssetSource.Load();
-            s_LoadSW.Stop();
+            sw.Stop();
 
-            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
 
             return _AssetSource.LoadedAsset;
         }

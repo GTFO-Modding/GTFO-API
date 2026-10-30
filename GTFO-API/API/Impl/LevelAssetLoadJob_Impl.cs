@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using GTFO.API.Assets;
 using Il2CppInterop.Runtime.Injection;
@@ -13,7 +12,6 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
     internal HashSet<AssetBundleReference> BundlesToLoad = [];
     internal HashSet<AssetReference> AssetsToLoad = [];
 
-    private readonly Stopwatch _SW = new();
     private bool _IsLoading = false;
 
     public LevelAssetLoadJob_Impl(IntPtr ptr) : base(ptr) { }
@@ -63,19 +61,15 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
             void loadAsset()
             {
                 APILogger.Debug("AssetAPI", $"Start Loading Asset: {asset.Name}");
-                var sw = new Stopwatch();
-                sw.Restart();
                 asset.LoadAsync((args) =>
                 {
-                    sw.Stop();
-
                     if (!args.Success)
                     {
                         APILogger.Error("AssetAPI", $"Asset: '{asset.Name}' has failed to load! Level will not be loaded!!!");
                         return;
                     }
 
-                    APILogger.Debug("AssetAPI", $"Asset Loaded: '{asset.Name}' (took {sw.ElapsedMilliseconds}ms)");
+                    APILogger.Debug("AssetAPI", $"Asset Loaded: '{asset.Name}' (took {args.Elapsed.Milliseconds}ms)");
                 });
             }
         }
@@ -83,19 +77,15 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
         foreach (var bundle in BundlesToLoad)
         {
             APILogger.Debug("AssetAPI", $"Start Loading Bundle: '{bundle.Name}'");
-            var sw = new Stopwatch();
-            sw.Restart();
             bundle.LoadBundleAsync((args) =>
             {
-                sw.Stop();
-
                 if (!args.Success)
                 {
                     APILogger.Error("AssetAPI", $"Bundle: '{bundle.Name}' has failed to load! Level will not be loaded!!!");
                     return;
                 }
 
-                APILogger.Debug("AssetAPI", $"Bundle Loaded: '{bundle.Name}' (took {sw.ElapsedMilliseconds}ms)");
+                APILogger.Debug("AssetAPI", $"Bundle Loaded: '{bundle.Name}' (took {args.Elapsed.Milliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
                     onBundleLoaded?.Invoke();
             });

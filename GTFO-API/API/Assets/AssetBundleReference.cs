@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using GTFO.API.Assets.AssetBundleSources;
 using GTFO.API.Assets.Profiles;
 using GTFO.API.EventArg;
+using GTFO.API.Utilities;
 using UnityEngine;
 
 namespace GTFO.API.Assets;
@@ -13,8 +13,6 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetBundleReference
 {
-    private static readonly Stopwatch s_LoadSW = new();
-
     /// <summary>
     /// Metadata of given <see cref="AssetBundle"/>
     /// </summary>
@@ -236,11 +234,11 @@ public sealed class AssetBundleReference
         {
             if (AssetAPI.AllCustomBundles.TryGet(dependency, out var bundleRef) && !bundleRef.IsLoaded)
             {
-                s_LoadSW.Restart();
+                var sw = new StopwatchNoalloc();
                 bundleRef.LoadBundle();
-                s_LoadSW.Stop();
+                sw.Stop();
 
-                APILogger.Debug($"AssetBundle", $"Dependency ('{bundleRef.Name}' required by '{Name}') loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+                APILogger.Debug($"AssetBundle", $"Dependency ('{bundleRef.Name}' required by '{Name}') loaded in {sw.ElapsedMilliseconds}ms!");
             }
         }
     }
@@ -260,10 +258,10 @@ public sealed class AssetBundleReference
             throw new InvalidOperationException($"Bundle '{Name}' is not loaded!");
         }
 
-        s_LoadSW.Restart();
+        var sw = new StopwatchNoalloc();
         LoadBundle();
-        s_LoadSW.Stop();
+        sw.Stop();
 
-        APILogger.Debug($"AssetJIT", $"AssetBundle '{Name}' was JIT loaded in {s_LoadSW.ElapsedMilliseconds}ms!");
+        APILogger.Debug($"AssetJIT", $"AssetBundle '{Name}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
     }
 }

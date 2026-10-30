@@ -22,4 +22,9 @@ public sealed class UnityObjectRequestEventArgs : EventArgs
     /// Flag to check if request was successfully done.
     /// </summary>
     public bool Success { get; init; }
+
+    /// <summary>
+    /// Elapsed Time to load.
+    /// </summary>
+    public TimeSpan Elapsed { get; init; }
 }
