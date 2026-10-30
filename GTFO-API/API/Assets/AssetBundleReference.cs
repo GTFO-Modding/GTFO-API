@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GTFO.API.Assets.AssetBundleSources;
 using GTFO.API.Assets.Profiles;
 using GTFO.API.EventArg;
-using GTFO.API.Utilities;
+using GTFO.API.Utilities.Diagnostics;
 using UnityEngine;
 
 namespace GTFO.API.Assets;

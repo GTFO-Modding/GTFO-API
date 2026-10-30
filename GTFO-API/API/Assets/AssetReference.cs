@@ -1,6 +1,6 @@
 ﻿using GTFO.API.Assets.AssetSources;
 using GTFO.API.EventArg;
-using GTFO.API.Utilities;
+using GTFO.API.Utilities.Diagnostics;
 using UnityEngine;
 
 using UnityObject = UnityEngine.Object;
