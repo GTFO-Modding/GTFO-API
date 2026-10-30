@@ -11,6 +11,10 @@ internal sealed class AssetTagsConverter : JsonConverter<IReadOnlySet<string>>
     public override IReadOnlySet<string> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var tagsArray = System.Text.Json.JsonSerializer.Deserialize<string[]>(ref reader, options);
+
+        if (tagsArray == null)
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         return new HashSet<string>(tagsArray.Where(tag => !string.IsNullOrWhiteSpace(tag)), StringComparer.OrdinalIgnoreCase);
     }
 
