@@ -12,8 +12,11 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\GTFO-API.Generators\GTFO-API.Generators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <PackageReference Include="AssetsTools.NET" Version="3.0.5" />
   </ItemGroup>
 </Project>

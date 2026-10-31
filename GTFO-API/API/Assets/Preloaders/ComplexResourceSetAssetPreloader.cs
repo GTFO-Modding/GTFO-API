@@ -1,0 +1,151 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using GameData;
+using GTFO.API.EventArg;
+using HarmonyLib;
+
+namespace GTFO.API.Assets.Preloaders;
+
+/// <summary>
+/// Preload that loads custom assets specified in <see cref="ComplexResourceSetDataBlock"/>
+/// </summary>
+public static class ComplexResourceSetAssetPreloader
+{
+    /// <summary>
+    /// Toggle Preloader Feature
+    /// </summary>
+    public static bool Enabled
+    {
+        get => _IsEnabled;
+        set => SetEnabled(value);
+    }
+
+    /// <summary>
+    /// Toggle Each Resource types load flag
+    /// <para>
+    /// Example) This code snippet will disable GeomorphTiles_1x1 being pre-loaded:<br/>
+    /// ResourceNameLoadFlags[nameof(ComplexResourceSetDataBlock.GeomorphTiles_1x1)] = false;
+    /// </para>
+    /// </summary>
+    public static IDictionary<string, bool> ResourceNameLoadFlags { get; private set; } = new Dictionary<string, bool>();
+
+    private static bool _IsEnabled = false;
+    private static PropertyInfo[] _ResourceProperties;
+
+    internal static void Setup()
+    {
+        var closedGeneric = typeof(Il2CppSystem.Collections.Generic.List<ResourceData>);
+        _ResourceProperties = [.. AccessTools.GetDeclaredProperties(typeof(ComplexResourceSetDataBlock))
+            .Where(prop => prop.PropertyType == closedGeneric && !prop.Name.EndsWith("_k__BackingField", StringComparison.Ordinal))
+        ];
+
+        SetEnabled(true);
+    }
+
+    /// <summary>
+    /// Set Feature to be Enabled or Disabled
+    /// </summary>
+    /// <param name="enabled"></param>
+    public static void SetEnabled(bool enabled)
+    {
+        if (_IsEnabled == enabled)
+            return;
+
+        _IsEnabled = enabled;
+
+        if (enabled)
+            AssetAPI.OnLoadLevelAssets += PrecacheLevelAssets;
+        else
+            AssetAPI.OnLoadLevelAssets -= PrecacheLevelAssets;
+    }
+
+    private static void PrecacheLevelAssets(OnLoadLevelAssetsEventArgs arg)
+    {
+        var expData = LevelAPI.CurrentExpeditionData;
+
+        if (expData == null)
+        {
+            APILogger.Error("CRSAssetPreloader", $"{nameof(LevelAPI)}.{nameof(LevelAPI.CurrentExpeditionData)} is null!");
+            return;
+        }
+
+        var crsID = expData.Expedition.ComplexResourceData;
+
+        if (TryGetCRSDataBlock(crsID, out var crsDB))
+        {
+            RegisterPrecacheAssets(arg, crsDB);
+        }
+
+        if (expData.DimensionDatas == null)
+            return;
+
+        foreach (var dim in expData.DimensionDatas)
+        {
+            if (!TryGetDimensionDataBlock(dim.DimensionData, out var dimDB))
+                continue;
+
+            if (dimDB.DimensionData == null)
+                continue;
+
+            if (!TryGetCRSDataBlock(dimDB.DimensionData.DimensionResourceSetID, out var dimcrsDB))
+                continue;
+
+            RegisterPrecacheAssets(arg, dimcrsDB);
+        }
+    }
+
+    private static void RegisterPrecacheAssets(OnLoadLevelAssetsEventArgs arg, ComplexResourceSetDataBlock block)
+    {
+        foreach (var prop in _ResourceProperties)
+        {
+            try
+            {
+                if (ResourceNameLoadFlags.TryGetValue(prop.Name, out var enabled) && !enabled)
+                    continue;
+
+                var datas = (Il2CppSystem.Collections.Generic.List<ResourceData>)prop.GetValue(block);
+                if (datas == null)
+                    continue;
+
+                foreach (var data in datas)
+                {
+                    arg.EnqueueAssetToLoad(data.Prefab);
+                }
+            }
+            catch (Exception e)
+            {
+                APILogger.Error("CRSAssetPreloader", $"Exception thrown while Registering Precache Assets! : {e}");
+            }
+        }
+    }
+
+    private static bool TryGetCRSDataBlock(uint crsID, out ComplexResourceSetDataBlock db)
+    {
+        try
+        {
+            db = ComplexResourceSetDataBlock.s_blockByID[crsID];
+            return db != null;
+        }
+        catch
+        {
+            db = null;
+            return false;
+        }
+    }
+
+    private static bool TryGetDimensionDataBlock(uint dimID, out DimensionDataBlock db)
+    {
+        try
+        {
+            db = DimensionDataBlock.s_blockByID[dimID];
+            return db != null;
+        }
+        catch
+        {
+            db = null;
+            return false;
+        }
+    }
+}
