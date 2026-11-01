@@ -118,7 +118,7 @@ public static class ComplexResourceSetAssetPreloader
             }
             catch (Exception e)
             {
-                Log.Error($"Exception thrown while Registering Precache Assets! : {e}");
+                Log.Error($"Exception thrown while Registering Precache Assets!", e);
             }
         }
     }

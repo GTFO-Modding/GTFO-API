@@ -169,8 +169,7 @@ public sealed class AssetBundleMetadata
         }
         catch (Exception e)
         {
-            Log.Error($"Exception has thrown while loading '{metaPathRelToBIE}'");
-            Log.Error($"StackTrace: {e}");
+            Log.Error($"Exception has thrown while loading '{metaPathRelToBIE}'", e);
             metadata = new();
         }
 

@@ -505,7 +505,7 @@ public static class AssetAPI
             }
             catch (Exception ex)
             {
-                Log.Warn($"Failed to populate Metadata for bundle: '{file}' ({ex.Message})");
+                Log.Warn($"Failed to populate Metadata for bundle: '{file}'", ex);
             }
         });
 
@@ -530,7 +530,7 @@ public static class AssetAPI
             }
             catch (Exception ex)
             {
-                Log.Warn($"Failed to load AssetBundle '{file}' ({ex.Message})");
+                Log.Warn($"Failed to load AssetBundle '{file}'", ex);
             }
         }
 
@@ -614,8 +614,7 @@ public static class AssetAPI
         {
             if (logExceptions)
             {
-                Log.Error($"Exception thrown while loading asset: '{assetPath}'");
-                Log.Error($"- StackTrace: {e}");
+                Log.Error($"Exception thrown while loading asset: '{assetPath}'", e);
             }
             return null;
         }

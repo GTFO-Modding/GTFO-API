@@ -27,7 +27,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!", e);
                 }
             }
         }
@@ -50,7 +50,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!", e);
                 }
             }
         }
@@ -74,7 +74,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!", e);
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!", e);
                 }
             }
         }
@@ -123,7 +123,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!", e);
                 }
             }
         }

@@ -188,7 +188,7 @@ namespace GTFO.API.Utilities
             };
             m_Watcher.Error += (sender, e) =>
             {
-                Log.Error($"Path: {path} error reported! - {e.GetException()}");
+                Log.Error($"Path: {path} error reported!", e.GetException());
             };
 
             StartListen();

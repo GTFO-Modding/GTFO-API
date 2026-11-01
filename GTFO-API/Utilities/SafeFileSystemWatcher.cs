@@ -130,7 +130,7 @@ public sealed class SafeFileSystemWatcher : IDisposable
         sfsw._Watcher.Renamed += (sender, e) => sfsw.EnqueueEventArg(FileEventType.Renamed, e);
         sfsw._Watcher.Error += (sender, e) =>
         {
-            Log.Error($"Path: '{path}' error was reported! - {e.GetException()}");
+            Log.Error($"Path: '{path}' error was reported!", e.GetException());
         };
 
         sfsw.Listening = true;
