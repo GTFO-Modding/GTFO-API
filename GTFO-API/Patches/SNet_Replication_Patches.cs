@@ -11,6 +11,8 @@ namespace GTFO.API.Patches
     [HarmonyPatch(typeof(SNet_Replication))]
     internal class SNet_Replication_Patches
     {
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(NetworkAPI));
+
         [HarmonyPatch(nameof(SNet_Replication.RecieveBytes))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
@@ -27,20 +29,20 @@ namespace GTFO.API.Patches
                 string magic = Encoding.ASCII.GetString(_bytesCpy, 2, NetworkConstants.MagicSize);
                 if (magic != NetworkConstants.Magic)
                 {
-                    APILogger.Verbose("NetworkApi", $"Received invalid magic from {messagerID} ({magic} != {NetworkConstants.MagicSize}).");
+                    Log.DebugBuildOnly($"Received invalid magic from {messagerID} ({magic} != {NetworkConstants.MagicSize}).");
                     return true;
                 }
 
                 ulong versionSignature = BitConverter.ToUInt64(_bytesCpy, 2 + NetworkConstants.MagicSize);
                 if ((versionSignature & 0xFF00000000000000) != 0xFF00000000000000)
                 {
-                    APILogger.Verbose("NetworkApi", $"Received invalid version signature from {messagerID}.");
+                    Log.DebugBuildOnly($"Received invalid version signature from {messagerID}.");
                     return true;
                 }
 
                 if (versionSignature != NetworkAPI_Impl.Instance.m_Signature)
                 {
-                    APILogger.Error("NetworkApi", $"Received incompatible version signature, cannot unmask packet. Is {messagerID} on the same version?. ({versionSignature} != {NetworkAPI_Impl.Instance.m_Signature})");
+                    Log.Error($"Received incompatible version signature, cannot unmask packet. Is {messagerID} on the same version?. ({versionSignature} != {NetworkAPI_Impl.Instance.m_Signature})");
                     return false;
                 }
 
@@ -49,7 +51,7 @@ namespace GTFO.API.Patches
 
                 if (!NetworkAPI.IsEventRegistered(eventName))
                 {
-                    APILogger.Error("NetworkApi", $"{messagerID} invoked an event {eventName} which isn't registered.");
+                    Log.Error($"{messagerID} invoked an event {eventName} which isn't registered.");
                     return false;
                 }
 

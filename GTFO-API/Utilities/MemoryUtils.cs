@@ -5,6 +5,8 @@ namespace GTFO.API.Utilities
 {
     internal static class MemoryUtils
     {
+        internal static readonly APIModuledLogger Log = new(moduleName: nameof(MemoryUtils));
+
         private static byte[] _trampolineShellcode = new byte[] {
             0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,         // movabs   rax,  0x00
             0xFF, 0xD0                                                          // call     rax
@@ -57,14 +59,14 @@ namespace GTFO.API.Utilities
                 throw new Exception($"Failed to change protection of trampoline block.");
             }
 
-            APILogger.Verbose(nameof(MemoryUtils), $"NOPing trampoline block");
+            Log.DebugBuildOnly($"NOPing trampoline block");
             for (ulong i = 0; i < trampolineBlockSize; i++)
                 *(byte*)((ulong)start + i) = 0x90;
 
-            APILogger.Verbose(nameof(MemoryUtils), $"Creating trampoline shellcode");
+            Log.DebugBuildOnly($"Creating trampoline shellcode");
             byte[] trampoline = MakeTrampoline(destination);
 
-            APILogger.Verbose(nameof(MemoryUtils), $"Writing trampoline shellcode");
+            Log.DebugBuildOnly($"Writing trampoline shellcode");
             for (ulong i = 0; i < (ulong)trampoline.Length; i++)
             {
                 *(byte*)((ulong)start + i) = trampoline[i];

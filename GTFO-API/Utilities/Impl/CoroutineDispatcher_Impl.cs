@@ -9,6 +9,8 @@ namespace GTFO.API.Utilities.Impl
 {
     internal class CoroutineDispatcher_Impl : MonoBehaviour
     {
+        internal static readonly APIModuledLogger Log = new(moduleName: nameof(CoroutineDispatcher));
+
         public static CoroutineDispatcher_Impl Instance
         {
             get
@@ -61,7 +63,7 @@ namespace GTFO.API.Utilities.Impl
         {
             if (!GameStateManager.IsInExpedition)
             {
-                APILogger.Error(nameof(CoroutineDispatcher), "Cannot run InLevelCoroutine while you're not in level!");
+                Log.Error("Cannot run InLevelCoroutine while you're not in level!");
                 return null;
             }
 

@@ -14,6 +14,8 @@ namespace GTFO.API
     [API("SoundBank")]
     public static class SoundBankAPI
     {
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(SoundBankAPI));
+
         /// <summary>
         /// Status info for the <see cref="SoundBankAPI"/>
         /// </summary>
@@ -56,11 +58,11 @@ namespace GTFO.API
             AKRESULT loadResult = AkSoundEngine.LoadBank((nint)nativeBank, length, out uint bankId);
             if (loadResult == AKRESULT.AK_Success)
             {
-                APILogger.Info(nameof(SoundBankAPI), $"Loaded sound bank '{file.Name}' (bankId: {bankId:X2})");
+                Log.Info($"Loaded sound bank '{file.Name}' (bankId: {bankId:X2})");
             }
             else
             {
-                APILogger.Error(nameof(SoundBankAPI), $"Error while loading sound bank '{file.Name}' ({loadResult})");
+                Log.Error($"Error while loading sound bank '{file.Name}' ({loadResult})");
                 NativeMemory.AlignedFree(nativeBank);
             }
         }

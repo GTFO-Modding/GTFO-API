@@ -13,6 +13,7 @@ namespace GTFO.API.Utilities
     public static class ConfigBinder
     {
         private static readonly MethodInfo s_BindToProperty = typeof(ConfigBinder).GetMethod(nameof(BindToProperty), BindingFlags.NonPublic | BindingFlags.Static);
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(ConfigBinder));
 
         /// <summary>
         /// Search Properties with <see cref="ConfigEntry{T}"/> inside given Type and Automatically Bind it
@@ -70,7 +71,7 @@ namespace GTFO.API.Utilities
 
             if (string.IsNullOrWhiteSpace(currentSection))
             {
-                APILogger.Error(nameof(ConfigBinder), $"{prop.DeclaringType.FullName}::{prop.Name} doesn't have valid Section Attribute");
+                Log.Error($"{prop.DeclaringType.FullName}::{prop.Name} doesn't have valid Section Attribute");
                 return;
             }
 
@@ -116,7 +117,7 @@ namespace GTFO.API.Utilities
                 if (TryCastTo<T>(configEntryAttr.DefaultValue, out var v))
                     value = v;
                 else
-                    LogError($"{FormatProp(prop)} have {ConfigEntry_DefaultValue} annotated but mismatch with Config Type!");
+                    Log.Error($"{FormatProp(prop)} have {ConfigEntry_DefaultValue} annotated but mismatch with Config Type!");
             }
 
             var defaultValueAttr = prop.GetCustomAttribute<DefaultValueAttribute>();
@@ -125,7 +126,7 @@ namespace GTFO.API.Utilities
                 if (TryCastTo<T>(defaultValueAttr.Value, out var v))
                     value = v;
                 else
-                    LogError($"{FormatProp(prop)} have {nameof(DefaultValueAttribute)} annotated but mismatch with Config Type!");
+                    Log.Error($"{FormatProp(prop)} have {nameof(DefaultValueAttribute)} annotated but mismatch with Config Type!");
             }
 
             var defaultRGBAttr = prop.GetCustomAttribute<DefaultRGBColorValueAttribute>();
@@ -134,7 +135,7 @@ namespace GTFO.API.Utilities
                 if (defaultRGBAttr.HexValue is T v)
                     value = v;
                 else
-                    LogError($"{FormatProp(prop)} have {nameof(DefaultRGBColorValueAttribute)} annotated but not String Config!");
+                    Log.Error($"{FormatProp(prop)} have {nameof(DefaultRGBColorValueAttribute)} annotated but not String Config!");
             }
 
             return value;
@@ -184,11 +185,6 @@ namespace GTFO.API.Utilities
                 return false;
 
             return true;
-        }
-
-        private static void LogError(string message)
-        {
-            APILogger.Error(nameof(ConfigBinder), message);
         }
 
         private static bool TryCastTo<T>(object obj, out T converted)

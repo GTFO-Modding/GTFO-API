@@ -17,7 +17,7 @@ namespace GTFO.API
         public static void Info(string module, object data) => _logger.LogMessage(Format(module, data));
 
         [Conditional("DEBUG")]
-        public static void Verbose(string module, object data)
+        public static void DebugBuildOnly(string module, object data)
         {
 #if DEBUG
             _logger.LogDebug(Format(module, data));

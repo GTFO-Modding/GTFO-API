@@ -26,6 +26,8 @@ namespace GTFO.API
     [API("Event")]
     public static class EventAPI
     {
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(EventAPI));
+
         /// <summary>
         /// Status info for the <see cref="EventAPI"/>
         /// </summary>
@@ -97,13 +99,13 @@ namespace GTFO.API
 
         internal static void GameStateChanged(eGameStateName oldState, eGameStateName newState)
         {
-            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnGameStateChanged)} Invoked ({oldState} -> {newState})");
+            Log.DebugBuildOnly($"{nameof(OnGameStateChanged)} Invoked ({oldState} -> {newState})");
             SafeInvoke.InvokeDelegate<GameStateChangedDelegate>(OnGameStateChanged, (del) => { del(oldState, newState); });
         }
 
         internal static void FocusChanged(eFocusState oldState, eFocusState newState)
         {
-            APILogger.Verbose(nameof(EventAPI), $"{nameof(OnFocusStateChanged)} Invoked ({oldState} -> {newState})");
+            Log.DebugBuildOnly($"{nameof(OnFocusStateChanged)} Invoked ({oldState} -> {newState})");
             SafeInvoke.InvokeDelegate<FocusStateChangedDelegate>(OnFocusStateChanged, (del) => { del(oldState, newState); });
         }
 

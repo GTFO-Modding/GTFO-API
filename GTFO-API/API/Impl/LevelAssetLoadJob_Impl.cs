@@ -9,6 +9,8 @@ namespace GTFO.API.Impl;
 
 internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
 {
+    private static readonly APIModuledLogger Log = new(moduleName: "LevelAssetLoadJob");
+
     internal HashSet<AssetBundleReference> BundlesToLoad = [];
     internal HashSet<AssetReference> AssetsToLoad = [];
 
@@ -60,32 +62,32 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
 
             void loadAsset()
             {
-                APILogger.Debug("AssetAPI", $"Start Loading Asset: {asset.Name}");
+                Log.Debug($"Start Loading Asset: {asset.Name}");
                 asset.LoadAsync((args) =>
                 {
                     if (!args.Success)
                     {
-                        APILogger.Error("AssetAPI", $"Asset: '{asset.Name}' has failed to load! Level will not be loaded!!!");
+                        Log.Error($"Asset: '{asset.Name}' has failed to load! Level will not be loaded!!!");
                         return;
                     }
 
-                    APILogger.Debug("AssetAPI", $"Asset Loaded: '{asset.Name}' (took {args.Elapsed.Milliseconds}ms)");
+                    Log.Debug($"Asset Loaded: '{asset.Name}' (took {args.Elapsed.Milliseconds}ms)");
                 });
             }
         }
 
         foreach (var bundle in BundlesToLoad)
         {
-            APILogger.Debug("AssetAPI", $"Start Loading Bundle: '{bundle.Name}'");
+            Log.Debug($"Start Loading Bundle: '{bundle.Name}'");
             bundle.LoadBundleAsync((args) =>
             {
                 if (!args.Success)
                 {
-                    APILogger.Error("AssetAPI", $"Bundle: '{bundle.Name}' has failed to load! Level will not be loaded!!!");
+                    Log.Error($"Bundle: '{bundle.Name}' has failed to load! Level will not be loaded!!!");
                     return;
                 }
 
-                APILogger.Debug("AssetAPI", $"Bundle Loaded: '{bundle.Name}' (took {args.Elapsed.Milliseconds}ms)");
+                Log.Debug($"Bundle Loaded: '{bundle.Name}' (took {args.Elapsed.Milliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
                     onBundleLoaded?.Invoke();
             });

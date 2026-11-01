@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using BepInEx;
-using System.Text.RegularExpressions;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using BepInEx;
 using JsonSerializer = GTFO.API.JSON.JsonSerializer;
 
 namespace GTFO.API.Utilities
@@ -12,6 +12,8 @@ namespace GTFO.API.Utilities
     /// <typeparam name="T">The data type to store on disk</typeparam>
     public class PersistentData<T> where T : PersistentData<T>, new()
     {
+        internal static readonly APIModuledLogger Log = new(moduleName: "PersistentData");
+
         private const string VERSION_REGEX = @"""PersistentDataVersion"": ""(.+?)""";
 
         private static T s_CurrentData;
@@ -83,8 +85,8 @@ namespace GTFO.API.Utilities
                     deserialized = JsonSerializer.Deserialize<T>(contents);
                 }
                 catch (JsonException)
-                {                    
-                    APILogger.Warn("JSON", $"Failed to deserialize {typeof(T).Name}, replacing with default");
+                {
+                    Log.Warn($"Failed to deserialize {typeof(T).Name}, replacing with default");
 
                     string version = "FAILED";
 

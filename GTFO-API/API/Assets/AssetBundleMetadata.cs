@@ -15,6 +15,8 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetBundleMetadata
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(AssetBundleMetadata));
+
     /// <summary>
     /// Extension of the Metadata File
     /// <code>.meta.json</code>
@@ -167,8 +169,8 @@ public sealed class AssetBundleMetadata
         }
         catch (Exception e)
         {
-            APILogger.Error("AssetBundle", $"Exception has thrown while loading '{metaPathRelToBIE}'");
-            APILogger.Error("AssetBundle", $"StackTrace: {e}");
+            Log.Error($"Exception has thrown while loading '{metaPathRelToBIE}'");
+            Log.Error($"StackTrace: {e}");
             metadata = new();
         }
 
@@ -177,9 +179,9 @@ public sealed class AssetBundleMetadata
         if (metadata.FormatRevision != MetadataFormatRevision)
         {
             if (metadata.FormatRevision < 0)
-                APILogger.Info("AssetBundle", $"New AssetBundle File: '{filePathRelToBIE}' detected!");
+                Log.Info($"New AssetBundle File: '{filePathRelToBIE}' detected!");
             else
-                APILogger.Warn("AssetBundle", $"'{metaPathRelToBIE}' {nameof(FormatRevision)} mismatch with GAPI version (JSON:{metadata.FormatRevision} != GAPI:{MetadataFormatRevision})");
+                Log.Warn($"'{metaPathRelToBIE}' {nameof(FormatRevision)} mismatch with GAPI version (JSON:{metadata.FormatRevision} != GAPI:{MetadataFormatRevision})");
 
             metadata.FormatRevision = MetadataFormatRevision;
             shouldRewrite = true;
@@ -188,7 +190,7 @@ public sealed class AssetBundleMetadata
         if (!metadata.Checksum.Equals(checksum, StringComparison.OrdinalIgnoreCase))
         {
             if (!string.IsNullOrEmpty(metadata.Checksum))
-                APILogger.Info("AssetBundle", $"'{filePathRelToBIE}' has modified. Re-scanning asset lists... (JSON:{metadata.Checksum} != CURRENT:{checksum})");
+                Log.Info($"'{filePathRelToBIE}' has modified. Re-scanning asset lists... (JSON:{metadata.Checksum} != CURRENT:{checksum})");
 
             metadata.Checksum = checksum;
             metadata.Assets = AssetMetadata.CreateAssetMetadatasFromBundleFile(filePath);
@@ -199,7 +201,7 @@ public sealed class AssetBundleMetadata
         {
             using var metaFileStream = File.Create(metaFilePath);
             WriteJson(metadata, metaFileStream);
-            APILogger.Info("AssetBundle", $"New Metadata has written to disk: {metaPathRelToBIE}");
+            Log.Info($"New Metadata has written to disk: {metaPathRelToBIE}");
         }
 
         return metadata;

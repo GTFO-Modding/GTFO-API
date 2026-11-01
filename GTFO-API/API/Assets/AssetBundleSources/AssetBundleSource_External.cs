@@ -6,6 +6,8 @@ namespace GTFO.API.Assets.AssetBundleSources;
 
 internal sealed class AssetBundleSource_External : IAssetBundleSource
 {
+    private static readonly APIModuledLogger Log = new("Asset");
+
     public string SourceName => $"External";
     public AssetBundle LoadedAssetBundle { get; private set; }
     public AssetBundleMetadata Metadata { get; private set; }
@@ -23,19 +25,19 @@ internal sealed class AssetBundleSource_External : IAssetBundleSource
 
     public void Load()
     {
-        APILogger.Error("Asset", $"{nameof(Load)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(Load)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 
     public void LoadAsync(UnityObjectRequestCallback onLoaded, params AssetBundleReference[] dependency)
     {
-        APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(LoadAsync)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 
     public void Unload()
     {
-        APILogger.Error("Asset", $"{nameof(Unload)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(Unload)} is not allowed for external AssetBundle! '{LoadedAssetBundle.name}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 }

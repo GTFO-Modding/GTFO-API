@@ -8,6 +8,8 @@ namespace GTFO.API.Assets.Profiles;
 /// </summary>
 public abstract partial class AssetBundleProfile
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(AssetBundleProfile));
+
     private static readonly ConcurrentDictionary<string, Type> s_ProfileTypeLookup = [];
 
     /// <summary>
@@ -42,7 +44,7 @@ public abstract partial class AssetBundleProfile
 
         if (s_ProfileTypeLookup.TryGetValue(profileName, out var type))
         {
-            APILogger.Error("AssetBundle", $"'{profileName}' is already registered by '{type.AssemblyQualifiedName}'");
+            Log.Error($"'{profileName}' is already registered by '{type.AssemblyQualifiedName}'");
             return;
         }
 
@@ -58,7 +60,7 @@ public abstract partial class AssetBundleProfile
     {
         if (!s_ProfileTypeLookup.TryGetValue(profileName, out var type))
         {
-            APILogger.Error("AssetBundle", $"'{profileName}' is invalid Profile name! Fall-backs to '{nameof(Unspecified)}'");
+            Log.Error($"'{profileName}' is invalid Profile name! Fall-backs to '{nameof(Unspecified)}'");
             return new Unspecified();
         }
 

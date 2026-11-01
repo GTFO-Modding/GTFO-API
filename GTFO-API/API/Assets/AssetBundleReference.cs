@@ -13,6 +13,9 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetBundleReference
 {
+    private static readonly APIModuledLogger Log = new(moduleName: "AssetBundle");
+    private static readonly APIModuledLogger LogJIT = new("AssetBundleJIT");
+
     /// <summary>
     /// Metadata of given <see cref="AssetBundle"/>
     /// </summary>
@@ -84,11 +87,11 @@ public sealed class AssetBundleReference
             {
                 if (AssetAPI.AllCustomAssets.TryGet(asset, out var assetRef))
                 {
-                    APILogger.Error("Asset", $"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
+                    Log.Error($"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
                 }
                 else
                 {
-                    APILogger.Error("Asset", $"AssetName: '{asset}' is already registered!");
+                    Log.Error($"AssetName: '{asset}' is already registered!");
                 }
                 continue;
             }
@@ -238,7 +241,7 @@ public sealed class AssetBundleReference
                 bundleRef.LoadBundle();
                 sw.Stop();
 
-                APILogger.Debug($"AssetBundle", $"Dependency ('{bundleRef.Name}' required by '{Name}') loaded in {sw.ElapsedMilliseconds}ms!");
+                Log.Debug($"Dependency ('{bundleRef.Name}' required by '{Name}') loaded in {sw.ElapsedMilliseconds}ms!");
             }
         }
     }
@@ -254,7 +257,7 @@ public sealed class AssetBundleReference
 
         if (Metadata.DisableJustInTimeLoading)
         {
-            APILogger.Error($"AssetJIT", $"AssetBundle '{Name}' was requested but JIT loading is disabled!");
+            LogJIT.Error($"AssetBundle '{Name}' was requested but JIT loading is disabled!");
             throw new InvalidOperationException($"Bundle '{Name}' is not loaded!");
         }
 
@@ -262,6 +265,6 @@ public sealed class AssetBundleReference
         LoadBundle();
         sw.Stop();
 
-        APILogger.Debug($"AssetJIT", $"AssetBundle '{Name}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
+        LogJIT.Debug($"AssetBundle '{Name}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
     }
 }

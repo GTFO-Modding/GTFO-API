@@ -12,6 +12,8 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetReference
 {
+    private static readonly APIModuledLogger LogJIT = new(moduleName: "AssetJIT");
+
     /// <summary>
     /// Metadata of given Asset
     /// </summary>
@@ -117,7 +119,7 @@ public sealed class AssetReference
             _AssetSource.Load();
             sw.Stop();
 
-            APILogger.Debug($"AssetJIT", $"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
+            LogJIT.Debug($"Asset '{Name}' from '{_AssetSource.SourceName}' was JIT loaded in {sw.ElapsedMilliseconds}ms!");
 
             return _AssetSource.LoadedAsset;
         }

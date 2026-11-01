@@ -10,6 +10,8 @@ namespace GTFO.API.NativePatches;
 /// </summary>
 public static class AssetShardManager_Native
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(AssetShardManager_Native));
+
     private static bool s_IsPatched = false;
 
     private static INativeDetour s_GetLoadedAssetDetour;
@@ -24,7 +26,7 @@ public static class AssetShardManager_Native
         var methodName = nameof(AssetShardManager.GetLoadedAsset);
         var returnName = "T";
 
-        APILogger.Verbose(nameof(AssetShardManager_Native), "Applying GetLoadedAsset<T> Patch");
+        Log.DebugBuildOnly("Applying GetLoadedAsset<T> Patch");
         s_GetLoadedAssetDetour = Il2CppAPI.CreateGenericDetour<AssetShardManager, GetLoadedAssetDelegate>(methodName, returnName,
         [
             typeof(string).FullName,

@@ -95,6 +95,8 @@ public sealed class SafeFileSystemWatcher : IDisposable
 
     private bool _DisposedValue;
 
+    internal static readonly APIModuledLogger Log = new(moduleName: nameof(SafeFileSystemWatcher));
+
     private SafeFileSystemWatcher() { }
 
     /// <summary>
@@ -128,11 +130,11 @@ public sealed class SafeFileSystemWatcher : IDisposable
         sfsw._Watcher.Renamed += (sender, e) => sfsw.EnqueueEventArg(FileEventType.Renamed, e);
         sfsw._Watcher.Error += (sender, e) =>
         {
-            APILogger.Error(nameof(SafeFileSystemWatcher), $"Path: '{path}' error was reported! - {e.GetException()}");
+            Log.Error($"Path: '{path}' error was reported! - {e.GetException()}");
         };
 
         sfsw.Listening = true;
-        APILogger.Verbose(nameof(SafeFileSystemWatcher), $"Created Watcher; Path: '{path}', Filter: {string.Join(", ", filters)}");
+        Log.DebugBuildOnly($"Created Watcher; Path: '{path}', Filter: {string.Join(", ", filters)}");
         SafeFileSystemWatcherUpdater_Impl.AddWatcher(sfsw);
         return sfsw;
     }

@@ -23,6 +23,8 @@ namespace GTFO.API;
 [API("Asset")]
 public static class AssetAPI
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(AssetAPI));
+
     /// <summary>
     /// Status info for the <see cref="AssetAPI"/>
     /// </summary>
@@ -263,8 +265,8 @@ public static class AssetAPI
     [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, AssetBundle bundle)")]
     public static void RegisterAssetBundle(AssetBundle bundle)
     {
-        APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(RegisterAssetBundle)}' This is not recommended!");
-        APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+        Log.Warn($"Bundle has registered via Legacy '{nameof(RegisterAssetBundle)}' This is not recommended!");
+        Log.Warn($"StackTrace: {Environment.StackTrace}");
         RegisterAssetBundle(Guid.NewGuid().ToString(), bundle);
     }
 
@@ -276,8 +278,8 @@ public static class AssetAPI
     [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, string filePath)")]
     public static void LoadAndRegisterAssetBundle(string pathToBundle)
     {
-        APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
-        APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+        Log.Warn($"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
+        Log.Warn($"StackTrace: {Environment.StackTrace}");
         RegisterAssetBundle(Guid.NewGuid().ToString(), pathToBundle);
     }
 
@@ -289,8 +291,8 @@ public static class AssetAPI
     [Obsolete($"{REGISTERBUNDLE_OBSOLETE} Use AssetAPI.RegisterAssetBundle(string assetBundleName, byte[] bytes)")]
     public static void LoadAndRegisterAssetBundle(byte[] bundleBytes)
     {
-        APILogger.Warn(nameof(AssetAPI), $"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
-        APILogger.Warn(nameof(AssetAPI), $"StackTrace: {Environment.StackTrace}");
+        Log.Warn($"Bundle has registered via Legacy '{nameof(LoadAndRegisterAssetBundle)}' This is not recommended!");
+        Log.Warn($"StackTrace: {Environment.StackTrace}");
         RegisterAssetBundle(Guid.NewGuid().ToString(), bundleBytes);
     }
     #endregion
@@ -385,7 +387,7 @@ public static class AssetAPI
         if (ContainsAsset(name))
             throw new ArgumentException($"The asset '{name}' has already been registered.", nameof(name));
 
-        APILogger.Verbose(nameof(AssetAPI_Impl), $"Registering asset: {name}");
+        Log.DebugBuildOnly($"Registering asset: {name}");
         AllCustomAssets[name] = new AssetReference(name, gameObject);
     }
 
@@ -479,7 +481,7 @@ public static class AssetAPI
 
                 Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
                 File.Copy(legacyFile, targetFile);
-                APILogger.Warn(nameof(AssetAPI), $"AssetBundle File: '{legacyFile}' has copied to '{targetFile}'");
+                Log.Warn($"AssetBundle File: '{legacyFile}' has copied to '{targetFile}'");
             }
         }
 
@@ -503,7 +505,7 @@ public static class AssetAPI
             }
             catch (Exception ex)
             {
-                APILogger.Warn(nameof(AssetAPI), $"Failed to populate Metadata for bundle: '{file}' ({ex.Message})");
+                Log.Warn($"Failed to populate Metadata for bundle: '{file}' ({ex.Message})");
             }
         });
 
@@ -516,19 +518,19 @@ public static class AssetAPI
                 var name = Path.GetRelativePath(AssetBundlesPath, file).Replace('\\', '/');
                 if (ContainsAssetBundle(name))
                 {
-                    APILogger.Debug(nameof(AssetAPI), $"Duplicated AssetBundle Name! '{name}'");
+                    Log.Debug($"Duplicated AssetBundle Name! '{name}'");
                     continue;
                 }
 
                 var assetBundleReference = RegisterAssetBundle(name, file);
                 var assetCounts = assetBundleReference.Metadata.Assets.Count;
 
-                APILogger.Debug(nameof(AssetAPI), $"AssetBundle Loaded! Name: '{name}' AssetCount: {assetCounts}");
+                Log.Debug($"AssetBundle Loaded! Name: '{name}' AssetCount: {assetCounts}");
                 loadedBundle++;
             }
             catch (Exception ex)
             {
-                APILogger.Warn(nameof(AssetAPI), $"Failed to load AssetBundle '{file}' ({ex.Message})");
+                Log.Warn($"Failed to load AssetBundle '{file}' ({ex.Message})");
             }
         }
 
@@ -582,7 +584,7 @@ public static class AssetAPI
 
     internal static UnityEngine.Object Internal_GetLoadedAsset(string assetPath, bool logErrors, bool logExceptions)
     {
-        APILogger.Verbose($"AssetAPI", $"Requested Asset: {assetPath}");
+        Log.DebugBuildOnly($"Requested Asset: {assetPath}");
 
         try
         {
@@ -590,7 +592,7 @@ public static class AssetAPI
             {
                 var loadedCustomAsset = assetRef.Asset;
                 if (loadedCustomAsset == null && logErrors)
-                    APILogger.Error("AssetAPI", $"Custom Asset: '{assetPath}' did not loaded!");
+                    Log.Error($"Custom Asset: '{assetPath}' did not loaded!");
 
                 return loadedCustomAsset;
             }
@@ -598,13 +600,13 @@ public static class AssetAPI
             if (Internal_TryGetShardAsset(assetPath, out var asset))
             {
                 if (asset == null && logErrors)
-                    APILogger.Error("AssetAPI", $"Asset: '{assetPath}' exists, but value is null!");
+                    Log.Error($"Asset: '{assetPath}' exists, but value is null!");
 
                 return asset;
             }
 
             if (logErrors)
-                APILogger.Error("AssetAPI", $"Asset: '{assetPath}' did not loaded!");
+                Log.Error($"Asset: '{assetPath}' did not loaded!");
 
             return null;
         }
@@ -612,8 +614,8 @@ public static class AssetAPI
         {
             if (logExceptions)
             {
-                APILogger.Error("AssetAPI", $"Exception thrown while loading asset: '{assetPath}'");
-                APILogger.Error("AssetAPI", $"- StackTrace: {e}");
+                Log.Error($"Exception thrown while loading asset: '{assetPath}'");
+                Log.Error($"- StackTrace: {e}");
             }
             return null;
         }

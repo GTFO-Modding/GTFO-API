@@ -13,6 +13,8 @@ namespace GTFO.API.Assets.Preloaders;
 /// </summary>
 public static class ComplexResourceSetAssetPreloader
 {
+    private static readonly APIModuledLogger Log = new(moduleName: "CRSPreloader");
+
     /// <summary>
     /// Toggle Preloader Feature
     /// </summary>
@@ -67,7 +69,7 @@ public static class ComplexResourceSetAssetPreloader
 
         if (expData == null)
         {
-            APILogger.Error("CRSAssetPreloader", $"{nameof(LevelAPI)}.{nameof(LevelAPI.CurrentExpeditionData)} is null!");
+            Log.Error($"{nameof(LevelAPI)}.{nameof(LevelAPI.CurrentExpeditionData)} is null!");
             return;
         }
 
@@ -116,7 +118,7 @@ public static class ComplexResourceSetAssetPreloader
             }
             catch (Exception e)
             {
-                APILogger.Error("CRSAssetPreloader", $"Exception thrown while Registering Precache Assets! : {e}");
+                Log.Error($"Exception thrown while Registering Precache Assets! : {e}");
             }
         }
     }

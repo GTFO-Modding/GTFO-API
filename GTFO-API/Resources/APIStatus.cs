@@ -24,6 +24,8 @@ namespace GTFO.API.Resources
     /// </summary>
     public static class APIStatus
     {
+        internal static APIModuledLogger LogCore => LogModules.CoreModule;
+
         /// <summary>
         /// Status info for the <see cref="AssetAPI"/>
         /// </summary>
@@ -98,7 +100,7 @@ namespace GTFO.API.Resources
             T existingComp = ScriptHolder.GetComponent<T>();
             if (existingComp != null) return;
 
-            APILogger.Verbose("Core", $"Creating API {apiName}");
+            LogCore.DebugBuildOnly($"Creating API {apiName}");
             ScriptHolder.AddComponent<T>();
             statusInfo.Created = true;
         }

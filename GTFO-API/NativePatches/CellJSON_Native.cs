@@ -10,6 +10,8 @@ namespace GTFO.API.NativePatches;
 /// </summary>
 public static class CellJSON_Native
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(CellJSON_Native));
+
     private static bool s_IsPatched = false;
 
     private static INativeDetour s_ReadFromDiskDetour;
@@ -28,14 +30,14 @@ public static class CellJSON_Native
         var readMethod = nameof(CellJSON.ReadFromDisk);
         var saveMethod = nameof(CellJSON.SaveToDisk);
 
-        APILogger.Verbose(nameof(CellJSON_Native), "Applying ReadFromDisk Patch");
+        Log.DebugBuildOnly("Applying ReadFromDisk Patch");
         s_ReadFromDiskDetour = Il2CppAPI.CreateGenericDetour<CellJSON, ReadFromDiskDelegate>(readMethod, "T", new[]
         {
             typeof(string).FullName,
             typeof(bool).MakeByRefType().FullName
         }, [typeof(GearFavoritesData)], ReadFromDisk__T__String_BooleanByRef, out s_ReadFromDiskOriginal);
 
-        APILogger.Verbose(nameof(CellJSON_Native), "Applying SaveToDisk Patch");
+        Log.DebugBuildOnly("Applying SaveToDisk Patch");
         s_SaveToDiskDetour = Il2CppAPI.CreateGenericDetour<CellJSON, SaveToDiskDelegate>(saveMethod, typeof(void).FullName, new string[]
         {
             typeof(string).FullName,

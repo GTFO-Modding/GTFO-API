@@ -6,6 +6,8 @@ namespace GTFO.API.Assets.AssetSources;
 
 internal sealed class AssetSource_External : IAssetSource
 {
+    private static readonly APIModuledLogger Log = new("Asset");
+
     public string SourceName => "External";
     public UnityEngine.Object LoadedAsset { get; private set; }
     public bool CanManualLoad => false;
@@ -22,19 +24,19 @@ internal sealed class AssetSource_External : IAssetSource
 
     public void Load()
     {
-        APILogger.Error("Asset", $"{nameof(Load)} is not allowed for external asset! '{AssetName}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(Load)} is not allowed for external asset! '{AssetName}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 
     public void LoadAsync(UnityObjectRequestCallback onLoaded)
     {
-        APILogger.Error("Asset", $"{nameof(LoadAsync)} is not allowed for external asset! '{AssetName}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(LoadAsync)} is not allowed for external asset! '{AssetName}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 
     public void Unload()
     {
-        APILogger.Error("Asset", $"{nameof(Unload)} is not allowed for external asset! '{AssetName}'");
-        APILogger.Error("Asset", $" - StackTrace: {Environment.StackTrace}");
+        Log.Error($"{nameof(Unload)} is not allowed for external asset! '{AssetName}'");
+        Log.Error($" - StackTrace: {Environment.StackTrace}");
     }
 }

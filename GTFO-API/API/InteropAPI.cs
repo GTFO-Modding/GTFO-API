@@ -13,6 +13,8 @@ namespace GTFO.API
     [API("Interop")]
     public static class InteropAPI
     {
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(InteropAPI));
+
         /// <summary>
         /// Status info for the <see cref="InteropAPI"/>
         /// </summary>
@@ -70,18 +72,18 @@ namespace GTFO.API
         {
             if (callback == null)
             {
-                APILogger.Warn($"Interop", $"'{callName}' was requested to registed without valid {nameof(callback)} parameter given! This will be ignored!");
+                Log.Warn($"'{callName}' was requested to registed without valid {nameof(callback)} parameter given! This will be ignored!");
                 return;
             }
 
             if (s_CallLookup.TryGetValue(callName, out var existingCall))
             {
-                APILogger.Error($"Interop", $"{callName} is already occupied by other mods!");
+                Log.Error($"{callName} is already occupied by other mods!");
                 return;
             }
 
             s_CallLookup[callName] = callback;
-            APILogger.Verbose($"Interop", $"{callName} has successfully registered.");
+            Log.DebugBuildOnly($"{callName} has successfully registered.");
         }
 
         /// <summary>

@@ -19,6 +19,8 @@ namespace GTFO.API;
 [API("Localization")]
 public static partial class LocalizationAPI
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(LocalizationAPI));
+
     /// <summary>
     /// Status info for the <see cref="LocalizationAPI"/>
     /// </summary>
@@ -682,7 +684,7 @@ public static partial class LocalizationAPI
         {
             throw new KeyNotFoundException(string.Format(STR_NoValueFoundExceptionMsg, language, key));
         }
-        APILogger.Warn(nameof(LocalizationAPI), string.Format(STR_UseKeyGeneric, language, key, useCategory));
+        Log.Warn(string.Format(STR_UseKeyGeneric, language, key, useCategory));
     }
 
     private static Language GetLanguage(CultureInfo info)

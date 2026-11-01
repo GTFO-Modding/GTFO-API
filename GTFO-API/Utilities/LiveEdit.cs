@@ -129,6 +129,8 @@ namespace GTFO.API.Utilities
     [SuppressMessage("Interoperability", "CA1416:Platform Compatible on FileSystemWatcher", Justification = "GTFO is Windows only game")]
     public sealed class LiveEditListener : IDisposable
     {
+        internal static readonly APIModuledLogger Log = new(moduleName: nameof(LiveEdit));
+
         /// <summary>
         /// Cooldown for FileChangedEvent for filtering double call of FileChanged event
         /// </summary>
@@ -186,7 +188,7 @@ namespace GTFO.API.Utilities
             };
             m_Watcher.Error += (sender, e) =>
             {
-                APILogger.Error(nameof(LiveEdit), $"Path: {path} error reported! - {e.GetException()}");
+                Log.Error($"Path: {path} error reported! - {e.GetException()}");
             };
 
             StartListen();

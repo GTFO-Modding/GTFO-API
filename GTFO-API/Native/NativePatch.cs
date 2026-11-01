@@ -6,6 +6,8 @@ namespace GTFO.API.Native
 {
     public abstract class NativePatch<T> where T : Delegate
     {
+        private static readonly APIModuledLogger Log = new(moduleName: nameof(NativePatch<T>));
+
         private static readonly byte[] s_CodeCaveHeader = new byte[] {
             0x48, 0x83, 0xEC, 0x28                                              // sub      rsp,  0x28
         };
@@ -52,7 +54,7 @@ namespace GTFO.API.Native
 
             *(long*)((long)pFooterBlock + 2) = Marshal.GetFunctionPointerForDelegate(To).ToInt64();
 
-            APILogger.Verbose(nameof(NativePatch<T>), $"Method: 0x{(long)MethodPtr:X2}, Trampoline: 0x{(long)pTrampolineStart:X2}, Code Cave: 0x{(long)pCodeCaveBlock:X2}");
+            Log.DebugBuildOnly($"Method: 0x{(long)MethodPtr:X2}, Trampoline: 0x{(long)pTrampolineStart:X2}, Code Cave: 0x{(long)pCodeCaveBlock:X2}");
             MemoryUtils.CreateTrampolineBetween(pTrampolineStart, pTrampolineEnd, pCodeCaveBlock);
         }
     }

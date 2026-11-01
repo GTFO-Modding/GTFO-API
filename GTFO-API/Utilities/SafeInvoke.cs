@@ -8,6 +8,8 @@ namespace GTFO.API.Utilities
     /// </summary>
     public static class SafeInvoke
     {
+        internal static readonly APIModuledLogger Log = new(moduleName: nameof(SafeInvoke));
+
         /// <summary>
         /// Safely Invoke Action one-by-one with Try-Catch
         /// </summary>
@@ -25,7 +27,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    APILogger.Error("GTFO-API", $"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!\n{e}");
                 }
             }
         }
@@ -48,7 +50,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    APILogger.Error("GTFO-API", $"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!\n{e}");
                 }
             }
         }
@@ -72,7 +74,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    APILogger.Error("GTFO-API", $"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!\n{e}");
                 }
             }
         }
@@ -97,7 +99,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    APILogger.Error("GTFO-API", $"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!\n{e}");
                 }
             }
         }
@@ -121,7 +123,7 @@ namespace GTFO.API.Utilities
                 }
                 catch (Exception e)
                 {
-                    APILogger.Error("GTFO-API", $"Exception occured while invoking events!\n{e}");
+                    Log.Error($"Exception occured while invoking events!\n{e}");
                 }
             }
         }

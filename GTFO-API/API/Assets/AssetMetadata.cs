@@ -17,6 +17,8 @@ namespace GTFO.API.Assets;
 /// </summary>
 public sealed class AssetMetadata
 {
+    private static readonly APIModuledLogger Log = new(moduleName: nameof(AssetMetadata));
+
     /// <summary>
     /// Name of the AssetType
     /// </summary>
@@ -43,7 +45,7 @@ public sealed class AssetMetadata
         var assetMetas = new Dictionary<string, AssetMetadata>(StringComparer.OrdinalIgnoreCase);
         foreach (var assetName in bundle.GetAllAssetNames())
         {
-            APILogger.Verbose("AssetAPI", $"Generating Metadata for '{assetName}'");
+            Log.DebugBuildOnly($"Generating Metadata for '{assetName}'");
             var asset = bundle.LoadAsset(assetName);
             var assetMeta = Create(asset);
             assetMetas[assetName] = assetMeta;
@@ -51,7 +53,7 @@ public sealed class AssetMetadata
             if (unloadAssetAfterScan)
                 UnityEngine.Object.Destroy(asset);
 
-            APILogger.Verbose("AssetAPI", $"Metadata Generated!");
+            Log.DebugBuildOnly($"Metadata Generated!");
         }
 
         return assetMetas;
