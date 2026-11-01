@@ -46,7 +46,11 @@ namespace GTFO.API.Utilities.Impl
         {
             if (m_HasInLevelCoroutines && !GameStateManager.IsInExpedition)
             {
-                m_InLevelCoroutines.ForEach((coroutine) => { StopCoroutine(coroutine); });
+                m_InLevelCoroutines.ForEach((coroutine) =>
+                {
+                    if (coroutine != null)
+                        StopCoroutine(coroutine);
+                });
                 m_InLevelCoroutines.Clear();
                 m_HasInLevelCoroutines = false;
             }
