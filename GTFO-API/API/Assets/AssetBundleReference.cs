@@ -83,21 +83,20 @@ public sealed class AssetBundleReference
         {
             var asset = kv.Key;
             var meta = kv.Value;
-            if (AssetAPI.ContainsAsset(asset))
+            if (!Metadata.DontRegisterGlobally && AssetAPI.ContainsAsset(asset))
             {
                 if (AssetAPI.AllCustomAssets.TryGet(asset, out var assetRef))
-                {
                     Log.Error($"AssetName: '{asset}' is already registered by '{assetRef.AssetSourceName}'!");
-                }
                 else
-                {
                     Log.Error($"AssetName: '{asset}' is already registered!");
-                }
+
                 continue;
             }
 
             var assetReference = new AssetReference(asset, this, meta);
-            AssetAPI.AllCustomAssets[asset] = assetReference;
+            if (!Metadata.DontRegisterGlobally)
+                AssetAPI.AllCustomAssets[asset] = assetReference;
+
             Assets[asset] = assetReference;
         }
     }

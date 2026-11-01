@@ -66,7 +66,11 @@ public static class AssetAPI
     public static event Action OnImplReady;
 
     /// <summary>
-    /// List of every <u>custom</u> assets. <u>This does NOT include Vanilla Assets!</u>
+    /// List of every <u>custom</u> assets.
+    /// <list type="bullet">
+    /// <item>If <see cref="AssetBundleMetadata.DontRegisterGlobally"/> is <see langword="true"/>, asset can't be found in this Registry.</item>
+    /// <item><u>This does NOT include Vanilla Assets!</u></item>
+    /// </list>
     /// </summary>
     public static AssetRegistry AllCustomAssets { get; private set; } = new();
 
