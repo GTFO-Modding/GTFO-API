@@ -20,7 +20,7 @@ public ref struct StopwatchNoalloc
     public readonly long ElapsedTicks => EndTickOrCurrentTick - _StartTick;
 
     /// <inheritdoc cref="Stopwatch.ElapsedMilliseconds"/>
-    public readonly long ElapsedMilliseconds => Elapsed.Milliseconds;
+    public readonly long ElapsedMilliseconds => (long)Elapsed.TotalMilliseconds;
 
     private readonly long EndTickOrCurrentTick => _EndTick > -1 ? _EndTick : Stopwatch.GetTimestamp();
 

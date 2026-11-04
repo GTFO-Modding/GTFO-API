@@ -71,7 +71,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                         return;
                     }
 
-                    Log.Debug($"Asset Loaded: '{asset.Name}' (took {args.Elapsed.Milliseconds}ms)");
+                    Log.Debug($"Asset Loaded: '{asset.Name}' (took {(long)args.Elapsed.TotalMilliseconds}ms)");
                 });
             }
         }
@@ -87,7 +87,7 @@ internal sealed class LevelAssetLoadJob_Impl : LG_FactoryJob
                     return;
                 }
 
-                Log.Debug($"Bundle Loaded: '{bundle.Name}' (took {args.Elapsed.Milliseconds}ms)");
+                Log.Debug($"Bundle Loaded: '{bundle.Name}' (took {(long)args.Elapsed.TotalMilliseconds}ms)");
                 if (bundleLoadedLookup.TryGetValue(bundle.Name, out var onBundleLoaded))
                     onBundleLoaded?.Invoke();
             });
