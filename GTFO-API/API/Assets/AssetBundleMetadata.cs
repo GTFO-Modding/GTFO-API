@@ -61,6 +61,12 @@ public sealed class AssetBundleMetadata
     public bool DisableJustInTimeLoading { get; internal set; } = false;
 
     /// <summary>
+    /// Flag for toggling if this assetbundle's asset should be globally registered. This is useful for shared assetbundle that potentially could have same asset name of others.
+    /// </summary>
+    [JsonInclude]
+    public bool DontRegisterGlobally { get; internal set; } = false;
+
+    /// <summary>
     /// List of Asset Name defined in <see cref="AssetBundle"/>
     /// </summary>
     [JsonInclude]
